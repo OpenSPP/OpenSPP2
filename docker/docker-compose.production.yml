@@ -292,11 +292,17 @@ services:
       - openspp-prod
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'odoo.addons.job_worker.cli' || exit 1"]
+      # Fresh heartbeat file = supervisor loop alive and no database degraded
+      # (including a pause for a module upgrade that never finishes).
+      test:
+        ["CMD", "python", "/mnt/extra-addons/odoo-job-worker/job_worker_healthcheck.py"]
       interval: 30s
       timeout: 10s
       start_period: 60s
       retries: 3
+    # Docker's default of 10s SIGKILLs jobs the runner would give up to 30s
+    # to finish, and each killed job loses a retry attempt.
+    stop_grace_period: 60s
     deploy:
       resources:
         limits:

@@ -179,8 +179,10 @@ services:
 
   # Job Worker - background service for processing async queue jobs
   # Runs alongside openspp/openspp-dev to execute delayed imports, etc.
-  # The runner auto-discovers databases every 5 minutes, so after installing
-  # new modules, jobs will be picked up within 5 minutes (or restart to force).
+  # While openspp installs or upgrades modules (ODOO_INIT_MODULES /
+  # ODOO_UPDATE_MODULES), the worker's upgrade gate pauses it: no registry
+  # load and no new jobs until the install/upgrade has finished. It then
+  # resumes on its own and picks up the new modules.
   jobworker:
     image: openspp-dev
     profiles:
@@ -214,6 +216,17 @@ services:
         "-c",
         "/etc/odoo/odoo.conf",
       ]
+    healthcheck:
+      # Fresh heartbeat file = supervisor loop alive and no database degraded.
+      test:
+        ["CMD", "python", "/mnt/extra-addons/odoo-job-worker/job_worker_healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    # Docker's default of 10s SIGKILLs jobs the runner would give up to 30s
+    # to finish, and each killed job loses a retry attempt.
+    stop_grace_period: 60s
     networks:
       - openspp
 
