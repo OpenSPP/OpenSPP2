@@ -472,6 +472,17 @@ the link short, so following <tt class="docutils literal">next</tt> lost the ben
 “Failed to search program memberships” instead of <tt class="docutils literal">400</tt> with the
 error text (#554); malformed filters are still <tt class="docutils literal">400</tt>. An <tt class="docutils literal">_offset</tt>
 beyond what the database accepts returns <tt class="docutils literal">422</tt>.</li>
+<li>fix(security): whether a client gets the jittered <tt class="docutils literal">403</tt> for an
+unknown beneficiary follows its legal basis, the rule consent
+filtering uses, not its <tt class="docutils literal">is_require_consent</tt> box (#554 review, see
+<tt class="docutils literal">spp_api_v2</tt>).</li>
+<li>fix: memberships of an archived beneficiary can be read and updated
+with <tt class="docutils literal">GET</tt>/<tt class="docutils literal">PUT /ProgramMembership</tt> (#554 review). The lookup
+dropped them, while <tt class="docutils literal">POST</tt> answered <tt class="docutils literal">409</tt> “already a member” for
+the same membership.</li>
+<li>fix: the <tt class="docutils literal">beneficiary</tt> and <tt class="docutils literal">program</tt> search filters parse
+references as <tt class="docutils literal">POST</tt>/<tt class="docutils literal">PUT</tt> bodies do (#554 review), so a
+percent-encoded system (<tt class="docutils literal"><span class="pre">...%23national_id</span></tt>) matches on <tt class="docutils literal">GET</tt> too.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

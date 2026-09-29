@@ -157,12 +157,14 @@ Changelog
   ``gender``, ``birthdate``, ``_lastUpdated`` without the expected
   format; ``member`` not an ``Individual/{system}|{value}`` reference)
   return ``400`` on ``GET /Individual`` and ``GET /Group``.
+
 - fix: multi-condition search filters apply to one related row (#554).
   ``GET /Individual?group=`` no longer lists someone who left the group
   but is active in another; ``membership-role=`` requires the role on an
   active membership; ``identifier=`` requires system and value on the
   same ID. Behaviour change: ``GET /Group?member=`` now lists only
   groups the individual is an active member of.
+
 - fix: returned references can be followed (#554).
   ``Group.member[].entity``, the ``group``/``entity`` references in
   ``$add-member``, ``$remove-member`` and member-update responses,
@@ -172,12 +174,14 @@ Changelog
   could not be resolved; they now use the full code URI
   (``urn:openspp:vocab:id-type#<code>|…``), the same value as
   ``identifier[].system``.
+
 - fix: ending a membership "now" takes effect immediately (#554).
   ``$remove-member`` without ``endedDate``, and the member moves in
   group merge and split, wrote the end time with microseconds, which the
   ``is_ended``/``status`` computes (second precision) treated as a
   moment in the future: the membership stayed active until the repair
   cron ran. They now use the ORM's clock (``fields.Datetime.now()``).
+
 - fix: identifiers are resolved to exactly one registrant (#554).
   ``POST /Individual``, ``POST /Group``, ``$split`` and create entries
   in ``$batch`` bundles return ``409`` when an identifier (type + value)
@@ -186,12 +190,14 @@ Changelog
   its identifiers (mark the ID invalid to free it). Lookups no longer
   pick one of several registrants holding an identifier: read, update,
   patch, member operations, merge/split and ``$batch``/transaction
-  bundles return ``409``; a client that requires consent and may not
-  read every match gets the same ``403`` as for a registrant that does
-  not exist (bundles, which do no consent filtering, always answer
-  ``409``). Search filters naming an ambiguous identifier (``group=``,
-  ``member=``) return ``409``, or an empty page for such a client; bulk
-  export reports the identifier with item status ``error`` (or
+  bundles return ``409``; a client whose legal basis requires consent
+  and may not read every match gets the same ``403`` as for a registrant
+  that does not exist. In ``$batch``/transaction bundles, such a client
+  gets the entry's "not found" answer for a read, update or delete, and
+  ``403`` for a create whose member reference is ambiguous. Search
+  filters naming an ambiguous identifier (``group=``, ``member=``)
+  return ``409``, or an empty page for such a client; bulk export
+  reports the identifier with item status ``error`` (or
   ``access_denied``). Individual endpoints and the ``member=`` filter
   resolve individuals only, and Group endpoints groups only, so a value
   held by one individual and one group is not ambiguous, and
@@ -202,11 +208,13 @@ Changelog
   of ``Group.member[]``, membership history and
   ``/Individual/{id}/groups``. Searching by ``identifier=`` still lists
   every registrant holding a live match.
+
 - fix: ``GET /Group`` applies ``_offset`` (#554). The group search
   ignored it, so every page (and every ``next`` link) returned the first
   page again, and when consent filtering skipped records the page was
   refilled from the start of the results, returning no records or
   repeating groups.
+
 - fix: consent-filtered searches (``GET /Individual``, ``GET /Group``)
   no longer skip records or stop early (#554). When the page filled
   partway through a fetched batch, the ``next`` link jumped past the
@@ -217,6 +225,7 @@ Changelog
   follow ``next`` until it is null: a page can be short, or empty, and
   still have a ``next`` link.** A consent-filtered page that ends on the
   last row no longer links to an empty page.
+
 - fix(security): the search ``total`` never counts records the client
   may not see (#554). For a client whose legal basis requires consent,
   ``meta.total`` is the number of records returned on every page. It was
@@ -226,11 +235,14 @@ Changelog
   Clients with a legal basis that doesn't require consent still get the
   exact total. The ``next`` offsets are still database positions, so
   hidden rows can be counted from them; see the follow-up issue.
+
 - fix: ``_offset`` values beyond what the database accepts return
   ``422`` instead of a server error (#554).
+
 - fix: ``GET /Individual?group=…&membership-role=…`` requires the role
   on the membership of that group (#554). Someone who held the role in
   another group was also returned.
+
 - fix: ``PATCH /Individual`` updates ``gender`` (#554). The vocabulary
   lookup ran without the privileges create uses, so every gender change
   returned ``422 "Failed to patch individual"``. An unknown gender code
@@ -238,6 +250,7 @@ Changelog
   ignored. On create and ``PATCH``, only codes of the
   ``urn:iso:std:iso:5218`` vocabulary are accepted: a code from another
   vocabulary (eg a membership role) returns ``422``.
+
 - fix: ``$add-member`` and ``PATCH /Group/{id}/member/{id}`` reject a
   role code that doesn't exist with ``422`` naming it (#554), instead of
   adding or keeping the member without the role. For someone who is
@@ -246,6 +259,31 @@ Changelog
   the ``422`` (eg "Duplication of Member is not allowed", "End Date
   cannot be earlier than Start Date") instead of a generic "Failed to
   add member" / "Failed to update member".
+
+- fix(security): one rule decides whether a client is subject to
+  consent: its legal basis (#554 review). The "not found" answers for
+  the addressed registrant (reads, bulk export, the group of member
+  operations, membership history and ``/Individual/{id}/groups``), and
+  ``ConsentService.check_access``, branched on the client's
+  ``is_require_consent`` box while consent filtering keys off
+  ``legal_basis``. A client with legal basis "consent" and the box
+  unticked got ``404`` for an unknown registrant and ``403`` (or a
+  filtered ``200``) for a real one, so the status told them apart.
+  Behaviour change for clients whose two settings disagree: legal basis
+  "consent" now always gets ``403`` for both; a legal basis that needs
+  no consent gets ``404`` for an unknown registrant and reads without
+  consent, whatever the box says.
+
+- fix(security): the "identifier in use" ``409`` names the ID type, not
+  the value (#554 review), and ``$batch``/transaction bundle entries
+  that fail on client input (including a malformed resource) are logged
+  by error type only, so their error text no longer carries identifier
+  values (often national IDs) into the server log.
+
+- fix: ``$add-member``, ``$remove-member`` and
+  ``PATCH /Group/{id}/member/{id}`` choose ``409``/``404`` by error type
+  instead of by matching the English message text (#554 review), so a
+  non-English user language no longer turns them into ``422``.
 
 19.0.2.1.1
 ~~~~~~~~~~

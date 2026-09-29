@@ -569,12 +569,14 @@ record no lookup could tell apart; an archived registrant still holds
 its identifiers (mark the ID invalid to free it). Lookups no longer
 pick one of several registrants holding an identifier: read, update,
 patch, member operations, merge/split and <tt class="docutils literal">$batch</tt>/transaction
-bundles return <tt class="docutils literal">409</tt>; a client that requires consent and may not
-read every match gets the same <tt class="docutils literal">403</tt> as for a registrant that does
-not exist (bundles, which do no consent filtering, always answer
-<tt class="docutils literal">409</tt>). Search filters naming an ambiguous identifier (<tt class="docutils literal">group=</tt>,
-<tt class="docutils literal">member=</tt>) return <tt class="docutils literal">409</tt>, or an empty page for such a client; bulk
-export reports the identifier with item status <tt class="docutils literal">error</tt> (or
+bundles return <tt class="docutils literal">409</tt>; a client whose legal basis requires consent
+and may not read every match gets the same <tt class="docutils literal">403</tt> as for a registrant
+that does not exist. In <tt class="docutils literal">$batch</tt>/transaction bundles, such a client
+gets the entry’s “not found” answer for a read, update or delete, and
+<tt class="docutils literal">403</tt> for a create whose member reference is ambiguous. Search
+filters naming an ambiguous identifier (<tt class="docutils literal">group=</tt>, <tt class="docutils literal">member=</tt>)
+return <tt class="docutils literal">409</tt>, or an empty page for such a client; bulk export
+reports the identifier with item status <tt class="docutils literal">error</tt> (or
 <tt class="docutils literal">access_denied</tt>). Individual endpoints and the <tt class="docutils literal">member=</tt> filter
 resolve individuals only, and Group endpoints groups only, so a value
 held by one individual and one group is not ambiguous, and
@@ -629,6 +631,28 @@ validation errors on these two endpoints now return their message with
 the <tt class="docutils literal">422</tt> (eg “Duplication of Member is not allowed”, “End Date
 cannot be earlier than Start Date”) instead of a generic “Failed to
 add member” / “Failed to update member”.</li>
+<li>fix(security): one rule decides whether a client is subject to
+consent: its legal basis (#554 review). The “not found” answers for
+the addressed registrant (reads, bulk export, the group of member
+operations, membership history and <tt class="docutils literal"><span class="pre">/Individual/{id}/groups</span></tt>), and
+<tt class="docutils literal">ConsentService.check_access</tt>, branched on the client’s
+<tt class="docutils literal">is_require_consent</tt> box while consent filtering keys off
+<tt class="docutils literal">legal_basis</tt>. A client with legal basis “consent” and the box
+unticked got <tt class="docutils literal">404</tt> for an unknown registrant and <tt class="docutils literal">403</tt> (or a
+filtered <tt class="docutils literal">200</tt>) for a real one, so the status told them apart.
+Behaviour change for clients whose two settings disagree: legal basis
+“consent” now always gets <tt class="docutils literal">403</tt> for both; a legal basis that needs
+no consent gets <tt class="docutils literal">404</tt> for an unknown registrant and reads without
+consent, whatever the box says.</li>
+<li>fix(security): the “identifier in use” <tt class="docutils literal">409</tt> names the ID type, not
+the value (#554 review), and <tt class="docutils literal">$batch</tt>/transaction bundle entries
+that fail on client input (including a malformed resource) are logged
+by error type only, so their error text no longer carries identifier
+values (often national IDs) into the server log.</li>
+<li>fix: <tt class="docutils literal"><span class="pre">$add-member</span></tt>, <tt class="docutils literal"><span class="pre">$remove-member</span></tt> and
+<tt class="docutils literal">PATCH <span class="pre">/Group/{id}/member/{id}</span></tt> choose <tt class="docutils literal">409</tt>/<tt class="docutils literal">404</tt> by error type
+instead of by matching the English message text (#554 review), so a
+non-English user language no longer turns them into <tt class="docutils literal">422</tt>.</li>
 </ul>
 </div>
 <div class="section" id="section-2">

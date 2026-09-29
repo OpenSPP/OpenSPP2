@@ -125,6 +125,17 @@ Changelog
   "Failed to search program memberships" instead of ``400`` with the
   error text (#554); malformed filters are still ``400``. An ``_offset``
   beyond what the database accepts returns ``422``.
+- fix(security): whether a client gets the jittered ``403`` for an
+  unknown beneficiary follows its legal basis, the rule consent
+  filtering uses, not its ``is_require_consent`` box (#554 review, see
+  ``spp_api_v2``).
+- fix: memberships of an archived beneficiary can be read and updated
+  with ``GET``/``PUT /ProgramMembership`` (#554 review). The lookup
+  dropped them, while ``POST`` answered ``409`` "already a member" for
+  the same membership.
+- fix: the ``beneficiary`` and ``program`` search filters parse
+  references as ``POST``/``PUT`` bodies do (#554 review), so a
+  percent-encoded system (``...%23national_id``) matches on ``GET`` too.
 
 19.0.1.0.0
 ~~~~~~~~~~
