@@ -25,6 +25,14 @@ from .registrant_resolver import (
 _logger = logging.getLogger(__name__)
 
 
+class AlreadyMemberError(ValidationError):
+    """The individual is already a member of the group."""
+
+
+class NotMemberError(ValidationError):
+    """The individual is not a member of the group."""
+
+
 class GroupService:
     """Service for Group resource CRUD and mapping"""
 
@@ -628,12 +636,12 @@ class GroupService:
             Dictionary matching MembershipResponse schema
 
         Raises:
-            ValidationError: If individual is already a member
+            AlreadyMemberError: If individual is already a member
         """
         # Check if individual is already a member
         existing = self.get_membership(group, individual)
         if existing:
-            raise ValidationError(_("Individual is already a member of this group"))
+            raise AlreadyMemberError(_("Individual is already a member of this group"))
 
         # Prepare membership values
         vals = {
@@ -695,12 +703,12 @@ class GroupService:
             Dictionary matching MembershipResponse schema
 
         Raises:
-            ValidationError: If individual is not a member or already ended
+            NotMemberError: If individual is not a member or already ended
         """
         # Find membership
         membership = self.get_membership(group, individual)
         if not membership:
-            raise ValidationError(_("Individual is not a member of this group"))
+            raise NotMemberError(_("Individual is not a member of this group"))
 
         # Set ended date
         if ended_date:
@@ -744,12 +752,12 @@ class GroupService:
             Dictionary matching MembershipResponse schema
 
         Raises:
-            ValidationError: If individual is not a member
+            NotMemberError: If individual is not a member
         """
         # Find membership
         membership = self.get_membership(group, individual)
         if not membership:
-            raise ValidationError(_("Individual is not a member of this group"))
+            raise NotMemberError(_("Individual is not a member of this group"))
 
         # Prepare update values
         vals = {}

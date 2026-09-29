@@ -40,7 +40,7 @@ from ..schemas.search_result import SearchResult, create_search_result
 from ..services.api_audit_service import ApiAuditService
 from ..services.consent_service import ConsentService
 from ..services.field_filter import filter_fields, filter_list
-from ..services.group_service import GroupService
+from ..services.group_service import AlreadyMemberError, GroupService, NotMemberError
 from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 from ..services.search_service import InvalidSearchParam, SearchService
 from ..utils.pagination import MAX_OFFSET, fetch_with_consent, page_total_and_next
@@ -567,9 +567,9 @@ async def add_member(
             role_coding=role_coding,
             start_date=request.start_date,
         )
+    except AlreadyMemberError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
     except ValidationError as ve:
-        if "already a member" in str(ve).lower():
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(ve)) from ve
         # Other client errors (eg unknown role): keep the message
         _logger.warning("Validation error adding member to group: %s", ve)
         raise HTTPException(
@@ -578,12 +578,6 @@ async def add_member(
         ) from ve
     except Exception as e:
         _logger.exception("Error adding member to group")
-        # Check for specific errors
-        if "already a member" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=str(e),
-            ) from e
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Failed to add member",
@@ -638,14 +632,10 @@ async def remove_member(
             ended_date=request.ended_date,
             reason=request.reason,
         )
+    except NotMemberError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except Exception as e:
         _logger.exception("Error removing member from group")
-        # Check for specific errors
-        if "not a member" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=str(e),
-            ) from e
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Failed to remove member",
@@ -711,9 +701,9 @@ async def update_member(
             start_date=request.start_date,
             ended_date=request.ended_date,
         )
+    except NotMemberError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except ValidationError as ve:
-        if "not a member" in str(ve).lower():
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(ve)) from ve
         # Other client errors (eg unknown role): keep the message
         _logger.warning("Validation error updating member in group: %s", ve)
         raise HTTPException(
@@ -722,12 +712,6 @@ async def update_member(
         ) from ve
     except Exception as e:
         _logger.exception("Error updating member in group")
-        # Check for specific errors
-        if "not a member" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=str(e),
-            ) from e
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Failed to update member",
