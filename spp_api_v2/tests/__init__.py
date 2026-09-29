@@ -43,3 +43,4 @@ from . import test_membership_end_now
 from . import test_identifier_ambiguity
 from . import test_identifier_ambiguity_paths
 from . import test_consent_paging
+from . import test_consent_predicate

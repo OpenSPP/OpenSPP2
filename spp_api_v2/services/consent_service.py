@@ -456,8 +456,9 @@ class ConsentService:
 
         # For read operations, check consent
         if action in ("read", "search"):
-            # Check if client requires consent
-            if api_client.is_require_consent:
+            # Same rule as filter_response: the legal basis decides whether
+            # the client is subject to consent
+            if self.is_consent_filtered(api_client):
                 # Fast path: Use consent_summary cache for O(1) check
                 if self._check_consent_fast(registrant_id, api_client):
                     return True

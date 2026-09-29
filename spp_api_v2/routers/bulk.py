@@ -108,7 +108,7 @@ async def bulk_export(
             continue
 
         if not record:
-            if api_client.is_require_consent:
+            if ConsentService.is_consent_filtered(api_client):
                 # SECURITY: Add timing jitter to prevent enumeration via timing
                 await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
                 # Don't reveal if resource exists for consent-required clients
@@ -142,7 +142,7 @@ async def bulk_export(
         )
 
         # Check if consent was denied
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             consent_info = filtered_data.get("_consent", {})
             if consent_info.get("status") in ("no_consent", "scope_mismatch"):
                 items.append(

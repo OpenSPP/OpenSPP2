@@ -135,6 +135,22 @@ class TestProgramMembershipIdentityAPI(ApiV2HttpTestCase):
 
         self.assertEqual(response.status_code, 403, response.text)
 
+    def test_consent_basis_client_with_require_consent_unticked_gets_403_for_both(self):
+        """Consent filtering keys off the legal basis, so the not-found answer does too"""
+        client = self.create_api_client(
+            name="Consent Basis Membership Client",
+            scopes=[{"resource": "program_membership", "action": "read"}],
+            require_consent=False,
+            legal_basis="consent",
+        )
+        headers = {"Authorization": f"Bearer {self.generate_jwt_token(client)}"}
+
+        unknown = self.url_open(self._url("NO-SUCH-BENEFICIARY"), headers=headers)
+        unconsented = self.url_open(self._url("SINGLE-001"), headers=headers)
+
+        self.assertEqual(unknown.status_code, 403, unknown.text)
+        self.assertEqual(unconsented.status_code, 403, unconsented.text)
+
     def test_put_without_program_and_without_consent_is_403(self):
         """PUT does not reveal that the beneficiary has several memberships"""
         headers = self._no_consent_headers()
@@ -486,3 +502,4 @@ class TestProgramMembershipAmbiguousBeneficiary(ApiV2HttpTestCase):
 
         self.assertEqual(response.status_code, 409, response.text)
         self.assertEqual(membership.state, "enrolled")
+

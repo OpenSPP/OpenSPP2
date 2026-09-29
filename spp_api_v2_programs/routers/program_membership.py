@@ -82,7 +82,7 @@ async def _resolve_membership(env, api_client, service, system, value, program_r
         env, api_client, service.find_beneficiary, system, value, resource_type="program_membership"
     )
     if not partner:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             await deny_access()
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

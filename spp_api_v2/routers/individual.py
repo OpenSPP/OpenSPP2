@@ -84,7 +84,7 @@ async def read_individual(
     # For clients requiring consent, return same error for "not found" and "no consent"
     # to prevent attackers from determining which individuals exist in the system.
     if not partner:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             # SECURITY: Add timing jitter to prevent timing-based enumeration
             # Simulate the time it would take to process a found record
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
@@ -111,7 +111,7 @@ async def read_individual(
     )
 
     # SECURITY: Check if consent was denied and return same error as "not found"
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_info = filtered_data.get("_consent", {})
         if consent_info.get("status") in ("no_consent", "scope_mismatch"):
             raise HTTPException(

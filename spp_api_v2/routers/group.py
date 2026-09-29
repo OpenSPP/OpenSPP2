@@ -93,7 +93,7 @@ async def read_group(
     # SECURITY: Prevent user enumeration
     # For clients requiring consent, return same error for "not found" and "no consent"
     if not group:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             # SECURITY: Add timing jitter to prevent timing-based enumeration
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
             raise HTTPException(
@@ -119,7 +119,7 @@ async def read_group(
     )
 
     # SECURITY: Check if consent was denied and return same error as "not found"
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_info = filtered_data.get("_consent", {})
         if consent_info.get("status") in ("no_consent", "scope_mismatch"):
             raise HTTPException(
@@ -372,7 +372,7 @@ async def update_group(
 
     # SECURITY: Prevent user enumeration
     if not group_record:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access denied",
@@ -383,7 +383,7 @@ async def update_group(
         )
 
     # SECURITY: Check consent before allowing update (for clients requiring consent)
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_service = ConsentService(env)
         if not consent_service.check_access(group_record.id, api_client, "group", "update"):
             raise HTTPException(
@@ -770,19 +770,19 @@ async def merge_groups(
 
     # Security checks for both groups (with specific error messages)
     if not source_group:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source group not found")
 
     if not target_group:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Target group not found")
 
     # SECURITY: Check consent for both groups (for clients requiring consent)
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_service = ConsentService(env)
         if not consent_service.check_access(source_group.id, api_client, "group", "update"):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
