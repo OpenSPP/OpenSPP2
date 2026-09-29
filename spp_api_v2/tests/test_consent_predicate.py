@@ -10,7 +10,9 @@ an unknown registrant apart from one the client may not read.
 
 import json
 
-from .common import ApiV2HttpTestCase
+from ..services.auth_service import AuthenticatedClient
+from ..services.consent_service import NON_CONSENT_BASES, ConsentService
+from .common import ApiV2HttpTestCase, ApiV2TestCase
 
 NATIONAL_ID = "urn:openspp:vocab:id-type%23test_national_id"
 HOUSEHOLD_ID = "urn:openspp:vocab:id-type%23test_household_id"
@@ -123,3 +125,17 @@ class TestConsentPredicate(ApiV2HttpTestCase):
 
         self.assertEqual(existing.status_code, 200, existing.text)
         self.assertEqual(unknown.status_code, 404, unknown.text)
+
+
+class TestOneListOfLegalBases(ApiV2TestCase):
+    """The consent checks read one list of the legal bases that need no consent"""
+
+    def test_bypass_and_consent_filtering_agree_for_every_legal_basis(self):
+        client = self.create_api_client(name="Basis Client")
+        for basis, _label in client._fields["legal_basis"].selection:
+            with self.subTest(legal_basis=basis):
+                client.legal_basis = basis
+                authenticated = AuthenticatedClient(record=client, auth_type="oauth2")
+
+                self.assertEqual(authenticated.has_legal_basis_bypass(), basis in NON_CONSENT_BASES)
+                self.assertEqual(ConsentService.is_consent_filtered(client), basis not in NON_CONSENT_BASES)
