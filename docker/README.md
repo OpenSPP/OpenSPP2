@@ -245,6 +245,28 @@ docker compose -f docker/docker-compose.production.yml build --no-cache
 docker compose -f docker/docker-compose.production.yml up -d
 ```
 
+#### Upgrading modules with the queue worker running
+
+The queue worker must not run jobs against a database whose modules are being installed
+or upgraded. Running jobs hold locks that can stall the upgrade's schema changes. And a
+worker that reloads its registry mid-upgrade competes with the upgrade for the same
+rows. The cleanest upgrade stops the worker first:
+
+```bash
+COMPOSE="docker compose -f docker/docker-compose.production.yml"
+$COMPOSE stop queue-worker            # SIGTERM; running jobs get stop_grace_period to finish
+$COMPOSE run --rm odoo odoo -d "$DB_NAME" -u <modules> --stop-after-init --no-http
+$COMPOSE up -d odoo queue-worker
+```
+
+If the worker is left running, or restarts during the upgrade, it pauses by itself. The
+`job_worker` upgrade gate stops it from loading its registry or taking new jobs while
+any module is `to install`/`to upgrade`/`to remove`, or while its code and the database
+disagree on module versions. It resumes when the upgrade has finished. See the
+`job_worker` docs, "Upgrading modules while the worker runs", for the log lines and the
+`JOB_WORKER_UPGRADE_*` settings. A pause longer than an hour turns the queue worker's
+healthcheck unhealthy.
+
 ### Antivirus Scanning (Optional)
 
 ClamAV antivirus scanning is available as an optional profile. Enable it when:
@@ -379,6 +401,11 @@ to be reproducible.
 ## Health Check
 
 The container exposes a health endpoint at `/web/health` on port 8069.
+
+The queue worker has no HTTP endpoint. Its healthcheck runs `job_worker_healthcheck.py`,
+which checks that the runner's heartbeat file is fresh. The runner stops refreshing it
+when a database is quarantined, stuck in database-error recovery, or paused for a module
+upgrade for longer than `JOB_WORKER_UPGRADE_PAUSE_UNHEALTHY_AFTER` (default one hour).
 
 ## Ports
 
