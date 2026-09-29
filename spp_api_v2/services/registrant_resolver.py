@@ -103,21 +103,21 @@ def resolve_registrants(env, identifiers, is_group=None):
     }
 
 
-def assert_identifier_free(env, id_type, value, exclude_partner=None):
+def assert_identifier_free(env, id_type, value):
     """
-    Raise unless no other registrant holds a live ID of ``id_type`` with ``value``.
+    Raise if any registrant holds a live ID of ``id_type`` with ``value``.
+
+    Only creates call this: the API's updates drop ``reg_ids`` from the
+    values they write, so an update never adds an identifier.
 
     Args:
         id_type: spp.vocabulary.code record of the ID type
         value: Identifier value
-        exclude_partner: registrant allowed to hold it (the one being written)
 
     Raises:
         IdentifierInUseError: another registrant holds the identifier
     """
     domain = [("id_type_id", "=", id_type.id), ("value", "=", value), LIVE_ID]
-    if exclude_partner:
-        domain.append(("partner_id", "!=", exclude_partner.id))
     if _registry_ids(env).search_count(domain, limit=1):
         # The ID type is enough for the client to act on. The value (often a
         # national ID) stays out: this message reaches the server log

@@ -397,22 +397,25 @@ class TestProgramMembershipIdentityService(ApiV2TestCase):
         self.multi_p2 = self.create_test_membership(partner=self.multi, program=self.program_2)
         self.other = self.create_test_individual(identifier_value="SVC-OTHER-001")
 
+    def _beneficiary(self):
+        return self.service.find_beneficiary(NATIONAL_ID, "SVC-MULTI-001")
+
     def test_find_by_identifier_with_program(self):
         """The program narrows resolution to that program's membership"""
-        found = self.service.find_by_identifier(NATIONAL_ID, "SVC-MULTI-001", program=self.program_1)
+        found = self.service.find_for_beneficiary(self._beneficiary(), program=self.program_1)
 
         self.assertEqual(found, self.multi_p1)
 
     def test_find_by_identifier_with_program_without_membership(self):
         """A program the beneficiary is not in resolves to nothing"""
-        found = self.service.find_by_identifier(NATIONAL_ID, "SVC-MULTI-001", program=self.program_3)
+        found = self.service.find_for_beneficiary(self._beneficiary(), program=self.program_3)
 
         self.assertFalse(found)
 
     def test_find_by_identifier_ambiguous_raises(self):
         """Several memberships and no program: refuse"""
         with self.assertRaises(program_membership_service.AmbiguousMembershipError):
-            self.service.find_by_identifier(NATIONAL_ID, "SVC-MULTI-001")
+            self.service.find_for_beneficiary(self._beneficiary())
 
     def test_ambiguity_is_refused_without_counting_memberships(self):
         """Refusing needs the two rows the lookup already read, not a count of them all"""

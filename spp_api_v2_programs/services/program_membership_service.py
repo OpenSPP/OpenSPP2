@@ -108,31 +108,6 @@ class ProgramMembershipService:
 
         return records, total
 
-    def find_by_identifier(self, system_uri: str, value: str, program=None):
-        """
-        Lookup program membership by the beneficiary's external identifier.
-
-        A membership has no identifier of its own: it is addressed by its
-        beneficiary's identifier plus, when the beneficiary is enrolled in
-        more than one program, the program.
-
-        Args:
-            system_uri: Full URI of identifier type (e.g., urn:openspp:vocab:id-type#national_id)
-            value: Identifier value
-            program: Optional spp.program record narrowing the lookup
-
-        Returns:
-            spp.program.membership record or empty recordset
-
-        Raises:
-            AmbiguousMembershipError: no program given and the beneficiary
-                has several memberships
-        """
-        partner = self.find_beneficiary(system_uri, value)
-        if not partner:
-            return self.env["spp.program.membership"]
-        return self.find_for_beneficiary(partner, program)
-
     def find_beneficiary(self, system_uri: str, value: str, is_group=None):
         """
         Lookup the beneficiary (Individual or Group) by external identifier.
@@ -153,7 +128,10 @@ class ProgramMembershipService:
         """
         Find the beneficiary's membership, in ``program`` when given.
 
-        Never picks one of several memberships: without a program, a
+        A membership has no identifier of its own: it is addressed by its
+        beneficiary's identifier (resolved with :meth:`find_beneficiary`)
+        plus, when the beneficiary is enrolled in more than one program, the
+        program. Never picks one of several memberships: without a program, a
         beneficiary enrolled in more than one program is ambiguous.
 
         Returns:

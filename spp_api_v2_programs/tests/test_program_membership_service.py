@@ -29,13 +29,14 @@ class TestProgramMembershipService(ApiV2TestCase):
         membership = self.create_test_membership(partner=self.individual, program=self.program)
 
         # Find using partner's identifier
-        found = self.service.find_by_identifier("urn:openspp:vocab:id-type#test_national_id", "MEMBER-TEST-001")
+        partner = self.service.find_beneficiary("urn:openspp:vocab:id-type#test_national_id", "MEMBER-TEST-001")
+        found = self.service.find_for_beneficiary(partner)
 
         self.assertEqual(found, membership)
 
     def test_find_by_identifier_not_found(self):
         """Returns empty recordset when not found"""
-        found = self.service.find_by_identifier("urn:openspp:vocab:id-type#test_national_id", "NONEXISTENT")
+        found = self.service.find_beneficiary("urn:openspp:vocab:id-type#test_national_id", "NONEXISTENT")
 
         self.assertFalse(found)
 
