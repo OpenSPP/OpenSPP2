@@ -94,6 +94,16 @@ class TestRegistrantResolver(ApiV2TestCase):
 
         self.assertEqual(self.env["spp.registry.id"].search_count([("value", "=", "RES-TAKEN")]), 1)
 
+    def test_identifier_in_use_message_names_the_type_not_the_value(self):
+        """The message is logged by bundles, and an ID value is PII"""
+        self.create_test_individual(identifier_value="RES-PII-VALUE")
+
+        with self.assertRaises(registrant_resolver.IdentifierInUseError) as ctx:
+            self.individual_service.create(self._individual_schema("RES-PII-VALUE"), source="test", api_authorized=True)
+
+        self.assertNotIn("RES-PII-VALUE", str(ctx.exception))
+        self.assertIn(NATIONAL_ID, str(ctx.exception))
+
     def test_create_individual_may_reuse_an_invalid_identifier(self):
         removed = self.create_test_individual(identifier_value="RES-FREED")
         self._invalidate_id(removed, "RES-FREED")

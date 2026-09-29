@@ -119,7 +119,9 @@ def assert_identifier_free(env, id_type, value, exclude_partner=None):
     if exclude_partner:
         domain.append(("partner_id", "!=", exclude_partner.id))
     if _registry_ids(env).search_count(domain, limit=1):
-        raise IdentifierInUseError(f"Identifier {id_type.uri}|{value} is already in use by another registrant")
+        # The ID type is enough for the client to act on. The value (often a
+        # national ID) stays out: this message reaches the server log
+        raise IdentifierInUseError(f"Identifier of type {id_type.uri} is already in use by another registrant")
 
 
 def assert_new_identifiers_free(env, reg_id_commands):

@@ -153,7 +153,13 @@ async def process_bundle(
                     "issue": [{"severity": "error", "code": "conflict", "diagnostics": str(e)}],
                 },
             ) from e
-        _logger.error(f"Bundle processing failed for client {api_client.client_id}: {str(e)}")
+        # The message can carry the identifiers the client sent (PII): log the
+        # failing entry's error type, not its text
+        _logger.warning(
+            "Bundle processing failed for client %s: %s",
+            api_client.client_id,
+            type(e.__cause__ or e).__name__,
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={

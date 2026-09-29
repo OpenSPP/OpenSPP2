@@ -7,6 +7,7 @@ soft-removed IDs in responses, and individual/group kind filtering.
 """
 
 import json
+import logging
 
 from .common import ApiV2HttpTestCase
 
@@ -133,6 +134,44 @@ class TestIdentifierAmbiguityPaths(ApiV2HttpTestCase):
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(response.json()["entry"][0]["response"]["status"], "409 Conflict")
         self.assertEqual(self._count_ids("PATH-HEAD"), 1)
+
+    def _logged_text(self, records):
+        formatter = logging.Formatter("%(message)s")
+        return "\n".join(formatter.format(record) for record in records)
+
+    def test_bundles_do_not_log_the_identifier_value_in_use(self):
+        """A failed entry is logged; an ID value (often a national ID) must not be"""
+        entry = {
+            "request": {"method": "POST", "url": "Individual"},
+            "resource": {
+                "type": "Individual",
+                "identifier": [{"system": NATIONAL_ID, "value": "PATH-HEAD"}],
+                "name": {"given": "Clash"},
+            },
+        }
+        for bundle_type in ("batch", "transaction"):
+            with self.subTest(bundle_type=bundle_type):
+                with self.assertLogs("odoo.addons.spp_api_v2", level="WARNING") as logs:
+                    response = self._post(
+                        "/api/v2/spp/$batch",
+                        {"resourceType": "Bundle", "type": bundle_type, "entry": [entry]},
+                    )
+
+                self.assertIn(response.status_code, (200, 409), response.text)
+                self.assertNotIn("PATH-HEAD", self._logged_text(logs.records))
+
+    def test_bundles_do_not_log_the_identifier_value_not_found(self):
+        entry = {"request": {"method": "GET", "url": f"Individual/{NATIONAL_ID}|PATH-NOBODY-PII"}}
+        for bundle_type in ("batch", "transaction"):
+            with self.subTest(bundle_type=bundle_type):
+                with self.assertLogs("odoo.addons.spp_api_v2", level="WARNING") as logs:
+                    response = self._post(
+                        "/api/v2/spp/$batch",
+                        {"resourceType": "Bundle", "type": bundle_type, "entry": [entry]},
+                    )
+
+                self.assertIn(response.status_code, (200, 422), response.text)
+                self.assertNotIn("PATH-NOBODY-PII", self._logged_text(logs.records))
 
     def test_transaction_bundle_with_ambiguous_identifier_is_409(self):
         response = self._post(

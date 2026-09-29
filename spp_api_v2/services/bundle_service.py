@@ -20,6 +20,18 @@ from .registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 
 _logger = logging.getLogger(__name__)
 
+# Errors a bundle entry raises for bad input. Their messages can carry the
+# identifiers the client sent (often national IDs), so they are logged by type
+CLIENT_ERRORS = (ValidationError, UserError, AmbiguousIdentifierError)
+
+
+def _log_entry_failure(bundle_kind, idx, error):
+    """Log a failed entry: a client error by type only, anything else with its traceback."""
+    if isinstance(error, CLIENT_ERRORS):
+        _logger.warning("%s entry %s failed: %s", bundle_kind, idx + 1, type(error).__name__)
+    else:
+        _logger.error("%s entry %s failed", bundle_kind, idx + 1, exc_info=error)
+
 
 class BundleProcessor:
     """Process transaction and batch bundles atomically"""
@@ -91,7 +103,7 @@ class BundleProcessor:
 
                 except Exception as e:
                     # Transaction failed - savepoint will rollback automatically
-                    _logger.error(f"Transaction entry {idx + 1} failed: {str(e)}", exc_info=True)
+                    _log_entry_failure("Transaction", idx, e)
                     raise ValidationError(
                         f"Transaction failed at entry {idx + 1} ({entry.full_url or 'unknown'}): {str(e)}"
                     ) from e
@@ -158,7 +170,7 @@ class BundleProcessor:
 
             except Exception as e:
                 # For batch, continue processing - just record the error
-                _logger.warning(f"Batch entry {idx + 1} failed: {str(e)}", exc_info=True)
+                _log_entry_failure("Batch", idx, e)
 
                 # Create error response
                 error_response = self._create_error_response(e, api_client)
