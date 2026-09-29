@@ -67,9 +67,11 @@ class TestAssetImportHelpers(BaseCase):
     def test_module_dependencies_reads_the_tour_file_web_tour_import(self):
         with file_open(TOUR_FILE.lstrip("/")) as tour_file:
             dependencies = module_dependencies(TOUR_FILE, tour_file.read())
-        self.assertTrue(
-            any(name.startswith("@web_tour/") for name in dependencies),
-            f"Expected a @web_tour/ import in {TOUR_FILE}, got {dependencies}",
+        # Odoo 19's path; the pre-19 "@web_tour/tour_service/tour_utils" must fail here.
+        self.assertIn(
+            "@web_tour/tour_utils",
+            dependencies,
+            f"Expected the Odoo 19 @web_tour/tour_utils import in {TOUR_FILE}, got {dependencies}",
         )
 
     def test_defined_module_names_uses_the_path_and_alias(self):
