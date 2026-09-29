@@ -1418,7 +1418,6 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
         null,
         {timeout: 30_000}
       );
-      await page.waitForLoadState("load");
 
       expect(await Promise.all(loaderErrors)).toEqual([]);
       // In debug mode the loader also injects this style as a red page banner.
