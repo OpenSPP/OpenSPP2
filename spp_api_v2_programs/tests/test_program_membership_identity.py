@@ -152,6 +152,32 @@ class TestProgramMembershipIdentityAPI(ApiV2HttpTestCase):
         self.assertEqual(unknown.status_code, 403, unknown.text)
         self.assertEqual(unconsented.status_code, 403, unconsented.text)
 
+    def test_search_resolves_a_percent_encoded_system_like_post_does(self):
+        """``?beneficiary=`` and ``?program=`` parse references as POST/PUT bodies do"""
+        encoded_beneficiary = _beneficiary_ref("SINGLE-001").replace("#", "%23")
+        encoded_program = PROGRAM_1_REF.replace(":program", "%3Aprogram")
+
+        response = self.url_open(
+            f"{self.api_base_url}?beneficiary={quote(encoded_beneficiary)}&program={quote(encoded_program)}",
+            headers=self._headers(),
+        )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["meta"]["total"], 1)
+
+    def test_search_with_malformed_filters_is_400_with_the_expected_format(self):
+        for param, value, expected in (
+            ("beneficiary", "Nobody/x|y", "Individual/{system}|{value}"),
+            ("beneficiary", "Individual/no-separator", "Individual/{system}|{value}"),
+            ("program", "Programme/x|y", "Program/{system}|{value}"),
+            ("program", "Program/no-separator", "Program/{system}|{value}"),
+        ):
+            with self.subTest(param=param, value=value):
+                response = self.url_open(f"{self.api_base_url}?{param}={quote(value)}", headers=self._headers())
+
+                self.assertEqual(response.status_code, 400, response.text)
+                self.assertIn(expected, response.json()["detail"])
+
     def test_put_without_program_and_without_consent_is_403(self):
         """PUT does not reveal that the beneficiary has several memberships"""
         headers = self._no_consent_headers()

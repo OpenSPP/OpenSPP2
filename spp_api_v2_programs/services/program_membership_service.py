@@ -68,50 +68,25 @@ class ProgramMembershipService:
         """
         domain = []
 
-        # Beneficiary search
+        # Filters parse references as bodies do. A filter that can't be
+        # applied must not widen the result to every membership: it raises
         beneficiary = params.get("beneficiary")
         if beneficiary:
-            if beneficiary.startswith("Individual/") or beneficiary.startswith("Group/"):
-                if beneficiary.startswith("Individual/"):
-                    identifier_str = beneficiary.replace("Individual/", "")
-                else:
-                    identifier_str = beneficiary.replace("Group/", "")
+            try:
+                # Raises AmbiguousIdentifierError when several registrants hold it
+                partner = self._parse_beneficiary_reference(beneficiary)
+            except ValidationError as e:
+                raise ValidationError(INVALID_BENEFICIARY_FILTER) from e
+            # An unknown beneficiary matches no membership
+            domain.append(("partner_id", "=", partner.id) if partner else ("id", "=", -1))
 
-                if "|" in identifier_str:
-                    system, value = identifier_str.split("|", 1)
-                    # Raises AmbiguousIdentifierError when several registrants hold it
-                    partner = self.find_beneficiary(system, value, is_group=beneficiary.startswith("Group/"))
-                    if partner:
-                        domain.append(("partner_id", "=", partner.id))
-                    else:
-                        # No matching partner found, return empty result
-                        domain.append(("id", "=", -1))
-                else:
-                    raise ValidationError(INVALID_BENEFICIARY_FILTER)
-            else:
-                # A filter that can't be applied must not widen the result to every membership
-                raise ValidationError(INVALID_BENEFICIARY_FILTER)
-
-        # Program search
         program = params.get("program")
         if program:
-            if program.startswith("Program/"):
-                identifier_str = program.replace("Program/", "")
-                if "|" in identifier_str:
-                    system, value = identifier_str.split("|", 1)
-                    from .program_service import ProgramService
-
-                    program_service = ProgramService(self.env)
-                    prog = program_service.find_by_identifier(system, value)
-                    if prog:
-                        domain.append(("program_id", "=", prog.id))
-                    else:
-                        # No matching program found, return empty result
-                        domain.append(("id", "=", -1))
-                else:
-                    raise ValidationError(INVALID_PROGRAM_FILTER)
-            else:
-                raise ValidationError(INVALID_PROGRAM_FILTER)
+            try:
+                prog = self._parse_program_reference(program)
+            except ValidationError as e:
+                raise ValidationError(INVALID_PROGRAM_FILTER) from e
+            domain.append(("program_id", "=", prog.id) if prog else ("id", "=", -1))
 
         # Status search
         status = params.get("status")
