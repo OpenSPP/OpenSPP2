@@ -45,8 +45,10 @@ def defined_module_names(url, content):
         header = ODOO_MODULE_RE.match(content)
         if header and header["alias"]:
             names.add(header["alias"])
-    # Files that call odoo.define by hand, e.g. the "@odoo/owl" wrapper in web/static/lib.
-    names.update(match["name"] for match in ODOO_DEFINE_RE.finditer(content))
+    else:
+        # Files that call odoo.define by hand, e.g. the "@odoo/owl" wrapper in web/static/lib.
+        # A transpiled module never does, so its comments and strings are not scanned.
+        names.update(match["name"] for match in ODOO_DEFINE_RE.finditer(content))
     return names
 
 
@@ -86,6 +88,19 @@ class TestAssetImportHelpers(BaseCase):
         self.assertEqual(
             defined_module_names("/web/static/lib/owl/odoo_module.js", content),
             {"@odoo/owl"},
+        )
+
+    def test_defined_module_names_ignores_define_text_in_a_transpiled_module(self):
+        # A transpiled module never contains a hand-written define, so a match in its
+        # comments or strings is not a module; counting it could hide a missing import.
+        content = (
+            "/** @odoo-module **/\n"
+            '/** Example: odoo.define("@example/not_a_module", [], function () {}); */\n'
+            "export const x = 1;\n"
+        )
+        self.assertEqual(
+            defined_module_names("/spp_cel_widget/static/src/js/example.js", content),
+            {"@spp_cel_widget/js/example"},
         )
 
     def test_defined_module_names_reads_a_multi_line_hand_written_define(self):
