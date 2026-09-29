@@ -503,3 +503,76 @@ class TestProgramMembershipAmbiguousBeneficiary(ApiV2HttpTestCase):
         self.assertEqual(response.status_code, 409, response.text)
         self.assertEqual(membership.state, "enrolled")
 
+
+class TestProgramMembershipArchivedBeneficiary(ApiV2HttpTestCase):
+    """An archived beneficiary keeps its memberships, and they stay addressable (D8)"""
+
+    def setUp(self):
+        super().setUp()
+        self.api_base_url = "/api/v2/spp/ProgramMembership"
+        self.program = self.create_test_program(name="First Identity Program")
+        self.archived = self.create_test_individual(name="Archived", identifier_value="PM-ARCHIVED")
+        self.membership = self.create_test_membership(partner=self.archived, program=self.program, state="enrolled")
+        self.archived.active = False
+        self.client = self.create_api_client(
+            name="Legal Basis Membership Client",
+            scopes=[
+                {"resource": "program_membership", "action": "read"},
+                {"resource": "program_membership", "action": "create"},
+                {"resource": "program_membership", "action": "update"},
+            ],
+            require_consent=False,
+            legal_basis="public_task",
+        )
+        self.token = self.generate_jwt_token(self.client)
+
+    def _headers(self):
+        return {"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"}
+
+    def _url(self):
+        return (
+            f"{self.api_base_url}/{quote(NATIONAL_ID, safe=':')}|PM-ARCHIVED?program={quote(PROGRAM_1_REF, safe=':/|')}"
+        )
+
+    def test_get_reads_the_membership(self):
+        response = self.url_open(self._url(), headers=self._headers())
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["status"], "enrolled")
+
+    def test_put_updates_the_membership(self):
+        self.env.cr.flush()
+        response = self.url_put(
+            self._url(),
+            data=json.dumps(
+                {
+                    "type": "ProgramMembership",
+                    "program": {"reference": PROGRAM_1_REF},
+                    "beneficiary": {"reference": _beneficiary_ref("PM-ARCHIVED")},
+                    "status": "exited",
+                }
+            ),
+            headers=self._headers(),
+        )
+        self.env.invalidate_all()
+
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(self.membership.state, "exited")
+
+    def test_post_again_is_409_and_the_membership_is_still_readable(self):
+        """The duplicate check and the lookup agree: the membership exists"""
+        response = self.url_open(
+            self.api_base_url,
+            data=json.dumps(
+                {
+                    "type": "ProgramMembership",
+                    "program": {"reference": PROGRAM_1_REF},
+                    "beneficiary": {"reference": _beneficiary_ref("PM-ARCHIVED")},
+                    "status": "enrolled",
+                }
+            ),
+            headers=self._headers(),
+        )
+
+        self.assertEqual(response.status_code, 409, response.text)
+        self.assertEqual(self.url_open(self._url(), headers=self._headers()).status_code, 200)

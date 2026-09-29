@@ -192,11 +192,20 @@ class ProgramMembershipService:
         domain = [("partner_id", "=", partner.id)]
         if program:
             domain.append(("program_id", "=", program.id))
-        Membership = self.env["spp.program.membership"].sudo()  # nosemgrep: odoo-sudo-without-context
+        # The membership _inherits res.partner's ``active``: without
+        # active_test=False an archived beneficiary's memberships vanish here
+        # while the duplicate check (_find_existing_membership) still sees them
+        Membership = (
+            self.env["spp.program.membership"]  # nosemgrep: odoo-sudo-without-context
+            .sudo()
+            .with_context(active_test=False)
+        )
         memberships = Membership.search(domain, limit=2)
         if len(memberships) > 1:
             raise AmbiguousMembershipError(Membership.search_count(domain))
-        return memberships
+        # Hand back a recordset without active_test=False, so reads through it
+        # (e.g. the beneficiary's IDs) keep the usual archived-record filtering
+        return self.env["spp.program.membership"].sudo().browse(memberships.ids)  # nosemgrep: odoo-sudo-without-context
 
     def find_by_partner_and_program(self, partner_id: int, program_id: int):
         """
