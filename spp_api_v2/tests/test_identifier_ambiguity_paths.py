@@ -160,6 +160,21 @@ class TestIdentifierAmbiguityPaths(ApiV2HttpTestCase):
                 self.assertIn(response.status_code, (200, 409), response.text)
                 self.assertNotIn("PATH-HEAD", self._logged_text(logs.records))
 
+    def test_bundles_do_not_log_a_malformed_resource(self):
+        """Schema validation errors quote the input (input_value=...), so they are logged by type too"""
+        entry = {
+            "request": {"method": "POST", "url": "Individual"},
+            "resource": {
+                "type": "Individual",
+                "identifier": [{"system": NATIONAL_ID, "value": "PATH-MALFORMED"}],
+                "name": "PATH-PII-NAME",
+            },
+        }
+        with self.assertLogs("odoo.addons.spp_api_v2", level="WARNING") as logs:
+            self._post("/api/v2/spp/$batch", {"resourceType": "Bundle", "type": "batch", "entry": [entry]})
+
+        self.assertNotIn("PATH-PII-NAME", self._logged_text(logs.records))
+
     def test_bundles_do_not_log_the_identifier_value_not_found(self):
         entry = {"request": {"method": "GET", "url": f"Individual/{NATIONAL_ID}|PATH-NOBODY-PII"}}
         for bundle_type in ("batch", "transaction"):

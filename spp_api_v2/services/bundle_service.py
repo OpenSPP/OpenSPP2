@@ -5,6 +5,8 @@ import logging
 import re
 from typing import Any
 
+from pydantic import ValidationError as PydanticValidationError
+
 from odoo.api import Environment
 from odoo.exceptions import UserError, ValidationError
 
@@ -21,8 +23,9 @@ from .registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 _logger = logging.getLogger(__name__)
 
 # Errors a bundle entry raises for bad input. Their messages can carry the
-# identifiers the client sent (often national IDs), so they are logged by type
-CLIENT_ERRORS = (ValidationError, UserError, AmbiguousIdentifierError)
+# identifiers the client sent (often national IDs), and a schema error quotes
+# the input (input_value=...), so they are logged by type
+CLIENT_ERRORS = (ValidationError, UserError, AmbiguousIdentifierError, PydanticValidationError)
 
 
 def _log_entry_failure(bundle_kind, idx, error):
