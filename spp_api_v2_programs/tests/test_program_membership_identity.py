@@ -7,6 +7,7 @@ either be told the program (``?program=``) or refuse to guess.
 """
 
 import json
+from unittest.mock import patch
 from urllib.parse import quote
 
 from odoo.exceptions import ValidationError
@@ -383,11 +384,18 @@ class TestProgramMembershipIdentityService(ApiV2TestCase):
         self.assertFalse(found)
 
     def test_find_by_identifier_ambiguous_raises(self):
-        """Several memberships and no program: refuse, and report how many"""
-        with self.assertRaises(program_membership_service.AmbiguousMembershipError) as ctx:
+        """Several memberships and no program: refuse"""
+        with self.assertRaises(program_membership_service.AmbiguousMembershipError):
             self.service.find_by_identifier(NATIONAL_ID, "SVC-MULTI-001")
 
-        self.assertEqual(ctx.exception.count, 2)
+    def test_ambiguity_is_refused_without_counting_memberships(self):
+        """Refusing needs the two rows the lookup already read, not a count of them all"""
+        Membership = type(self.env["spp.program.membership"])
+        with patch.object(Membership, "search_count") as search_count:
+            with self.assertRaises(program_membership_service.AmbiguousMembershipError):
+                self.service.find_for_beneficiary(self.multi)
+
+        search_count.assert_not_called()
 
     def test_version_id_is_the_schema_version(self):
         """One formula for meta.versionId (the ETag) and the If-Match check"""

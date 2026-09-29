@@ -40,10 +40,9 @@ class DuplicateMembershipError(Exception):
 class AmbiguousMembershipError(Exception):
     """The beneficiary has several program memberships and no program was given."""
 
-    def __init__(self, count: int):
+    def __init__(self):
         # The message leaves the count out: it is returned to API clients
         super().__init__("Beneficiary has several program memberships; specify the program")
-        self.count = count
 
 
 class ProgramMembershipService:
@@ -202,7 +201,7 @@ class ProgramMembershipService:
         )
         memberships = Membership.search(domain, limit=2)
         if len(memberships) > 1:
-            raise AmbiguousMembershipError(Membership.search_count(domain))
+            raise AmbiguousMembershipError()
         # Hand back a recordset without active_test=False, so reads through it
         # (e.g. the beneficiary's IDs) keep the usual archived-record filtering
         return self.env["spp.program.membership"].sudo().browse(memberships.ids)  # nosemgrep: odoo-sudo-without-context
