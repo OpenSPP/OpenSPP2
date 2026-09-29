@@ -1396,11 +1396,18 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
         );
       }
     };
+    // An uncaught exception from a test asset (a script that throws outside
+    // odoo.define) also fails the tour runner, without a loader message.
+    const pageErrors: string[] = [];
+    const onPageError = (error: Error) => {
+      pageErrors.push(error.message);
+    };
 
     await login(page);
     console.log("✅ Logged in as admin");
 
     page.on("console", onConsole);
+    page.on("pageerror", onPageError);
     try {
       await page.goto("/odoo?debug=tests");
       await expect(page.locator(".o_main_navbar")).toBeVisible({timeout: 30_000});
@@ -1420,11 +1427,13 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
       );
 
       expect(await Promise.all(loaderErrors)).toEqual([]);
+      expect(pageErrors).toEqual([]);
       // In debug mode the loader also injects this style as a red page banner.
       await expect(page.locator("style.o_module_error_banner")).toHaveCount(0);
       console.log("✅ Test assets loaded with no module loader errors");
     } finally {
       page.off("console", onConsole);
+      page.off("pageerror", onPageError);
     }
 
     await logout(page);
