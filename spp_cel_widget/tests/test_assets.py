@@ -23,6 +23,8 @@ from odoo.tools.js_transpiler import (
 )
 from odoo.tools.misc import file_open
 
+from odoo.addons.base.models.assetsbundle import WebAsset
+
 # web.webclient_bootstrap loads web.assets_web, then web.assets_tests in test mode.
 BACKEND_TEST_BUNDLES = ("web.assets_web", "web.assets_tests")
 
@@ -31,10 +33,15 @@ TOUR_FILE = "/spp_cel_widget/static/tests/tours/cel_widget_tour.js"
 ODOO_DEFINE_RE = re.compile(r"""odoo\.define\(\s*(['"])(?P<name>.+?)\1,\s*(?P<deps>\[.*?\])""", re.DOTALL)
 
 
+def transpiled_dependencies(transpiled_content):
+    """Return the module names a transpiled JS module imports, read from its odoo.define call."""
+    match = ODOO_DEFINE_RE.search(transpiled_content)
+    return ast.literal_eval(match["deps"])
+
+
 def module_dependencies(url, content):
     """Return the module names a JS file imports, as Odoo's transpiler resolves them."""
-    match = ODOO_DEFINE_RE.search(transpile_javascript(url, content))
-    return ast.literal_eval(match["deps"])
+    return transpiled_dependencies(transpile_javascript(url, content))
 
 
 def defined_module_names(url, content):
@@ -122,27 +129,33 @@ class TestCelWidgetAssetImports(TransactionCase):
     """Integration test: every import in this module's JS resolves on the backend test page."""
 
     def _backend_test_page_scripts(self):
+        """Return ``{url: JavascriptAsset}`` for the scripts the backend test page loads.
+
+        Odoo's own bundle objects decide what is transpiled and serve the transpiled
+        content, and they also read ``ir.asset`` entries stored as attachments.
+        """
         scripts = {}
         for bundle in BACKEND_TEST_BUNDLES:
-            for path, full_path, _bundle, _last_modified in self.env["ir.asset"]._get_asset_paths(bundle, {}):
-                if path.endswith(".js") and path not in scripts:
-                    with file_open(full_path) as script:
-                        scripts[path] = script.read()
+            for asset in self.env["ir.qweb"]._get_asset_bundle(bundle, css=False).javascripts:
+                scripts.setdefault(asset.url, asset)
         return scripts
 
     def test_imports_resolve_on_the_backend_test_page(self):
         scripts = self._backend_test_page_scripts()
-        defined = set().union(*(defined_module_names(url, content) for url, content in scripts.items()))
+        # The source as written: the @odoo-module header (with its alias) and any
+        # hand-written odoo.define live there, not in the transpiled output.
+        # JavascriptAsset reads it through this same base-class property.
+        defined = set().union(
+            *(defined_module_names(url, WebAsset.content.fget(asset)) for url, asset in scripts.items())
+        )
         own_modules = {
-            url: content
-            for url, content in scripts.items()
-            if url.startswith("/spp_cel_widget/") and is_odoo_module(url, content)
+            url: asset for url, asset in scripts.items() if url.startswith("/spp_cel_widget/") and asset.is_transpiled
         }
         self.assertIn(TOUR_FILE, own_modules)
 
         unresolved = {}
-        for url, content in own_modules.items():
-            missing = sorted(set(module_dependencies(url, content)) - defined)
+        for url, asset in own_modules.items():
+            missing = sorted(set(transpiled_dependencies(asset.content)) - defined)
             if missing:
                 unresolved[url] = missing
         self.assertFalse(
