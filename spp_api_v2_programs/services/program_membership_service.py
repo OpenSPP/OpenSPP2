@@ -230,6 +230,12 @@ class ProgramMembershipService:
             )
         )
 
+    @staticmethod
+    def version_id(membership) -> str:
+        """The membership's version: meta.versionId, its ETag, and what If-Match is checked against"""
+        # Integer microseconds avoid float precision issues
+        return str(int(membership.write_date.timestamp() * 1000000)) if membership.write_date else "1"
+
     def to_api_schema(self, membership, extensions=None) -> dict[str, Any]:
         """
         Convert Odoo program membership to ProgramMembership API schema.
@@ -295,10 +301,8 @@ class ProgramMembershipService:
         # For now, we don't have exit_reason_id in the base model
 
         # Metadata
-        # Use integer microseconds for versionId to avoid float precision issues
-        version_id = str(int(membership.write_date.timestamp() * 1000000)) if membership.write_date else "1"
         membership_data["meta"] = {
-            "versionId": version_id,
+            "versionId": self.version_id(membership),
             "lastUpdated": membership.write_date.isoformat() if membership.write_date else None,
             "source": None,  # Memberships don't have source tracking in base module
         }

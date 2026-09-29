@@ -389,6 +389,13 @@ class TestProgramMembershipIdentityService(ApiV2TestCase):
 
         self.assertEqual(ctx.exception.count, 2)
 
+    def test_version_id_is_the_schema_version(self):
+        """One formula for meta.versionId (the ETag) and the If-Match check"""
+        version = self.service.version_id(self.multi_p1)
+
+        self.assertEqual(version, self.service.to_api_schema(self.multi_p1)["meta"]["versionId"])
+        self.assertEqual(version, str(int(self.multi_p1.write_date.timestamp() * 1000000)))
+
     def _schema(self, program_ref, beneficiary_value, status="exited"):
         return ProgramMembership(
             program=Reference(reference=program_ref),

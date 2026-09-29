@@ -420,11 +420,9 @@ async def update_program_membership(
     program_record = _resolve_program_param(service, program)
     membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
-    # Check version for optimistic locking (same format as meta.versionId / ETag)
+    # Check version for optimistic locking (the version meta.versionId / ETag carry)
     if if_match:
-        current_version = str(int(membership.write_date.timestamp() * 1000000)) if membership.write_date else "1"
-        if_match_clean = if_match.strip('"')
-        if if_match_clean != current_version:
+        if if_match.strip('"') != service.version_id(membership):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Version conflict. Resource was modified by another request.",
