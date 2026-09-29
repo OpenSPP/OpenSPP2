@@ -1,3 +1,12 @@
+### 19.0.2.1.1
+
+- ``_register_hook`` now re-hides menus only after a registry load that
+  installed or updated modules (``registry.updated_modules``), which is every
+  path that can reset ``group_ids``. Other loads — each HTTP and cron worker,
+  and the job worker, reloading after another process signals a change — no
+  longer repeat the same ``ir.ui.menu`` / ``spp.hide.menu`` writes, which raced
+  the upgrading process for the same rows during deploys.
+
 ### 19.0.2.1.0
 
 - Enforce ``UNIQUE(menu_id)`` on ``spp.hide.menu``: a second configuration row

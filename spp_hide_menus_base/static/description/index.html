@@ -474,6 +474,18 @@ custom menus to auto-hide list</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.1</h1>
+<ul class="simple">
+<li><tt class="docutils literal">_register_hook</tt> now re-hides menus only after a registry load that
+installed or updated modules (<tt class="docutils literal">registry.updated_modules</tt>), which is
+every path that can reset <tt class="docutils literal">group_ids</tt>. Other loads — each HTTP and
+cron worker, and the job worker, reloading after another process
+signals a change — no longer repeat the same <tt class="docutils literal">ir.ui.menu</tt> /
+<tt class="docutils literal">spp.hide.menu</tt> writes, which raced the upgrading process for the
+same rows during deploys.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.0</h1>
 <ul class="simple">
 <li>Enforce <tt class="docutils literal">UNIQUE(menu_id)</tt> on <tt class="docutils literal">spp.hide.menu</tt>: a second
@@ -495,7 +507,7 @@ inserting the duplicate that used to brick the next registry load.
 Target the existing record or drop the seed.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>Keep hidden menus hidden after a module upgrade resets their
@@ -505,7 +517,7 @@ wizard, and CLI <tt class="docutils literal"><span class="pre">-u</span></tt>), 
 <tt class="docutils literal">next()</tt>.</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

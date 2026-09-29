@@ -108,6 +108,14 @@ class IrModuleModule(models.Model):
         # _register_hook runs at the end of every registry load (startup,
         # install, upgrade — all paths), so re-applying hiding here keeps
         # menus hidden regardless of how the upgrade was triggered.
+        #
+        # Only a load that installed or updated modules can have reset
+        # group_ids, and Odoo lists exactly those in registry.updated_modules.
+        # Every other load — each HTTP and cron worker, and the job worker,
+        # reloading after another process signals a change — would repeat the
+        # same writes on the same ir.ui.menu and spp.hide.menu rows, racing the
+        # upgrading process for them while it may still be running.
         res = super()._register_hook()
-        self.hide_menus()
+        if self.env.registry.updated_modules:
+            self.hide_menus()
         return res
