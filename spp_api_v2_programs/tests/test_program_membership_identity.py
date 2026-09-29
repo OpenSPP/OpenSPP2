@@ -400,19 +400,19 @@ class TestProgramMembershipIdentityService(ApiV2TestCase):
     def _beneficiary(self):
         return self.service.find_beneficiary(NATIONAL_ID, "SVC-MULTI-001")
 
-    def test_find_by_identifier_with_program(self):
+    def test_find_for_beneficiary_with_program(self):
         """The program narrows resolution to that program's membership"""
         found = self.service.find_for_beneficiary(self._beneficiary(), program=self.program_1)
 
         self.assertEqual(found, self.multi_p1)
 
-    def test_find_by_identifier_with_program_without_membership(self):
+    def test_find_for_beneficiary_with_program_without_membership(self):
         """A program the beneficiary is not in resolves to nothing"""
         found = self.service.find_for_beneficiary(self._beneficiary(), program=self.program_3)
 
         self.assertFalse(found)
 
-    def test_find_by_identifier_ambiguous_raises(self):
+    def test_find_for_beneficiary_ambiguous_raises(self):
         """Several memberships and no program: refuse"""
         with self.assertRaises(program_membership_service.AmbiguousMembershipError):
             self.service.find_for_beneficiary(self._beneficiary())
