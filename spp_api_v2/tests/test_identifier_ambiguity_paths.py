@@ -269,3 +269,120 @@ class TestIdentifierAmbiguityPaths(ApiV2HttpTestCase):
         self.assertEqual(individual.json()["type"], "Individual")
         self.assertEqual(group.status_code, 200, group.text)
         self.assertEqual(group.json()["type"], "Group")
+
+
+class TestBundleAmbiguityForConsentClient(ApiV2HttpTestCase):
+    """A bundle only says "ambiguous" to a client that may read every match
+
+    Anyone else gets what they would get for an identifier nobody holds,
+    as on the single-resource endpoints.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.first = self.create_test_individual(name="Original", identifier_value="BND-DUP")
+        self.second = self.create_test_individual(name="Copy", identifier_value="BND-DUP")
+        self.consent_client = self.create_api_client(name="Bundle Consent Client", scopes=SCOPES)
+        self.create_consent(
+            registrant=self.first,
+            grantee_partner=self.consent_client.partner_id,
+            resource_type="all",
+            field_access="all",
+        )
+        self.token = self.generate_jwt_token(self.consent_client)
+
+    def _bundle(self, bundle_type, entries):
+        return self.url_open(
+            "/api/v2/spp/$batch",
+            data=json.dumps({"resourceType": "Bundle", "type": bundle_type, "entry": entries}),
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {self.token}"},
+        )
+
+    def _read(self, value):
+        return {"request": {"method": "GET", "url": f"Individual/{NATIONAL_ID}|{value}"}}
+
+    def test_batch_read_of_an_ambiguous_identifier_looks_like_not_found(self):
+        response = self._bundle("batch", [self._read("BND-DUP"), self._read("BND-NOBODY")])
+
+        self.assertEqual(response.status_code, 200, response.text)
+        ambiguous, unknown = response.json()["entry"]
+        self.assertEqual(ambiguous["response"]["status"], unknown["response"]["status"])
+        self.assertEqual(
+            ambiguous["resource"]["issue"][0]["diagnostics"].replace("BND-DUP", "X"),
+            unknown["resource"]["issue"][0]["diagnostics"].replace("BND-NOBODY", "X"),
+        )
+
+    def test_batch_update_and_delete_of_an_ambiguous_identifier_look_like_not_found(self):
+        update = {
+            "request": {"method": "PUT", "url": f"Individual/{NATIONAL_ID}|BND-DUP"},
+            "resource": {"type": "Individual", "name": {"given": "Changed"}},
+        }
+        delete = {"request": {"method": "DELETE", "url": f"Individual/{NATIONAL_ID}|BND-DUP"}}
+
+        response = self._bundle("batch", [update, delete, self._read("BND-NOBODY")])
+
+        self.assertEqual(response.status_code, 200, response.text)
+        statuses = [entry["response"]["status"] for entry in response.json()["entry"]]
+        self.assertNotIn("409 Conflict", statuses)
+        self.assertEqual(statuses[0], statuses[2])
+        self.assertEqual(statuses[1], statuses[2])
+
+    def test_batch_create_with_an_ambiguous_member_is_403(self):
+        """As POST /Group answers the same client: the jittered "not found" 403"""
+        response = self._bundle(
+            "batch",
+            [
+                {
+                    "request": {"method": "POST", "url": "Group"},
+                    "resource": {
+                        "type": "Group",
+                        "identifier": [{"system": HOUSEHOLD_ID, "value": "BND-NEW-HH"}],
+                        "name": "Bundle Household",
+                        "member": [{"entity": {"reference": f"Individual/{NATIONAL_ID}|BND-DUP"}}],
+                    },
+                }
+            ],
+        )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        entry = response.json()["entry"][0]
+        self.assertEqual(entry["response"]["status"], "403 Forbidden")
+        self.assertNotIn("more than one", json.dumps(entry))
+
+    def test_transaction_create_with_an_ambiguous_member_is_403(self):
+        response = self._bundle(
+            "transaction",
+            [
+                {
+                    "request": {"method": "POST", "url": "Group"},
+                    "resource": {
+                        "type": "Group",
+                        "identifier": [{"system": HOUSEHOLD_ID, "value": "BND-TX-HH"}],
+                        "name": "Bundle Household",
+                        "member": [{"entity": {"reference": f"Individual/{NATIONAL_ID}|BND-DUP"}}],
+                    },
+                }
+            ],
+        )
+
+        self.assertEqual(response.status_code, 403, response.text)
+        self.assertNotIn("more than one", response.text)
+
+    def test_transaction_read_of_an_ambiguous_identifier_looks_like_not_found(self):
+        ambiguous = self._bundle("transaction", [self._read("BND-DUP")])
+        unknown = self._bundle("transaction", [self._read("BND-NOBODY")])
+
+        self.assertEqual(ambiguous.status_code, unknown.status_code, ambiguous.text)
+        self.assertNotEqual(ambiguous.status_code, 409)
+
+    def test_client_that_may_read_every_match_still_gets_409(self):
+        self.create_consent(
+            registrant=self.second,
+            grantee_partner=self.consent_client.partner_id,
+            resource_type="all",
+            field_access="all",
+        )
+
+        response = self._bundle("batch", [self._read("BND-DUP")])
+
+        self.assertEqual(response.json()["entry"][0]["response"]["status"], "409 Conflict")
