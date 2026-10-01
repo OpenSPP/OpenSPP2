@@ -225,7 +225,9 @@ services:
       start_period: 60s
       retries: 3
     # Docker's default of 10s SIGKILLs jobs the runner would give up to 30s
-    # to finish, and each killed job loses a retry attempt.
+    # *per database* to finish (databases are stopped one after another), and
+    # each killed job loses a retry attempt. 60s covers one or two databases;
+    # raise it if this worker serves more.
     stop_grace_period: 60s
     networks:
       - openspp
