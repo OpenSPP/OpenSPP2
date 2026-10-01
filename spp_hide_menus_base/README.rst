@@ -113,6 +113,10 @@ Changelog
   signals a change — no longer repeat the same ``ir.ui.menu`` /
   ``spp.hide.menu`` writes, which raced the upgrading process for the
   same rows during deploys.
+- Operator-facing change: hidden menus that become visible for any
+  reason other than a module update (for example a manual edit of a
+  menu's groups) are no longer re-hidden by a plain restart. Upgrade the
+  module (``-u spp_hide_menus_base``) to re-apply hiding.
 
 19.0.2.1.0
 ~~~~~~~~~~

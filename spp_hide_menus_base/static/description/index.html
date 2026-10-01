@@ -483,6 +483,10 @@ cron worker, and the job worker, reloading after another process
 signals a change — no longer repeat the same <tt class="docutils literal">ir.ui.menu</tt> /
 <tt class="docutils literal">spp.hide.menu</tt> writes, which raced the upgrading process for the
 same rows during deploys.</li>
+<li>Operator-facing change: hidden menus that become visible for any
+reason other than a module update (for example a manual edit of a
+menu’s groups) are no longer re-hidden by a plain restart. Upgrade the
+module (<tt class="docutils literal"><span class="pre">-u</span> spp_hide_menus_base</tt>) to re-apply hiding.</li>
 </ul>
 </div>
 <div class="section" id="section-2">
