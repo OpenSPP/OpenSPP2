@@ -251,16 +251,17 @@ class TestSppHideMenu(TransactionCase):
         )
 
     def test_register_hook_rehides_after_reset(self):
-        """``_register_hook()`` re-applies hiding on every registry load.
+        """``_register_hook()`` re-applies hiding after a load that updated modules.
 
         ``ir.module.module.next()`` only runs on the immediate
         install/upgrade path (button_immediate_*). Upgrades performed
         through the ``base.module.upgrade`` wizard or the CLI (``-u``)
         reload module XML — resetting ``group_ids`` — but never call
-        ``next()``. ``_register_hook`` runs at the end of *every* registry
-        load, so it must re-hide regardless of the upgrade path. We can't
-        run a real upgrade in a test, so we reset the groups by hand and
-        call the hook the way the loader does.
+        ``next()``. Every one of those paths ends in a registry load that
+        installed or updated modules, and ``_register_hook`` runs at the
+        end of it, so it must re-hide regardless of the upgrade path. We
+        can't run a real upgrade in a test, so we reset the groups by hand
+        and call the hook the way the loader does after an update.
         """
         IrModuleModule = self.env["ir.module.module"]
         HideMenu = self.env["spp.hide.menu"]
@@ -285,14 +286,42 @@ class TestSppHideMenu(TransactionCase):
         target.write({"group_ids": [Command.set([reset_groups.id])]})
         self.assertNotIn(hide_group, target.group_ids)
 
-        IrModuleModule._register_hook()
+        with patch.object(self.env.registry, "updated_modules", ["spp_hide_menus_base"]):
+            IrModuleModule._register_hook()
 
         self.assertIn(
             hide_group,
             target.group_ids,
-            "_register_hook() should re-hide menus on every registry load, "
-            "covering upgrade paths that never call next()",
+            "_register_hook() should re-hide menus after a registry load that "
+            "updated modules, covering upgrade paths that never call next()",
         )
+
+    def test_register_hook_leaves_menus_alone_when_no_module_was_updated(self):
+        """A registry load that installed or updated nothing must not touch menus.
+
+        Every process reloads its registry once another one signals a change:
+        HTTP workers, cron workers, and a job worker running beside them. The
+        menu writes belong to the one process that updated modules. The others
+        repeating them on the same ``ir.ui.menu`` and ``spp.hide.menu`` rows,
+        while an upgrade may still be running, only adds lock waits and
+        duplicate-key races to every deploy.
+        """
+        IrModuleModule = self.env["ir.module.module"]
+        with (
+            patch.object(self.env.registry, "updated_modules", []),
+            patch.object(type(IrModuleModule), "hide_menus") as hide_menus,
+        ):
+            IrModuleModule._register_hook()
+        hide_menus.assert_not_called()
+
+    def test_register_hook_hides_menus_when_a_module_was_updated(self):
+        IrModuleModule = self.env["ir.module.module"]
+        with (
+            patch.object(self.env.registry, "updated_modules", ["spp_programs"]),
+            patch.object(type(IrModuleModule), "hide_menus") as hide_menus,
+        ):
+            IrModuleModule._register_hook()
+        hide_menus.assert_called_once_with()
 
     def test_hide_menus_skips_unknown_modules(self):
         """An ir.module.module record whose name isn't in MENU_APP must be

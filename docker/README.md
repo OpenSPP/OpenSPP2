@@ -245,6 +245,52 @@ docker compose -f docker/docker-compose.production.yml build --no-cache
 docker compose -f docker/docker-compose.production.yml up -d
 ```
 
+#### Addon code lives in a named volume
+
+Both production stacks mount the `odoo_addons` named volume over `/mnt/extra-addons`.
+Docker copies the image's files into a named volume only while the volume is empty. So
+after the first deployment, the addons there are whatever the first image shipped, not
+what a newly pulled or rebuilt image contains. That includes the job worker and its
+`job_worker_healthcheck.py`. Check what the containers actually run after an update:
+
+```bash
+docker compose -f docker/docker-compose.production.yml exec queue-worker \
+  grep '"version"' /mnt/extra-addons/odoo-job-worker/job_worker/__manifest__.py
+```
+
+If it is out of date and nothing else was installed into the volume, stop the stack and
+remove the volume (`docker volume rm <project>_odoo_addons`). It is re-seeded from the
+image on the next start.
+
+#### Upgrading modules with the queue worker running
+
+Nothing should run against a database while its modules are being installed or upgraded.
+Running jobs, and requests and crons in the `odoo` service, hold locks that can stall
+the upgrade's schema changes. They also read a schema that is changing under them. The
+clean upgrade stops both, runs the upgrade as a one-shot, then starts both again. Users
+see downtime for as long as the upgrade runs:
+
+```bash
+COMPOSE="docker compose -f docker/docker-compose.production.yml"
+$COMPOSE stop queue-worker odoo       # SIGTERM; running jobs get stop_grace_period to finish
+$COMPOSE run --rm odoo odoo -u <modules> --stop-after-init --no-http
+$COMPOSE up -d odoo queue-worker
+```
+
+The one-shot takes the database from the container's generated `/etc/odoo/odoo.conf`
+(`db_name = ${DB_NAME}`), so there is no `-d` to get right in the host shell.
+
+If the queue worker is left running, or restarts during an upgrade, it pauses by itself.
+_This requires `job_worker` 19.0.1.3.0 or later (OpenSPP/odoo-job-worker#33). Images
+built with the default `ODOO_JOB_WORKER_REF=19.0` include it; a build pinned to an older
+commit does not, and neither does an `odoo_addons` volume seeded before it (see above)._
+The `job_worker` upgrade gate stops the worker from loading its registry or taking new
+jobs while any module is `to install`/`to upgrade`/`to remove`, or while its code and
+the database disagree on module versions. It resumes when the upgrade has finished. See
+the `job_worker` docs, "Upgrading modules while the worker runs", for the log lines and
+the `JOB_WORKER_UPGRADE_*` settings. A pause longer than an hour turns the queue
+worker's healthcheck unhealthy.
+
 ### Antivirus Scanning (Optional)
 
 ClamAV antivirus scanning is available as an optional profile. Enable it when:
@@ -379,6 +425,12 @@ to be reproducible.
 ## Health Check
 
 The container exposes a health endpoint at `/web/health` on port 8069.
+
+The queue worker has no HTTP endpoint. Its healthcheck runs `job_worker_healthcheck.py`,
+which checks that the runner's heartbeat file is fresh. The runner stops refreshing it
+when a database is quarantined or stuck in database-error recovery. With `job_worker`
+19.0.1.3.0 or later, it also stops when a database has been paused for a module upgrade
+for longer than `JOB_WORKER_UPGRADE_PAUSE_UNHEALTHY_AFTER` (default one hour).
 
 ## Ports
 
