@@ -295,7 +295,9 @@ class SPPCRCreateWizard(models.TransientModel):
         # users can reach and pick it; the widget handles the keys. Only the
         # first row is in the Tab order (roving tabindex), the arrow keys move
         # between rows. The aria-label repeats what the two cells show because
-        # an option's children are presentational to assistive technology.
+        # an option's children are presentational to assistive technology, and
+        # setsize/posinset give the position within the whole result set rather
+        # than within the page.
         rows = []
         for index, p in enumerate(partners):
             type_label, type_icon = ("Group", "fa-users") if p.is_group else ("Individual", "fa-user")
@@ -304,6 +306,7 @@ class SPPCRCreateWizard(models.TransientModel):
                 Markup(
                     '<tr class="o_cr_search_result" style="cursor:pointer"'
                     ' role="option" tabindex="{}" aria-label="{}, {}"'
+                    ' aria-setsize="{}" aria-posinset="{}"'
                     ' data-partner-id="{}" data-partner-name="{}">'
                     "<td>{}</td>"
                     '<td><i class="fa {}" aria-hidden="true"></i> {}</td></tr>'
@@ -311,6 +314,8 @@ class SPPCRCreateWizard(models.TransientModel):
                     "0" if index == 0 else "-1",
                     name,
                     type_label,
+                    total,
+                    offset + index + 1,
                     p.id,
                     name,
                     name,
@@ -319,15 +324,19 @@ class SPPCRCreateWizard(models.TransientModel):
                 )
             )
 
+        # The table is layout only for assistive technology: the body is the
+        # listbox and the header row would otherwise be a table with no data
+        # cells. Sighted users still see the column headings.
         table = Markup(
-            '<table class="table table-hover table-sm mb-0 w-100">'
-            "<thead><tr><th>Name</th><th>Type</th></tr></thead>"
-            '<tbody role="listbox" aria-label="Search results">{}</tbody></table>'
+            '<table class="table table-hover table-sm mb-0 w-100" role="presentation">'
+            '<thead aria-hidden="true"><tr><th>Name</th><th>Type</th></tr></thead>'
+            '<tbody role="listbox" aria-label="Registrant search results">{}</tbody></table>'
         ).format(Markup("").join(rows))
 
         # Pagination header. Previous/Next are real buttons so they are
         # focusable and respond to Enter/Space natively; a real `disabled`
         # attribute (not just muted styling) takes the edge out of the Tab order.
+        # The arrows are decoration (screen readers would read "left arrow").
         # The range summary carries o_cr_search_status so the widget can mirror
         # it into a live region.
         start = offset + 1
@@ -337,9 +346,9 @@ class SPPCRCreateWizard(models.TransientModel):
             '<small class="text-muted o_cr_search_status">{}-{} of {}</small>'
             "<div>"
             '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_prev me-3"'
-            ' data-page="{}"{}>← Previous</button>'
+            ' data-page="{}"{}><span aria-hidden="true">← </span>Previous</button>'
             '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_next"'
-            ' data-page="{}"{}>Next →</button>'
+            ' data-page="{}"{}>Next<span aria-hidden="true"> →</span></button>'
             "</div></div>"
         ).format(
             start,

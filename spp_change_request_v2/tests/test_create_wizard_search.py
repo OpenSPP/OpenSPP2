@@ -56,13 +56,29 @@ class TestCreateWizardSearch(TestChangeRequestBase):
         listbox = doc.xpath('.//tbody[@role="listbox"]')
         self.assertEqual(len(listbox), 1)
         self.assertTrue(listbox[0].get("aria-label"))
+        # The table itself is layout for assistive technology, otherwise the
+        # header row is a table with no data cells.
+        self.assertEqual(doc.xpath(".//table")[0].get("role"), "presentation")
+        self.assertEqual(doc.xpath(".//thead")[0].get("aria-hidden"), "true")
 
         rows = self._rows(doc)
         self.assertEqual(len(rows), 10)
         self.assertEqual([row.get("role") for row in rows], ["option"] * 10)
         self.assertEqual([row.get("tabindex") for row in rows], ["0"] + ["-1"] * 9)
+        self.assertEqual([row.get("aria-setsize") for row in rows], ["12"] * 10)
+        self.assertEqual([row.get("aria-posinset") for row in rows], [str(n) for n in range(1, 11)])
         for row in rows:
             self.assertEqual(row.get("aria-label"), f"{row.get('data-partner-name')}, Individual")
+
+    def test_group_row_is_labelled_as_group(self):
+        """A group result carries the group label and icon in the same shape as an individual."""
+        wizard = self.wizard_model.create({"request_type_id": self.cr_type_add_member.id})
+        doc = self._render(wizard, f"{PREFIX} Group")
+        rows = self._rows(doc)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].get("aria-label"), f"{self.search_group.name}, Group")
+        self.assertEqual(rows[0].xpath(".//i")[0].get("class"), "fa fa-users")
+        self.assertEqual(rows[0].xpath(".//i")[0].get("aria-hidden"), "true")
 
     def test_type_icon_is_hidden_from_assistive_tech(self):
         """Decorative type icons are not announced."""
@@ -131,3 +147,13 @@ class TestCreateWizardSearch(TestChangeRequestBase):
         doc = self._render(wizard, PREFIX, page=99)
         self.assertEqual(len(self._rows(doc)), 2)
         self.assertEqual(self._status_text(doc), "11-12 of 12")
+        self.assertEqual([row.get("aria-posinset") for row in self._rows(doc)], ["11", "12"])
+
+    def test_pager_arrows_are_decorative(self):
+        """The arrow glyphs are hidden so the buttons read as "Previous" and "Next"."""
+        doc = self._render(self._wizard(), PREFIX)
+        for cls in ("o_cr_page_prev", "o_cr_page_next"):
+            button = doc.xpath(f'.//button[contains(@class, "{cls}")]')[0]
+            arrows = button.xpath('.//span[@aria-hidden="true"]')
+            self.assertEqual(len(arrows), 1)
+            self.assertIn(arrows[0].text.strip(), ("←", "→"))
