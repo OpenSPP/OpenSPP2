@@ -125,6 +125,16 @@ class TestCreateWizardSearch(TestChangeRequestBase):
         self.assertIn(f'aria-label="{PREFIX} &lt;b&gt;bold&lt;/b&gt;, Individual"', raw)
         self.assertNotIn("<b>bold</b>", raw)
 
+    def test_aria_label_round_trips_quotes(self):
+        """Quotes in a name cannot break out of the attribute: the parsed label is the name itself."""
+        name = f"""{PREFIX} O'Neil "Quoted" <x>"""
+        self.partner_model.create({"name": name, "is_registrant": True, "is_group": False})
+        wizard = self._wizard()
+        row = self._rows(self._render(wizard, f"{PREFIX} O'Neil"))[0]
+        self.assertEqual(row.get("aria-label"), f"{name}, Individual")
+        self.assertEqual(row.get("data-partner-name"), name)
+        self.assertEqual(row.xpath("./td")[0].text, name)
+
     def test_selected_partner_bridge_sets_registrant(self):
         """The integer the widget writes on Enter/click becomes the registrant."""
         wizard = self._wizard()

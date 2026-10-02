@@ -47,7 +47,9 @@ export class CrSearchResultsField extends Component {
             this._announceStatus();
         });
         onPatched(() => {
-            if (this.htmlContent === this.renderedHtml) {
+            // Compared as text: the record may hand out a new Markup object
+            // for an unchanged value.
+            if (String(this.htmlContent) === String(this.renderedHtml)) {
                 return;
             }
             this.renderedHtml = this.htmlContent;
@@ -166,16 +168,30 @@ export class CrSearchResultsField extends Component {
         // is the focus applied here; while a re-render is still due, onPatched
         // owns it, otherwise the old button would be focused and then removed.
         await new Promise(requestAnimationFrame);
-        if (this.htmlContent === this.renderedHtml) {
+        if (String(this.htmlContent) === String(this.renderedHtml)) {
             this._applyPendingFocus();
         }
+    }
+
+    /**
+     * True when the user has put focus somewhere of their own (for example
+     * back in the search box) while a request was in flight: focus is then
+     * left alone. Focus that was lost with the removed results sits on body.
+     */
+    _userMovedFocus() {
+        const active = document.activeElement;
+        if (!active || active === document.body) {
+            return false;
+        }
+        const el = this.containerRef.el;
+        return !(el && el.contains(active));
     }
 
     _applyPendingFocus() {
         const selectors = this.pendingFocus;
         this.pendingFocus = null;
         const el = this.containerRef.el;
-        if (!selectors || !el) {
+        if (!selectors || !el || this._userMovedFocus()) {
             return;
         }
         for (const selector of selectors) {
@@ -198,6 +214,9 @@ export class CrSearchResultsField extends Component {
         }
         const deadline = Date.now() + RENDER_WAIT_MS;
         while (Date.now() < deadline) {
+            if (this._userMovedFocus()) {
+                return;
+            }
             const target = root.querySelector(selector);
             if (target) {
                 target.focus();
