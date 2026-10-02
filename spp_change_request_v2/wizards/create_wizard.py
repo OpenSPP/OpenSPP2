@@ -280,7 +280,7 @@ class SPPCRCreateWizard(models.TransientModel):
         total = self.env["res.partner"].search_count(search_domain)
 
         if not total:
-            self.search_results_html = Markup("<p class='text-muted'>No registrants found.</p>")
+            self.search_results_html = Markup("<p class='text-muted o_cr_search_status'>No registrants found.</p>")
             return
 
         page = self._search_page or 0
@@ -291,42 +291,65 @@ class SPPCRCreateWizard(models.TransientModel):
         offset = page * page_size
         partners = self.env["res.partner"].search(search_domain, limit=page_size, offset=offset)
 
+        # Each row is an option of a listbox so keyboard and screen-reader
+        # users can reach and pick it; the widget handles the keys. Only the
+        # first row is in the Tab order (roving tabindex), the arrow keys move
+        # between rows. The aria-label repeats what the two cells show because
+        # an option's children are presentational to assistive technology.
         rows = []
-        for p in partners:
-            ptype = '<i class="fa fa-users"></i> Group' if p.is_group else '<i class="fa fa-user"></i> Individual'
+        for index, p in enumerate(partners):
+            type_label, type_icon = ("Group", "fa-users") if p.is_group else ("Individual", "fa-user")
+            name = escape(p.name or "")
             rows.append(
                 Markup(
                     '<tr class="o_cr_search_result" style="cursor:pointer"'
+                    ' role="option" tabindex="{}" aria-label="{}, {}"'
                     ' data-partner-id="{}" data-partner-name="{}">'
                     "<td>{}</td>"
-                    "<td>{}</td></tr>"
+                    '<td><i class="fa {}" aria-hidden="true"></i> {}</td></tr>'
                 ).format(
+                    "0" if index == 0 else "-1",
+                    name,
+                    type_label,
                     p.id,
-                    escape(p.name or ""),
-                    escape(p.name or ""),
-                    Markup(ptype),
+                    name,
+                    name,
+                    type_icon,
+                    type_label,
                 )
             )
 
         table = Markup(
             '<table class="table table-hover table-sm mb-0 w-100">'
             "<thead><tr><th>Name</th><th>Type</th></tr></thead>"
-            "<tbody>{}</tbody></table>"
+            '<tbody role="listbox" aria-label="Search results">{}</tbody></table>'
         ).format(Markup("").join(rows))
 
-        # Pagination header
+        # Pagination header. Previous/Next are real buttons so they are
+        # focusable and respond to Enter/Space natively; a real `disabled`
+        # attribute (not just muted styling) takes the edge out of the Tab order.
+        # The range summary carries o_cr_search_status so the widget can mirror
+        # it into a live region.
         start = offset + 1
         end = min(offset + page_size, total)
-        prev_cls = "text-muted" if page == 0 else "o_cr_page_prev"
-        next_cls = "text-muted" if page >= max_page else "o_cr_page_next"
         pagination = Markup(
             '<div class="d-flex justify-content-between align-items-center mb-2 px-1">'
-            '<small class="text-muted">{}-{} of {}</small>'
+            '<small class="text-muted o_cr_search_status">{}-{} of {}</small>'
             "<div>"
-            '<a class="{} me-3" style="cursor:pointer" data-page="{}">← Previous</a>'
-            '<a class="{}" style="cursor:pointer" data-page="{}">Next →</a>'
+            '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_prev me-3"'
+            ' data-page="{}"{}>← Previous</button>'
+            '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_next"'
+            ' data-page="{}"{}>Next →</button>'
             "</div></div>"
-        ).format(start, end, total, prev_cls, page - 1, next_cls, page + 1)
+        ).format(
+            start,
+            end,
+            total,
+            page - 1,
+            " disabled" if page == 0 else "",
+            page + 1,
+            " disabled" if page >= max_page else "",
+        )
 
         self.search_results_html = pagination + table
 
