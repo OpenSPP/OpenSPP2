@@ -4,6 +4,7 @@
     <t t-name="spp_change_request_v2.SearchDelayField">
         <input
             t-ref="input"
+            t-att-id="props.id"
             type="text"
             class="o_input"
             t-att-value="value"

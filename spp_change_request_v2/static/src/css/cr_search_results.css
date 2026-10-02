@@ -5,3 +5,9 @@
     max-width: 100% !important;
     display: block !important;
 }
+
+/* Keyboard focus on a result row must stay visible over the table-hover shading */
+.o_field_cr_search_results tr.o_cr_search_result:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: -2px;
+}
