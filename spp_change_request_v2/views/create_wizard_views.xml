@@ -62,6 +62,17 @@
                         </group>
                     </group>
 
+                    <!-- Live region for the search outcome ("1-10 of 23", "No registrants
+                         found."). It lives outside the results block so it already exists
+                         when the first results arrive; a live region inserted together with
+                         its text is not announced. The results widget writes into it. -->
+                    <div
+                        class="o_cr_search_live visually-hidden"
+                        role="status"
+                        aria-live="polite"
+                        invisible="not show_registrant or registrant_id"
+                    />
+
                     <!-- Search Results (clickable rows, handled by widget) -->
                     <div
                         class="w-100"

@@ -6,6 +6,7 @@
             t-ref="input"
             t-att-id="props.id"
             type="text"
+            autocomplete="off"
             class="o_input"
             t-att-value="value"
             t-att-placeholder="props.placeholder || ''"

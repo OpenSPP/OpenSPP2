@@ -2,15 +2,12 @@
 <templates xml:space="preserve">
 
     <t t-name="spp_change_request_v2.CrSearchResultsField">
-        <div class="o_field_cr_search_results" style="width:100%">
-            <span
-                t-ref="status"
-                class="visually-hidden"
-                role="status"
-                aria-live="polite"
-            />
-            <div t-ref="container" t-out="htmlContent" />
-        </div>
+        <div
+            t-ref="container"
+            class="o_field_cr_search_results"
+            style="width:100%"
+            t-out="htmlContent"
+        />
     </t>
 
 </templates>

@@ -8,9 +8,12 @@ import {standardFieldProps} from "@web/views/fields/standard_field_props";
 const ROW_SELECTOR = ".o_cr_search_result";
 const PAGER_SELECTOR = ".o_cr_page_prev, .o_cr_page_next";
 const STATUS_SELECTOR = ".o_cr_search_status";
+// Live region hosted by the wizard form, outside the results block, so it
+// already exists when the first results arrive (see create_wizard_views.xml).
+const LIVE_REGION_SELECTOR = ".o_cr_search_live";
 const CLEAR_BUTTON_SELECTOR = "button[name='action_clear_registrant']";
 // Upper bound on waiting for the form to re-render after a record update.
-const RENDER_WAIT_MS = 500;
+const RENDER_WAIT_MS = 2000;
 
 /**
  * Custom widget that renders HTML search results and handles row selection
@@ -26,25 +29,30 @@ export class CrSearchResultsField extends Component {
 
     setup() {
         this.containerRef = useRef("container");
-        this.statusRef = useRef("status");
-        this.resolveNextPatch = null;
+        // HTML as last rendered, to tell a re-render with new results from
+        // any other patch of the form.
+        this.renderedHtml = null;
+        // Selectors to focus, in order of preference, once the results have
+        // been re-rendered after a page change.
+        this.pendingFocus = null;
         onMounted(() => {
             // One delegated listener each: the server re-renders the whole
             // results blob on every search or page change, so per-row handlers
             // would have to be re-attached after each patch.
-            this.containerRef.el.addEventListener("click", (ev) => this._onClick(ev));
-            this.containerRef.el.addEventListener("keydown", (ev) =>
-                this._onKeydown(ev)
-            );
+            const el = this.containerRef.el;
+            el.addEventListener("click", (ev) => this._onClick(ev));
+            el.addEventListener("keydown", (ev) => this._onKeydown(ev));
+            el.addEventListener("focusin", (ev) => this._onFocusin(ev));
+            this.renderedHtml = this.htmlContent;
             this._announceStatus();
         });
         onPatched(() => {
-            this._announceStatus();
-            if (this.resolveNextPatch) {
-                const resolve = this.resolveNextPatch;
-                this.resolveNextPatch = null;
-                resolve();
+            if (this.htmlContent === this.renderedHtml) {
+                return;
             }
+            this.renderedHtml = this.htmlContent;
+            this._announceStatus();
+            this._applyPendingFocus();
         });
     }
 
@@ -73,9 +81,11 @@ export class CrSearchResultsField extends Component {
     }
 
     _onKeydown(ev) {
-        // The pager buttons are native buttons: Enter and Space already click them.
+        // The pager buttons are native buttons: Enter and Space already click
+        // them. Keys with a modifier belong to the browser or to Odoo's hotkeys
+        // (the dialog binds Ctrl+Enter to its first footer button).
         const row = ev.target.closest(ROW_SELECTOR);
-        if (!row) {
+        if (!row || ev.altKey || ev.ctrlKey || ev.metaKey) {
             return;
         }
         const rows = this.rows;
@@ -85,6 +95,7 @@ export class CrSearchResultsField extends Component {
             case "Enter":
             case " ":
                 ev.preventDefault();
+                ev.stopPropagation();
                 this._selectRow(row);
                 return;
             case "ArrowDown":
@@ -103,19 +114,23 @@ export class CrSearchResultsField extends Component {
                 return;
         }
         ev.preventDefault();
-        this._focusRow(target, rows);
+        ev.stopPropagation();
+        target.focus();
     }
 
     /**
      * Roving tabindex: the list is a single Tab stop, and the row that holds
-     * focus is the one Tab returns to.
+     * focus is the one Tab returns to. Handled on focusin so it also covers
+     * focus that arrives by mouse or from assistive technology.
      */
-    _focusRow(row, rows) {
-        for (const other of rows) {
-            other.tabIndex = -1;
+    _onFocusin(ev) {
+        const row = ev.target.closest(ROW_SELECTOR);
+        if (!row) {
+            return;
         }
-        row.tabIndex = 0;
-        row.focus();
+        for (const other of this.rows) {
+            other.tabIndex = other === row ? 0 : -1;
+        }
     }
 
     async _selectRow(row) {
@@ -127,7 +142,7 @@ export class CrSearchResultsField extends Component {
         // widget, so focus is handed to the button that brings the search back.
         const formEl = this.containerRef.el.closest(".o_form_view");
         await this.props.record.update({_selected_partner_id: partnerId});
-        await this._focusWhenRendered(formEl, [CLEAR_BUTTON_SELECTOR]);
+        await this._focusWhenRendered(formEl, CLEAR_BUTTON_SELECTOR);
     }
 
     async _goToPage(button) {
@@ -135,48 +150,58 @@ export class CrSearchResultsField extends Component {
         if (isNaN(page) || page < 0) {
             return;
         }
+        // Keep focus on the button that was pressed so it can be pressed again;
+        // on the last page it is disabled, so fall back to the other one, then
+        // to the first row. The focus is applied by onPatched once the new
+        // results are in the DOM, however long the onchange takes.
         const pressed = button.classList.contains("o_cr_page_next")
             ? ".o_cr_page_next"
             : ".o_cr_page_prev";
         const other =
             pressed === ".o_cr_page_next" ? ".o_cr_page_prev" : ".o_cr_page_next";
-        const rendered = this._nextPatch();
+        this.pendingFocus = [pressed, other, ROW_SELECTOR];
         await this.props.record.update({_search_page: page});
-        await rendered;
-        // Keep focus on the button that was pressed so it can be pressed again;
-        // on the last page it is disabled, so fall back to the other one, then
-        // to the first row.
-        await this._focusWhenRendered(this.containerRef.el, [
-            pressed,
-            other,
-            ROW_SELECTOR,
-        ]);
+        // The server may answer with the same HTML (page clamped to the last
+        // one), in which case no patch with new results ever comes. Only then
+        // is the focus applied here; while a re-render is still due, onPatched
+        // owns it, otherwise the old button would be focused and then removed.
+        await new Promise(requestAnimationFrame);
+        if (this.htmlContent === this.renderedHtml) {
+            this._applyPendingFocus();
+        }
     }
 
-    _nextPatch() {
-        return new Promise((resolve) => {
-            this.resolveNextPatch = resolve;
-            setTimeout(resolve, RENDER_WAIT_MS);
-        });
+    _applyPendingFocus() {
+        const selectors = this.pendingFocus;
+        this.pendingFocus = null;
+        const el = this.containerRef.el;
+        if (!selectors || !el) {
+            return;
+        }
+        for (const selector of selectors) {
+            const target = el.querySelector(selector);
+            if (target && !target.disabled) {
+                target.focus();
+                return;
+            }
+        }
     }
 
     /**
-     * Focus the first enabled element matching one of the selectors, polling a
-     * few animation frames because the element may only appear once the form
-     * has re-rendered with the onchange result.
+     * Focus the element matching the selector, polling animation frames
+     * because it only appears once the form has re-rendered with the onchange
+     * result.
      */
-    async _focusWhenRendered(root, selectors) {
+    async _focusWhenRendered(root, selector) {
         if (!root) {
             return;
         }
         const deadline = Date.now() + RENDER_WAIT_MS;
         while (Date.now() < deadline) {
-            for (const selector of selectors) {
-                const target = root.querySelector(selector);
-                if (target && !target.disabled) {
-                    target.focus();
-                    return;
-                }
+            const target = root.querySelector(selector);
+            if (target) {
+                target.focus();
+                return;
             }
             await new Promise(requestAnimationFrame);
         }
@@ -184,15 +209,22 @@ export class CrSearchResultsField extends Component {
 
     /**
      * Mirror the range summary ("1-10 of 23") or the empty-result message into
-     * a live region that outlives the re-rendered blob, so screen readers hear
-     * the outcome of a search or a page change.
+     * the form's live region, so screen readers hear the outcome of a search
+     * or a page change. The region is cleared first so that an unchanged text
+     * (a refined search with the same range) is announced again.
      */
     _announceStatus() {
         const status = this.containerRef.el.querySelector(STATUS_SELECTOR);
         const text = status ? status.textContent.trim() : "";
-        if (this.statusRef.el && this.statusRef.el.textContent !== text) {
-            this.statusRef.el.textContent = text;
+        const formEl = this.containerRef.el.closest(".o_form_view");
+        const region = formEl && formEl.querySelector(LIVE_REGION_SELECTOR);
+        if (!region) {
+            return;
         }
+        region.textContent = "";
+        requestAnimationFrame(() => {
+            region.textContent = text;
+        });
     }
 }
 
