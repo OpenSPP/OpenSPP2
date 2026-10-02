@@ -18,7 +18,7 @@
 //   15 - Manually defines 5 more Change Request Document Type vocabulary codes for the Philippines (BIR Form 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent), matching the e2e fixture PDFs in e2e/fixtures/, by adding rows to the same vocabulary's Codes tab as test 14
 //   16 - Creates an "Edit Individual Information" change request for Santos, Jose Miguel (as admin), uploads a supporting document, and submits it for approval
 //   17 - Creates an "Edit Group Information" change request for Santos Family (as admin), uploads a supporting document, and submits it for approval
-//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
+//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), selecting the registrant by keyboard only, sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
 //   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
 //   20 - Logs in as the HQ validator and resolves all three pending change requests: approves
 //        Edit Individual Information, rejects Edit Group Information (with a reason), and
@@ -1127,10 +1127,19 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     console.log("✅ Request Type: Update ID Document");
 
     await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("sant");
-    await page
-      .locator("tr.o_cr_search_result", {hasText: "SANTOS, JOSE MIGUEL"})
-      .click();
-    console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
+    // Keyboard path (#580): the result rows are listbox options. The role
+    // locator proves role + accessible name, focus()/toBeFocused() proves the
+    // row is focusable, Enter exercises the keydown handler rather than click,
+    // and the last assertion proves focus is handed to "Change Registrant"
+    // once the results block disappears. Tests 16 and 17 keep the mouse path.
+    const santosRow = page.getByRole("option", {
+      name: "SANTOS, JOSE MIGUEL, Individual",
+    });
+    await santosRow.focus();
+    await expect(santosRow).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", {name: /Change Registrant/})).toBeFocused();
+    console.log("✅ Registrant selected by keyboard: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
     await page.waitForLoadState("domcontentloaded");
