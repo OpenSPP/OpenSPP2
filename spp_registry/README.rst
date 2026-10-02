@@ -139,6 +139,30 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.6
+~~~~~~~~~~
+
+- fix(registry): compare the registration date and the form's birthdate
+  check against the user's today, not the server's UTC date, finishing
+  what 19.0.2.2.4 started for ``_check_birthdate_not_future``. The
+  ``registration_date`` default was ``fields.Date.today()`` and
+  ``_check_registration_date`` bounded it by ``date.today()``, so a
+  registrar east of UTC creating a registrant born earlier that local
+  day was refused twice over: the defaulted registration date was the
+  server's yesterday ("must be later than the birth date") with no way
+  to correct it in the form, where the field is read-only once
+  defaulted, and setting the correct date through the API or an import
+  was refused as future. ``_birthdate_onchange`` used the same server
+  date and silently reset that valid birthdate in the form, while west
+  of UTC it kept the user's tomorrow only for the constraint to refuse
+  it on save. All three now use ``fields.Date.context_today`` (#520)
+- behaviour note for teams spread across timezones: "today" is now each
+  user's own, so a registration date stored by a user east of UTC can
+  read as tomorrow to a colleague further west until their local
+  midnight, and an API or import write of that value by the second user
+  is refused as future until then. The form is unaffected because
+  ``registration_date`` is read-only there once set.
+
 19.0.2.2.4
 ~~~~~~~~~~
 
