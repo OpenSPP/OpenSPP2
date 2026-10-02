@@ -33,9 +33,11 @@
                     </group>
 
                     <!-- Target type info -->
+                    <!-- Guidance, not an interruption: an alert role would be re-announced
+                         assertively on every change of the type field. -->
                     <div
                         class="alert alert-secondary py-2"
-                        role="alert"
+                        role="status"
                         invisible="not target_type_message"
                     >
                         <div class="d-flex align-items-center">
@@ -63,14 +65,15 @@
                     </group>
 
                     <!-- Live region for the search outcome ("1-10 of 23", "No registrants
-                         found."). It lives outside the results block so it already exists
-                         when the first results arrive; a live region inserted together with
-                         its text is not announced. The results widget writes into it. -->
+                         found.", "Selected: …"). It lives outside the results block so it
+                         already exists when the first results arrive and survives a
+                         selection; a live region inserted together with its text is not
+                         announced. The results widget writes into it. -->
                     <div
                         class="o_cr_search_live visually-hidden"
                         role="status"
                         aria-live="polite"
-                        invisible="not show_registrant or registrant_id"
+                        invisible="not show_registrant"
                     />
 
                     <!-- Search Results (clickable rows, handled by widget) -->
@@ -86,10 +89,11 @@
                         />
                     </div>
 
-                    <!-- Selected registrant info -->
+                    <!-- Selected registrant info. No alert role: the choice is confirmed
+                         through the live region above after focus has moved to the
+                         button, so the confirmation is not cut off by the focus change. -->
                     <div
                         class="alert alert-success py-2 mb-3"
-                        role="alert"
                         invisible="not registrant_id"
                     >
                         <field name="registrant_info_html" nolabel="1" readonly="1" />

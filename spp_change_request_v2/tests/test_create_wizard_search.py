@@ -96,6 +96,10 @@ class TestCreateWizardSearch(TestChangeRequestBase):
         prev = doc.xpath('.//button[contains(@class, "o_cr_page_prev")]')[0]
         nxt = doc.xpath('.//button[contains(@class, "o_cr_page_next")]')[0]
         self.assertEqual((prev.get("type"), nxt.get("type")), ("button", "button"))
+        # The accessible name says what the button pages through and still
+        # contains the visible text.
+        self.assertEqual(prev.get("aria-label"), "Previous page of results")
+        self.assertEqual(nxt.get("aria-label"), "Next page of results")
         self.assertIsNotNone(prev.get("disabled"))
         self.assertIsNone(nxt.get("disabled"))
         self.assertEqual((prev.get("data-page"), nxt.get("data-page")), ("-1", "1"))
@@ -134,6 +138,25 @@ class TestCreateWizardSearch(TestChangeRequestBase):
         self.assertEqual(row.get("aria-label"), f"{name}, Individual")
         self.assertEqual(row.get("data-partner-name"), name)
         self.assertEqual(row.xpath("./td")[0].text, name)
+
+    def test_search_as_cr_requestor_sees_registrants(self):
+        """The search runs under the acting user's record rules, so a CR requestor must get results."""
+        user = self.env["res.users"].create(
+            {"name": "a11y_cr_requestor", "login": "a11y_cr_requestor", "email": "a11y_cr_requestor@example.com"}
+        )
+        self.env["res.users.role.line"].create(
+            {"user_id": user.id, "role_id": self.env.ref("spp_change_request_v2.global_role_cr_requestor").id}
+        )
+        user.set_groups_from_roles()
+        wizard = self.wizard_model.with_user(user).create({"request_type_id": self.cr_type_edit_individual.id})
+
+        rows = self._rows(self._render(wizard, PREFIX))
+        self.assertEqual(len(rows), 10)
+        self.assertEqual(rows[0].get("aria-setsize"), "12")
+
+        wizard._selected_partner_id = int(rows[0].get("data-partner-id"))
+        wizard._onchange_selected_partner()
+        self.assertEqual(wizard.registrant_id.name, rows[0].get("data-partner-name"))
 
     def test_selected_partner_bridge_sets_registrant(self):
         """The integer the widget writes on Enter/click becomes the registrant."""

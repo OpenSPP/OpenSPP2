@@ -192,12 +192,12 @@ class SPPCRCreateWizard(models.TransientModel):
                 if reg.is_group:
                     member_count = len(reg.group_membership_ids) if hasattr(reg, "group_membership_ids") else 0
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'><i class='fa fa-users me-1'></i>{} members</span>"
-                    ).format(member_count)
+                        "<span class='text-muted ms-2'><i class='fa fa-users me-1' aria-hidden='true'></i>{}</span>"
+                    ).format(_("%s members", member_count))
                 else:
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'><i class='fa fa-user me-1'></i>Individual</span>"
-                    )
+                        "<span class='text-muted ms-2'><i class='fa fa-user me-1' aria-hidden='true'></i>{}</span>"
+                    ).format(_("Individual"))
                 lines.append(Markup("<div><strong>{}</strong>{}</div>").format(name, type_badge))
 
                 rec.registrant_info_html = Markup("").join(lines)
@@ -280,7 +280,9 @@ class SPPCRCreateWizard(models.TransientModel):
         total = self.env["res.partner"].search_count(search_domain)
 
         if not total:
-            self.search_results_html = Markup("<p class='text-muted o_cr_search_status'>No registrants found.</p>")
+            self.search_results_html = Markup("<p class='text-muted o_cr_search_status'>{}</p>").format(
+                _("No registrants found.")
+            )
             return
 
         page = self._search_page or 0
@@ -300,7 +302,7 @@ class SPPCRCreateWizard(models.TransientModel):
         # than within the page.
         rows = []
         for index, p in enumerate(partners):
-            type_label, type_icon = ("Group", "fa-users") if p.is_group else ("Individual", "fa-user")
+            type_label, type_icon = (_("Group"), "fa-users") if p.is_group else (_("Individual"), "fa-user")
             name = escape(p.name or "")
             rows.append(
                 Markup(
@@ -329,35 +331,39 @@ class SPPCRCreateWizard(models.TransientModel):
         # cells. Sighted users still see the column headings.
         table = Markup(
             '<table class="table table-hover table-sm mb-0 w-100" role="presentation">'
-            '<thead aria-hidden="true"><tr><th>Name</th><th>Type</th></tr></thead>'
-            '<tbody role="listbox" aria-label="Registrant search results">{}</tbody></table>'
-        ).format(Markup("").join(rows))
+            '<thead aria-hidden="true"><tr><th>{}</th><th>{}</th></tr></thead>'
+            '<tbody role="listbox" aria-label="{}">{}</tbody></table>'
+        ).format(_("Name"), _("Type"), _("Registrant search results"), Markup("").join(rows))
 
         # Pagination header. Previous/Next are real buttons so they are
         # focusable and respond to Enter/Space natively; a real `disabled`
         # attribute (not just muted styling) takes the edge out of the Tab order.
-        # The arrows are decoration (screen readers would read "left arrow").
-        # The range summary carries o_cr_search_status so the widget can mirror
-        # it into a live region.
+        # The arrows are decoration (screen readers would read "left arrow"),
+        # and the accessible names say "page of results" because a bare "Next"
+        # in a wizard dialog sounds like a wizard step. The range summary
+        # carries o_cr_search_status so the widget can mirror it into a live
+        # region.
         start = offset + 1
         end = min(offset + page_size, total)
         pagination = Markup(
             '<div class="d-flex justify-content-between align-items-center mb-2 px-1">'
-            '<small class="text-muted o_cr_search_status">{}-{} of {}</small>'
+            '<small class="text-muted o_cr_search_status">{}</small>'
             "<div>"
             '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_prev me-3"'
-            ' data-page="{}"{}><span aria-hidden="true">← </span>Previous</button>'
+            ' aria-label="{}" data-page="{}"{}><span aria-hidden="true">← </span>{}</button>'
             '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_next"'
-            ' data-page="{}"{}>Next<span aria-hidden="true"> →</span></button>'
+            ' aria-label="{}" data-page="{}"{}>{}<span aria-hidden="true"> →</span></button>'
             "</div></div>"
         ).format(
-            start,
-            end,
-            total,
+            _("%(start)s-%(end)s of %(total)s", start=start, end=end, total=total),
+            _("Previous page of results"),
             page - 1,
             " disabled" if page == 0 else "",
+            _("Previous"),
+            _("Next page of results"),
             page + 1,
             " disabled" if page >= max_page else "",
+            _("Next"),
         )
 
         self.search_results_html = pagination + table
