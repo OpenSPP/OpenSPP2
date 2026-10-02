@@ -1,3 +1,7 @@
+### 19.0.3.1.17
+
+- i18n(spp_change_request_v2): fill French coverage gaps from #238 for change-request UI strings. Existing `fr_FR` databases need `--i18n-overwrite` (or a translation reload) to overwrite prior msgstr values (#238)
+
 ### 19.0.3.1.16
 
 - fix(change_request): an Edit Individual change request can be opened again on a registrant that already holds a future date of birth. `spp.change.request.create` prefills the detail from the registrant and that prefill is a write, so the guard added in 19.0.3.1.15 refused the copied value and the request could not be created at all — closing the very path field staff use to correct the date. A birthdate the guard would refuse is now dropped from the prefill mapping rather than offered, so the field arrives empty and a valid date has to be entered. The rule itself lives in one place (`_is_future_birthdate` on the mixin), so what prefill declines to offer and what the constraint refuses cannot drift apart.
