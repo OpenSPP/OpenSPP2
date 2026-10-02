@@ -18,7 +18,7 @@
 //   15 - Manually defines 5 more Change Request Document Type vocabulary codes for the Philippines (BIR Form 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent), matching the e2e fixture PDFs in e2e/fixtures/, by adding rows to the same vocabulary's Codes tab as test 14
 //   16 - Creates an "Edit Individual Information" change request for Santos, Jose Miguel (as admin), uploads a supporting document, and submits it for approval
 //   17 - Creates an "Edit Group Information" change request for Santos Family (as admin), uploads a supporting document, and submits it for approval
-//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
+//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), selecting the registrant by keyboard only, sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
 //   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
 //   20 - Logs in as the HQ validator and resolves all three pending change requests: approves
 //        Edit Individual Information, rejects Edit Group Information (with a reason), and
@@ -998,8 +998,12 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Edit Individual Information").click();
     console.log("✅ Request Type: Edit Individual Information");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
-    await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).click();
+    await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
+    // Result rows are listbox options (#580); their cells are presentational to
+    // the accessibility tree, so the row is addressed by its option name.
+    await page
+      .getByRole("option", {name: "SANTOS, JOSE MIGUEL, Individual", exact: true})
+      .click();
     console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
@@ -1065,8 +1069,8 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Edit Group Information").click();
     console.log("✅ Request Type: Edit Group Information");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
-    await page.getByRole("cell", {name: "Santos Family"}).click();
+    await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
+    await page.getByRole("option", {name: "Santos Family, Group", exact: true}).click();
     console.log("✅ Registrant selected: Santos Family");
 
     await page.getByRole("button", {name: "Create"}).click();
@@ -1126,11 +1130,34 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Update ID Document").click();
     console.log("✅ Request Type: Update ID Document");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("sant");
-    await page
-      .locator("tr.o_cr_search_result", {hasText: "SANTOS, JOSE MIGUEL"})
-      .click();
-    console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
+    const searchBox = page.getByRole("textbox", {name: "Search Registrant"});
+    await searchBox.fill("sant");
+    // Keyboard path (#580): the result rows are listbox options. The role
+    // locator proves role + accessible name; Tab from the search box proves the
+    // list is in the Tab order (fewer than 11 hits, so both pager buttons are
+    // disabled and skipped); ArrowDown proves the keydown handler moves focus;
+    // Enter exercises the keydown path rather than click, and the last
+    // assertion proves focus is handed to "Change Registrant" once the results
+    // block disappears. Tests 16 and 17 keep the mouse path.
+    const options = page.getByRole("option");
+    await options.first().waitFor();
+    await searchBox.press("Tab");
+    await expect(options.first()).toBeFocused();
+    if ((await options.count()) > 1) {
+      await page.keyboard.press("ArrowDown");
+      await expect(options.nth(1)).toBeFocused();
+      await page.keyboard.press("Home");
+      await expect(options.first()).toBeFocused();
+    }
+    const santosRow = page.getByRole("option", {
+      name: "SANTOS, JOSE MIGUEL, Individual",
+      exact: true,
+    });
+    await santosRow.focus();
+    await expect(santosRow).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("button", {name: /Change Registrant/})).toBeFocused();
+    console.log("✅ Registrant selected by keyboard: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
     await page.waitForLoadState("domcontentloaded");

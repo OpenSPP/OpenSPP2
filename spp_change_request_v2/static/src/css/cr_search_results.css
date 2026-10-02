@@ -5,3 +5,26 @@
     max-width: 100% !important;
     display: block !important;
 }
+
+/* Keyboard focus on a result row must stay visible over the table-hover shading.
+   Odoo 19 compiles Bootstrap without the "bs-" prefix, so the theme colour is
+   --primary; the literal is the fallback for a theme that does not expose it. */
+.o_field_cr_search_results tr.o_cr_search_result:focus-visible {
+    outline: 2px solid var(--primary, #714b67);
+    outline-offset: -2px;
+}
+
+/* Outlines on <tr> are not painted reliably under border-collapse, so the cells carry
+   the ring too */
+.o_field_cr_search_results tr.o_cr_search_result:focus-visible > td {
+    box-shadow:
+        inset 0 2px 0 var(--primary, #714b67),
+        inset 0 -2px 0 var(--primary, #714b67);
+}
+
+/* Link-styled pager buttons: the backend theme can suppress the default button ring */
+.o_field_cr_search_results .o_cr_page_prev:focus-visible,
+.o_field_cr_search_results .o_cr_page_next:focus-visible {
+    outline: 2px solid var(--primary, #714b67);
+    outline-offset: 2px;
+}
