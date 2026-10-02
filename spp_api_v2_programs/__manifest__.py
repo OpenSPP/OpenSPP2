@@ -2,7 +2,7 @@
 {  # pylint: disable=pointless-statement
     "name": "OpenSPP API V2 - Programs",
     "category": "OpenSPP/Integration",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "sequence": 1,
     "author": "OpenSPP.org",
     "website": "https://github.com/OpenSPP/OpenSPP2",

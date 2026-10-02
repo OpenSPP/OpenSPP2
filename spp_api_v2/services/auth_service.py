@@ -10,6 +10,8 @@ from dataclasses import dataclass
 
 import odoo
 
+from .consent_service import NON_CONSENT_BASES
+
 _logger = logging.getLogger(__name__)
 
 
@@ -117,24 +119,15 @@ class AuthenticatedClient:
     def has_legal_basis_bypass(self) -> bool:
         """Check if client has legal basis that bypasses individual consent.
 
-        Per GDPR Article 6, these bases allow processing without consent:
-        - legal_obligation: Required by law
-        - vital_interest: Life-threatening emergencies
-        - public_interest: Public interest tasks
-        - public_task: Official authority
+        Per GDPR Article 6, the bases in ``NON_CONSENT_BASES`` allow processing
+        without consent (legal obligation, vital interest, public interest,
+        public task, contract, legitimate interest). The list lives in
+        consent_service, next to ``ConsentService.is_consent_filtered``.
 
         Returns:
             True if consent check can be bypassed
         """
-        non_consent_bases = (
-            "legal_obligation",
-            "vital_interest",
-            "public_interest",
-            "public_task",
-            "contract",
-            "legitimate_interest",
-        )
-        return self.legal_basis in non_consent_bases
+        return self.legal_basis in NON_CONSENT_BASES
 
     def __repr__(self) -> str:
         identifier = self.client_id or self.sender_id or str(self.id)

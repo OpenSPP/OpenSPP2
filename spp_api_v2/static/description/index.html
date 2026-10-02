@@ -517,28 +517,154 @@ endpoints</li>
 <div class="contents local topic" id="contents">
 <ul class="simple">
 <li><a class="reference internal" href="#changelog" id="toc-entry-1">Changelog</a><ul>
-<li><a class="reference internal" href="#section-1" id="toc-entry-2">19.0.2.1.1</a></li>
-<li><a class="reference internal" href="#section-2" id="toc-entry-3">19.0.2.1.0</a></li>
-<li><a class="reference internal" href="#section-3" id="toc-entry-4">19.0.2.0.1</a></li>
-<li><a class="reference internal" href="#section-4" id="toc-entry-5">19.0.2.0.0</a></li>
+<li><a class="reference internal" href="#section-1" id="toc-entry-2">19.0.2.2.0</a></li>
+<li><a class="reference internal" href="#section-2" id="toc-entry-3">19.0.2.1.1</a></li>
+<li><a class="reference internal" href="#section-3" id="toc-entry-4">19.0.2.1.0</a></li>
+<li><a class="reference internal" href="#section-4" id="toc-entry-5">19.0.2.0.1</a></li>
+<li><a class="reference internal" href="#section-5" id="toc-entry-6">19.0.2.0.0</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#bug-tracker" id="toc-entry-6">Bug Tracker</a></li>
-<li><a class="reference internal" href="#credits" id="toc-entry-7">Credits</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-7">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-8">Credits</a></li>
 </ul>
 </div>
 <div class="section" id="changelog">
 <h2><a class="toc-backref" href="#toc-entry-1">Changelog</a></h2>
 <div class="section" id="section-1">
-<h3><a class="toc-backref" href="#toc-entry-2">19.0.2.1.1</a></h3>
+<h3><a class="toc-backref" href="#toc-entry-2">19.0.2.2.0</a></h3>
+<ul class="simple">
+<li>fix: search filters fail closed (#554). A filter that names nothing
+(an unknown <tt class="docutils literal">group</tt>, <tt class="docutils literal">gender</tt>, <tt class="docutils literal"><span class="pre">membership-role</span></tt> or <tt class="docutils literal">member</tt>)
+now returns no results instead of silently dropping out and returning
+the whole registry. Malformed filters (<tt class="docutils literal">identifier</tt>, <tt class="docutils literal">group</tt>,
+<tt class="docutils literal">gender</tt>, <tt class="docutils literal">birthdate</tt>, <tt class="docutils literal">_lastUpdated</tt> without the expected
+format; <tt class="docutils literal">member</tt> not an <tt class="docutils literal"><span class="pre">Individual/{system}|{value}</span></tt> reference)
+return <tt class="docutils literal">400</tt> on <tt class="docutils literal">GET /Individual</tt> and <tt class="docutils literal">GET /Group</tt>.</li>
+<li>fix: multi-condition search filters apply to one related row (#554).
+<tt class="docutils literal">GET <span class="pre">/Individual?group=</span></tt> no longer lists someone who left the group
+but is active in another; <tt class="docutils literal"><span class="pre">membership-role=</span></tt> requires the role on an
+active membership; <tt class="docutils literal">identifier=</tt> requires system and value on the
+same ID. Behaviour change: <tt class="docutils literal">GET <span class="pre">/Group?member=</span></tt> now lists only
+groups the individual is an active member of.</li>
+<li>fix: returned references can be followed (#554).
+<tt class="docutils literal"><span class="pre">Group.member[].entity</span></tt>, the <tt class="docutils literal">group</tt>/<tt class="docutils literal">entity</tt> references in
+<tt class="docutils literal"><span class="pre">$add-member</span></tt>, <tt class="docutils literal"><span class="pre">$remove-member</span></tt> and member-update responses,
+membership-history <tt class="docutils literal">member</tt>, and
+<tt class="docutils literal"><span class="pre">Individual.groupMembership[].group</span></tt> were built from the identifier
+type’s vocabulary namespace (<tt class="docutils literal"><span class="pre">urn:openspp:vocab:id-type|…</span></tt>) and
+could not be resolved; they now use the full code URI
+(<tt class="docutils literal"><span class="pre">urn:openspp:vocab:id-type#&lt;code&gt;|…</span></tt>), the same value as
+<tt class="docutils literal"><span class="pre">identifier[].system</span></tt>.</li>
+<li>fix: ending a membership “now” takes effect immediately (#554).
+<tt class="docutils literal"><span class="pre">$remove-member</span></tt> without <tt class="docutils literal">endedDate</tt>, and the member moves in
+group merge and split, wrote the end time with microseconds, which the
+<tt class="docutils literal">is_ended</tt>/<tt class="docutils literal">status</tt> computes (second precision) treated as a
+moment in the future: the membership stayed active until the repair
+cron ran. They now use the ORM’s clock (<tt class="docutils literal">fields.Datetime.now()</tt>).</li>
+<li>fix: identifiers are resolved to exactly one registrant (#554).
+<tt class="docutils literal">POST /Individual</tt>, <tt class="docutils literal">POST /Group</tt>, <tt class="docutils literal">$split</tt> and create entries
+in <tt class="docutils literal">$batch</tt> bundles return <tt class="docutils literal">409</tt> when an identifier (type + value)
+is already live on another registrant, instead of creating a second
+record no lookup could tell apart; an archived registrant still holds
+its identifiers (mark the ID invalid to free it). Lookups no longer
+pick one of several registrants holding an identifier: read, update,
+patch, member operations, merge/split and <tt class="docutils literal">$batch</tt>/transaction
+bundles return <tt class="docutils literal">409</tt>; a client whose legal basis requires consent
+and may not read every match gets the same <tt class="docutils literal">403</tt> as for a registrant
+that does not exist. In <tt class="docutils literal">$batch</tt>/transaction bundles, such a client
+gets the entry’s “not found” answer for a read, update or delete, and
+<tt class="docutils literal">403</tt> for a create whose member reference is ambiguous. Search
+filters naming an ambiguous identifier (<tt class="docutils literal">group=</tt>, <tt class="docutils literal">member=</tt>)
+return <tt class="docutils literal">409</tt>, or an empty page for such a client; bulk export
+reports the identifier with item status <tt class="docutils literal">error</tt> (or
+<tt class="docutils literal">access_denied</tt>). Individual endpoints and the <tt class="docutils literal">member=</tt> filter
+resolve individuals only, and Group endpoints groups only, so a value
+held by one individual and one group is not ambiguous, and
+<tt class="docutils literal">GET <span class="pre">/Individual/{id}</span></tt> no longer returns a group. Soft-removed
+(<tt class="docutils literal">invalid</tt>) IDs no longer resolve, are no longer listed in
+<tt class="docutils literal">identifier[]</tt> and are not matched by <tt class="docutils literal">identifier=</tt>; references
+are built from a live ID, and a registrant with no live ID is left out
+of <tt class="docutils literal">Group.member[]</tt>, membership history and
+<tt class="docutils literal"><span class="pre">/Individual/{id}/groups</span></tt>. Searching by <tt class="docutils literal">identifier=</tt> still lists
+every registrant holding a live match.</li>
+<li>fix: <tt class="docutils literal">GET /Group</tt> applies <tt class="docutils literal">_offset</tt> (#554). The group search
+ignored it, so every page (and every <tt class="docutils literal">next</tt> link) returned the first
+page again, and when consent filtering skipped records the page was
+refilled from the start of the results, returning no records or
+repeating groups.</li>
+<li>fix: consent-filtered searches (<tt class="docutils literal">GET /Individual</tt>, <tt class="docutils literal">GET /Group</tt>)
+no longer skip records or stop early (#554). When the page filled
+partway through a fetched batch, the <tt class="docutils literal">next</tt> link jumped past the
+rows not yet examined. Pages over 50 records mistook the per-query cap
+of 100 for the end of the data. A page cut short by the over-fetch
+safety limit dropped its <tt class="docutils literal">next</tt> link although rows remained; the
+link is now given until the scan reaches the end. <strong>Clients must
+follow ``next`` until it is null: a page can be short, or empty, and
+still have a ``next`` link.</strong> A consent-filtered page that ends on the
+last row no longer links to an empty page.</li>
+<li>fix(security): the search <tt class="docutils literal">total</tt> never counts records the client
+may not see (#554). For a client whose legal basis requires consent,
+<tt class="docutils literal">meta.total</tt> is the number of records returned on every page. It was
+hidden only when this page met a hidden record, so a page past the end
+(<tt class="docutils literal"><span class="pre">?identifier=…&amp;_offset=1</span></tt>) or one filled before any hidden row
+returned the full count, including records the client may not see.
+Clients with a legal basis that doesn’t require consent still get the
+exact total. The <tt class="docutils literal">next</tt> offsets are still database positions, so
+hidden rows can be counted from them; see the follow-up issue.</li>
+<li>fix: <tt class="docutils literal">_offset</tt> values beyond what the database accepts return
+<tt class="docutils literal">422</tt> instead of a server error (#554).</li>
+<li>fix: <tt class="docutils literal">GET <span class="pre">/Individual?group=…&amp;membership-role=…</span></tt> requires the role
+on the membership of that group (#554). Someone who held the role in
+another group was also returned.</li>
+<li>fix: <tt class="docutils literal">PATCH /Individual</tt> updates <tt class="docutils literal">gender</tt> (#554). The vocabulary
+lookup ran without the privileges create uses, so every gender change
+returned <tt class="docutils literal">422 &quot;Failed to patch individual&quot;</tt>. An unknown gender code
+now returns <tt class="docutils literal">422</tt> naming the code, as create does, instead of being
+ignored. On create and <tt class="docutils literal">PATCH</tt>, only codes of the
+<tt class="docutils literal">urn:iso:std:iso:5218</tt> vocabulary are accepted: a code from another
+vocabulary (eg a membership role) returns <tt class="docutils literal">422</tt>.</li>
+<li>fix: <tt class="docutils literal"><span class="pre">$add-member</span></tt> and <tt class="docutils literal">PATCH <span class="pre">/Group/{id}/member/{id}</span></tt> reject a
+role code that doesn’t exist with <tt class="docutils literal">422</tt> naming it (#554), instead of
+adding or keeping the member without the role. For someone who is
+already a member, <tt class="docutils literal"><span class="pre">$add-member</span></tt> still answers <tt class="docutils literal">409</tt> first. Other
+validation errors on these two endpoints now return their message with
+the <tt class="docutils literal">422</tt> (eg “Duplication of Member is not allowed”, “End Date
+cannot be earlier than Start Date”) instead of a generic “Failed to
+add member” / “Failed to update member”.</li>
+<li>fix(security): one rule decides whether a client is subject to
+consent: its legal basis (#554 review). The “not found” answers for
+the addressed registrant (reads, bulk export, the group of member
+operations, membership history and <tt class="docutils literal"><span class="pre">/Individual/{id}/groups</span></tt>), and
+<tt class="docutils literal">ConsentService.check_access</tt>, branched on the client’s
+<tt class="docutils literal">is_require_consent</tt> box while consent filtering keys off
+<tt class="docutils literal">legal_basis</tt>. A client with legal basis “consent” and the box
+unticked got <tt class="docutils literal">404</tt> for an unknown registrant and <tt class="docutils literal">403</tt> (or a
+filtered <tt class="docutils literal">200</tt>) for a real one, so the status told them apart.
+Behaviour change for clients whose two settings disagree: legal basis
+“consent” now always gets <tt class="docutils literal">403</tt> for both; a legal basis that needs
+no consent gets <tt class="docutils literal">404</tt> for an unknown registrant and reads without
+consent, whatever the box says.</li>
+<li>fix(security): the “identifier in use” <tt class="docutils literal">409</tt> names the ID type, not
+the value (#554 review), and <tt class="docutils literal">$batch</tt>/transaction bundle entries
+that fail on client input (including a malformed resource) are logged
+by error type only, so their error text no longer carries identifier
+values (often national IDs) into the server log.</li>
+<li>fix: <tt class="docutils literal"><span class="pre">$add-member</span></tt>, <tt class="docutils literal"><span class="pre">$remove-member</span></tt> and
+<tt class="docutils literal">PATCH <span class="pre">/Group/{id}/member/{id}</span></tt> choose <tt class="docutils literal">409</tt>/<tt class="docutils literal">404</tt> by error type
+instead of by matching the English message text (#554 review), so a
+non-English user language no longer turns them into <tt class="docutils literal">422</tt>.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h3><a class="toc-backref" href="#toc-entry-3">19.0.2.1.1</a></h3>
 <ul class="simple">
 <li>chore(api_v2): the API V2 configuration menu moved from Registry &gt;
 Configuration to Settings &gt; Registry, alongside the other superuser
 configuration (#1009)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
-<h3><a class="toc-backref" href="#toc-entry-3">19.0.2.1.0</a></h3>
+<div class="section" id="section-3">
+<h3><a class="toc-backref" href="#toc-entry-4">19.0.2.1.0</a></h3>
 <ul class="simple">
 <li>Add OpenAPI polymorphic schema utilities
 (<tt class="docutils literal">utils/openapi_polymorphic.py</tt>): <tt class="docutils literal">polymorphic_body()</tt> for
@@ -563,8 +689,8 @@ non-registrant resources</li>
 polymorphic utilities, and the overall OpenAPI document contract</li>
 </ul>
 </div>
-<div class="section" id="section-3">
-<h3><a class="toc-backref" href="#toc-entry-4">19.0.2.0.1</a></h3>
+<div class="section" id="section-4">
+<h3><a class="toc-backref" href="#toc-entry-5">19.0.2.0.1</a></h3>
 <ul class="simple">
 <li>Fix <tt class="docutils literal">SerializationFailure</tt> race when multiple Odoo workers rebuild
 their routing map simultaneously (e.g. after <tt class="docutils literal"><span class="pre">-u</span> all</tt>) and all try
@@ -579,15 +705,15 @@ cold-start route-availability symptoms and broken-primitive
 regressions are diagnosable without raising the global log level</li>
 </ul>
 </div>
-<div class="section" id="section-4">
-<h3><a class="toc-backref" href="#toc-entry-5">19.0.2.0.0</a></h3>
+<div class="section" id="section-5">
+<h3><a class="toc-backref" href="#toc-entry-6">19.0.2.0.0</a></h3>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
 </ul>
 </div>
 </div>
 <div class="section" id="bug-tracker">
-<h2><a class="toc-backref" href="#toc-entry-6">Bug Tracker</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-7">Bug Tracker</a></h2>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OpenSPP/OpenSPP2/issues">GitHub Issues</a>.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
@@ -595,7 +721,7 @@ If you spotted it first, help us to smash it by providing a detailed and welcome
 <p>Do not contact contributors directly about support or help with technical issues.</p>
 </div>
 <div class="section" id="credits">
-<h2><a class="toc-backref" href="#toc-entry-7">Credits</a></h2>
+<h2><a class="toc-backref" href="#toc-entry-8">Credits</a></h2>
 </div>
 </div>
 <div class="section" id="authors">

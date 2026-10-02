@@ -18,6 +18,8 @@ from ..services.consent_service import ConsentService
 from ..services.field_filter import filter_fields
 from ..services.group_service import GroupService
 from ..services.individual_service import IndividualService
+from ..services.registrant_resolver import AmbiguousIdentifierError
+from ..utils.registrant_lookup import AMBIGUOUS_DETAIL, ambiguous_identifier_status
 
 _logger = logging.getLogger(__name__)
 
@@ -94,8 +96,19 @@ async def bulk_export(
     for identifier, _system, _value in parsed:
         record = records_map.get(identifier)
 
+        if isinstance(record, AmbiguousIdentifierError):
+            # Several registrants hold the identifier: refuse to pick one,
+            # without revealing it to a client that may not see them all
+            if ambiguous_identifier_status(env, api_client, record) == status.HTTP_403_FORBIDDEN:
+                await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # same jitter as "not found"
+                items.append(BulkExportItem(identifier=identifier, status="access_denied", error="Access denied"))
+            else:
+                items.append(BulkExportItem(identifier=identifier, status="error", error=AMBIGUOUS_DETAIL))
+            failed += 1
+            continue
+
         if not record:
-            if api_client.is_require_consent:
+            if ConsentService.is_consent_filtered(api_client):
                 # SECURITY: Add timing jitter to prevent enumeration via timing
                 await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
                 # Don't reveal if resource exists for consent-required clients
@@ -129,7 +142,7 @@ async def bulk_export(
         )
 
         # Check if consent was denied
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             consent_info = filtered_data.get("_consent", {})
             if consent_info.get("status") in ("no_consent", "scope_mismatch"):
                 items.append(

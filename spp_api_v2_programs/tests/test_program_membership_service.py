@@ -24,18 +24,19 @@ class TestProgramMembershipService(ApiV2TestCase):
         self.individual = self.create_test_individual(identifier_value="MEMBER-TEST-001")
         self.group = self.create_test_group(identifier_value="GROUP-TEST-001")
 
-    def test_find_by_identifier_uses_namespace_uri(self):
+    def test_find_beneficiary_then_membership_by_namespace_uri(self):
         """Lookup uses partner's namespace_uri"""
         membership = self.create_test_membership(partner=self.individual, program=self.program)
 
         # Find using partner's identifier
-        found = self.service.find_by_identifier("urn:openspp:vocab:id-type#test_national_id", "MEMBER-TEST-001")
+        partner = self.service.find_beneficiary("urn:openspp:vocab:id-type#test_national_id", "MEMBER-TEST-001")
+        found = self.service.find_for_beneficiary(partner)
 
         self.assertEqual(found, membership)
 
-    def test_find_by_identifier_not_found(self):
+    def test_find_beneficiary_not_found(self):
         """Returns empty recordset when not found"""
-        found = self.service.find_by_identifier("urn:openspp:vocab:id-type#test_national_id", "NONEXISTENT")
+        found = self.service.find_beneficiary("urn:openspp:vocab:id-type#test_national_id", "NONEXISTENT")
 
         self.assertFalse(found)
 

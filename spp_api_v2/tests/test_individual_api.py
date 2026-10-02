@@ -4,6 +4,8 @@
 import json
 from datetime import date
 
+from odoo.tools import mute_logger
+
 from .common import ApiV2HttpTestCase
 
 
@@ -258,6 +260,21 @@ class TestIndividualAPIEndpoints(ApiV2HttpTestCase):
         # Check Location header
         self.assertIn("location", response.headers)
         self.assertIn("CREATE-001", response.headers["location"])
+
+    def test_create_individual_gender_from_another_vocabulary_returns_422(self):
+        """POST /Individual with a gender code from another vocabulary (eg a membership role) returns 422"""
+        payload = {
+            "type": "Individual",
+            "identifier": [{"system": "urn:openspp:vocab:id-type#test_national_id", "value": "CREATE-GENDER-VOCAB"}],
+            "name": {"given": "Wrong", "family": "Vocabulary"},
+            "gender": {"coding": [{"system": "urn:openspp:vocab:group-membership-type", "code": "head"}]},
+        }
+
+        with mute_logger("odoo.addons.spp_api_v2.routers.individual", "odoo.http"):
+            response = self.url_open(self.api_base_url, data=json.dumps(payload), headers=self._get_headers())
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("Invalid gender code", json.loads(response.content)["detail"])
 
     def test_create_individual_source_tracking(self):
         """Created individual has source_system set"""

@@ -150,6 +150,21 @@ class TestProgramAPIEndpoints(ApiV2HttpTestCase):
         data = json.loads(response.content)
         self.assertGreater(data["meta"]["total"], 0)
 
+    def test_search_status_filter_selects_exactly_one_state(self):
+        """?status=active and ?status=ended each return only the program in that state"""
+        self.create_test_program(name="Status Filter Probe Running", state="active")
+        self.create_test_program(name="Status Filter Probe Closed", state="ended", active=False)
+
+        def names(status):
+            response = self.url_open(
+                f"{self.api_base_url}?name=Status+Filter+Probe&status={status}", headers=self._get_headers()
+            )
+            self.assertEqual(response.status_code, 200, response.content)
+            return [program["name"] for program in json.loads(response.content)["data"]]
+
+        self.assertEqual(names("active"), ["Status Filter Probe Running"])
+        self.assertEqual(names("ended"), ["Status Filter Probe Closed"])
+
     def test_search_by_target_type(self):
         """Search by targetType filters results"""
         # Create individual-targeted program

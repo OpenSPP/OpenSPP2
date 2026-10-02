@@ -3,14 +3,24 @@
 
 import logging
 from typing import Annotated
+from urllib.parse import quote, urlencode
 
 from odoo.api import Environment
+from odoo.exceptions import ValidationError
 
 from odoo.addons.fastapi.dependencies import odoo_env
 from odoo.addons.spp_api_v2.middleware.auth import get_authenticated_client
 from odoo.addons.spp_api_v2.schemas.search_result import SearchResult, create_search_result
 from odoo.addons.spp_api_v2.services.consent_service import ConsentService
-from odoo.addons.spp_api_v2.utils.pagination import fetch_with_consent
+from odoo.addons.spp_api_v2.services.registrant_resolver import AmbiguousIdentifierError
+from odoo.addons.spp_api_v2.utils.pagination import MAX_OFFSET, fetch_with_consent, page_total_and_next
+from odoo.addons.spp_api_v2.utils.registrant_lookup import (
+    ambiguous_filter_result,
+    consent_denied,
+    deny_access,
+    lookup_registrant,
+    raise_ambiguous_identifier,
+)
 
 from fastapi import (
     APIRouter,
@@ -25,24 +35,105 @@ from fastapi import (
 )
 
 from ..schemas.program_membership import ProgramMembership
-from ..services.program_membership_service import ProgramMembershipService
+from ..services.program_membership_service import (
+    AmbiguousMembershipError,
+    DuplicateMembershipError,
+    ProgramMembershipService,
+)
 
 _logger = logging.getLogger(__name__)
 
 program_membership_router = APIRouter(tags=["ProgramMembership"], prefix="/ProgramMembership")
 
+PROGRAM_PARAM_DESCRIPTION = (
+    "Program of the membership (format: Program/{system}|{value}). "
+    "Required when the beneficiary is enrolled in more than one program."
+)
+
+
+def _resolve_program_param(service, program):
+    """Resolve the ``program`` query parameter: 400 if malformed, 404 if unknown."""
+    if not program:
+        return None
+    try:
+        program_record = service._parse_program_reference(program)
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.args[0],
+        ) from e
+    if not program_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Program not found",
+        )
+    return program_record
+
+
+async def _resolve_membership(env, api_client, service, system, value, program_record):
+    """Resolve the addressed membership, or raise what the client may be told.
+
+    When no single membership resolves, a client that may not read the
+    beneficiary gets the same jittered 403 whatever the reason (unknown
+    beneficiary, not enrolled in this program, several memberships), so
+    neither the registry's contents nor enrollments are revealed.
+    """
+    partner = await lookup_registrant(
+        env, api_client, service.find_beneficiary, system, value, resource_type="program_membership"
+    )
+    if not partner:
+        if ConsentService.is_consent_filtered(api_client):
+            await deny_access()
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ProgramMembership not found",
+        )
+
+    ambiguous = None
+    try:
+        membership = service.find_for_beneficiary(partner, program_record)
+    except AmbiguousMembershipError as e:
+        membership = env["spp.program.membership"]
+        ambiguous = e
+
+    if not membership:
+        if consent_denied(env, api_client, partner, "program_membership"):
+            await deny_access()
+        if ambiguous:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(ambiguous),
+            )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ProgramMembership not found",
+        )
+    return membership
+
+
+def _membership_location(data: dict) -> str | None:
+    """Location of a membership: beneficiary identifier plus program, URL-encoded."""
+    if not data.get("identifier"):
+        return None
+    primary_id = data["identifier"][0]
+    path_id = f"{quote(primary_id['system'], safe=':')}|{quote(primary_id['value'], safe='')}"
+    program_ref = quote(data["program"]["reference"], safe=":/|")
+    return f"/api/v2/spp/ProgramMembership/{path_id}?program={program_ref}"
+
 
 @program_membership_router.get("/{identifier}", response_model=ProgramMembership)
 async def read_program_membership(
-    identifier: Annotated[str, Path(description="Format: {system}|{value} (URL-encoded)")],
+    identifier: Annotated[str, Path(description="Beneficiary identifier. Format: {system}|{value} (URL-encoded)")],
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     response: Response,
+    program: Annotated[str | None, Query(description=PROGRAM_PARAM_DESCRIPTION)] = None,
 ):
     """
-    Read ProgramMembership by external identifier.
+    Read ProgramMembership by beneficiary identifier and, optionally, program.
 
-    Applies consent filtering for beneficiary data.
+    Returns 409 when the beneficiary has several memberships and no
+    ``program`` is given. Applies consent filtering for beneficiary data.
     """
     # Check scope
     if not api_client.has_scope("program_membership", "read"):
@@ -60,21 +151,16 @@ async def read_program_membership(
 
     system, value = identifier.split("|", 1)
 
-    # Find program membership by namespace_uri + value
     service = ProgramMembershipService(env)
-    membership = service.find_by_identifier(system, value)
+    consent_service = ConsentService(env)
+    program_record = _resolve_program_param(service, program)
 
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
+    membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
     # Convert to API schema
     data = service.to_api_schema(membership)
 
     # Apply consent filtering for the beneficiary
-    consent_service = ConsentService(env)
     filtered_data = consent_service.filter_response(
         membership.partner_id.id,
         api_client,
@@ -116,7 +202,7 @@ async def search_program_memberships(
     program: Annotated[str | None, Query()] = None,
     status_: Annotated[str | None, Query(alias="status")] = None,
     count: Annotated[int, Query(alias="_count", ge=1, le=100)] = 20,
-    offset: Annotated[int, Query(alias="_offset", ge=0)] = 0,
+    offset: Annotated[int, Query(alias="_offset", ge=0, le=MAX_OFFSET)] = 0,
 ):
     """
     Search for program memberships.
@@ -154,11 +240,21 @@ async def search_program_memberships(
         search_params = {**params, "_count": limit, "_offset": offset}
         try:
             return service.search(search_params)
-        except Exception as e:
-            _logger.warning("Error in program membership search: %s", e)
+        except AmbiguousIdentifierError as e:
+            # The beneficiary filter matches more than one registrant
+            return ambiguous_filter_result(env, api_client, e, env["spp.program.membership"], "program_membership")
+        except ValidationError as e:
+            # A filter the API can't apply (malformed reference): our own message
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid search parameters: {e}",
+                detail=f"Invalid search parameters: {e.args[0]}",
+            ) from e
+        except Exception as e:
+            # Unexpected errors can carry database internals: log them, don't return them
+            _logger.exception("Error in program membership search")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to search program memberships",
             ) from e
 
     def consent_filter_function(membership):
@@ -186,43 +282,33 @@ async def search_program_memberships(
         search_function, consent_filter_function, count, offset
     )
 
-    # Suppress total when consent filtering is active
-    if consent_was_applied:
-        total = len(resources)
-    else:
-        total = raw_total
+    # For a consent-filtered client the total is the page size and the next
+    # link continues while rows remain (see page_total_and_next)
+    total, next_offset = page_total_and_next(
+        returned=len(resources),
+        count=count,
+        offset=offset,
+        db_offset_consumed=db_offset_consumed,
+        raw_total=raw_total,
+        consent_filtered=consent_was_applied or consent_service.is_consent_filtered(api_client),
+    )
 
-    # Build pagination links
-    url_params = {}
+    # Build pagination links; references carry '#' and '|', so they are
+    # URL-encoded: a raw '#' would cut the link short at the fragment
+    base_params = {}
     if beneficiary:
-        url_params["beneficiary"] = beneficiary
+        base_params["beneficiary"] = beneficiary
     if program:
-        url_params["program"] = program
+        base_params["program"] = program
     if status_:
-        url_params["status"] = status_
-    url_params["_count"] = str(count)
-    url_params["_offset"] = str(offset)
+        base_params["status"] = status_
 
-    query_string = "&".join(f"{k}={v}" for k, v in url_params.items())
-    self_url = f"{request.url.path}?{query_string}"
+    def build_url(offset_val: int) -> str:
+        return f"{request.url.path}?{urlencode({**base_params, '_count': count, '_offset': offset_val})}"
 
-    next_offset = db_offset_consumed if consent_was_applied else offset + count
-    has_more = len(resources) >= count
-
-    next_url = None
-    if has_more:
-        next_params = url_params.copy()
-        next_params["_offset"] = str(next_offset)
-        next_query_string = "&".join(f"{k}={v}" for k, v in next_params.items())
-        next_url = f"{request.url.path}?{next_query_string}"
-
-    prev_url = None
-    if offset > 0:
-        prev_offset = max(0, offset - count)
-        prev_params = url_params.copy()
-        prev_params["_offset"] = str(prev_offset)
-        prev_query_string = "&".join(f"{k}={v}" for k, v in prev_params.items())
-        prev_url = f"{request.url.path}?{prev_query_string}"
+    self_url = build_url(offset)
+    next_url = build_url(next_offset) if next_offset is not None else None
+    prev_url = build_url(max(0, offset - count)) if offset > 0 else None
 
     return create_search_result(
         data=resources,
@@ -262,20 +348,31 @@ async def create_program_membership(
 
     try:
         membership = service.create(program_membership, source=source_system)
+    except AmbiguousIdentifierError as e:
+        # The beneficiary reference matches more than one registrant
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
+    except DuplicateMembershipError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
+    except ValidationError as e:
+        # Client error (unknown program or beneficiary): our own message, no traceback
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Failed to create program membership: {e.args[0]}",
+        ) from e
     except Exception as e:
+        # Unexpected errors can carry database internals: log them, don't return them
         _logger.exception("Error creating program membership")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to create program membership: {str(e)}",
+            detail="Failed to create program membership",
         ) from e
 
     # Return created resource
     data = service.to_api_schema(membership)
 
     # Set Location header
-    if data.get("identifier"):
-        primary_id = data["identifier"][0]
-        location = f"/api/v2/spp/ProgramMembership/{primary_id['system']}|{primary_id['value']}"
+    location = _membership_location(data)
+    if location:
         response.headers["Location"] = location
 
     return data
@@ -283,11 +380,12 @@ async def create_program_membership(
 
 @program_membership_router.put("/{identifier}", response_model=ProgramMembership)
 async def update_program_membership(
-    identifier: Annotated[str, Path()],
+    identifier: Annotated[str, Path(description="Beneficiary identifier. Format: {system}|{value} (URL-encoded)")],
     program_membership: ProgramMembership,
     env: Annotated[Environment, Depends(odoo_env)],
     api_client: Annotated[dict, Depends(get_authenticated_client)],
     if_match: Annotated[str | None, Header()] = None,
+    program: Annotated[str | None, Query(description=PROGRAM_PARAM_DESCRIPTION)] = None,
 ):
     """
     Update ProgramMembership (full replacement).
@@ -296,6 +394,10 @@ async def update_program_membership(
     - Requires If-Match header with version ID for optimistic locking
     - Updates with source tracking
     - Checks client scopes for update permission
+    - Returns 409 when the beneficiary has several memberships and no
+      ``program`` is given
+    - The body's program and beneficiary must match the addressed
+      membership (422 otherwise); a PUT never moves a membership
     """
     # Check client has update scope
     if not api_client.has_scope("program_membership", "update"):
@@ -315,19 +417,12 @@ async def update_program_membership(
 
     # Find program membership
     service = ProgramMembershipService(env)
-    membership = service.find_by_identifier(system, value)
+    program_record = _resolve_program_param(service, program)
+    membership = await _resolve_membership(env, api_client, service, system, value, program_record)
 
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ProgramMembership not found",
-        )
-
-    # Check version for optimistic locking
+    # Check version for optimistic locking (the version meta.versionId / ETag carry)
     if if_match:
-        current_version = str(membership.write_date.timestamp() if membership.write_date else 1)
-        if_match_clean = if_match.strip('"')
-        if if_match_clean != current_version:
+        if if_match.strip('"') != service.version_id(membership):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Version conflict. Resource was modified by another request.",
@@ -338,11 +433,21 @@ async def update_program_membership(
 
     try:
         membership = service.update(membership, program_membership, source=source_system)
+    except AmbiguousIdentifierError as e:
+        # The body's beneficiary reference matches more than one registrant
+        await raise_ambiguous_identifier(env, api_client, e, "program_membership")
+    except ValidationError as e:
+        # Client error (unknown reference, identity mismatch): no traceback
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Failed to update program membership: {e.args[0]}",
+        ) from e
     except Exception as e:
+        # Unexpected errors can carry database internals: log them, don't return them
         _logger.exception("Error updating program membership")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Failed to update program membership: {str(e)}",
+            detail="Failed to update program membership",
         ) from e
 
     # Return updated resource
