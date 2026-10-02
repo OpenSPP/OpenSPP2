@@ -998,7 +998,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Edit Individual Information").click();
     console.log("✅ Request Type: Edit Individual Information");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
+    await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
     await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).click();
     console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
 
@@ -1065,7 +1065,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Edit Group Information").click();
     console.log("✅ Request Type: Edit Group Information");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
+    await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
     await page.getByRole("cell", {name: "Santos Family"}).click();
     console.log("✅ Registrant selected: Santos Family");
 
@@ -1126,14 +1126,28 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Update ID Document").click();
     console.log("✅ Request Type: Update ID Document");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("sant");
+    const searchBox = page.getByRole("textbox", {name: "Search Registrant"});
+    await searchBox.fill("sant");
     // Keyboard path (#580): the result rows are listbox options. The role
-    // locator proves role + accessible name, focus()/toBeFocused() proves the
-    // row is focusable, Enter exercises the keydown handler rather than click,
-    // and the last assertion proves focus is handed to "Change Registrant"
-    // once the results block disappears. Tests 16 and 17 keep the mouse path.
+    // locator proves role + accessible name; Tab from the search box proves the
+    // list is in the Tab order (fewer than 11 hits, so both pager buttons are
+    // disabled and skipped); ArrowDown proves the keydown handler moves focus;
+    // Enter exercises the keydown path rather than click, and the last
+    // assertion proves focus is handed to "Change Registrant" once the results
+    // block disappears. Tests 16 and 17 keep the mouse path.
+    const options = page.getByRole("option");
+    await options.first().waitFor();
+    await searchBox.press("Tab");
+    await expect(options.first()).toBeFocused();
+    if ((await options.count()) > 1) {
+      await page.keyboard.press("ArrowDown");
+      await expect(options.nth(1)).toBeFocused();
+      await page.keyboard.press("Home");
+      await expect(options.first()).toBeFocused();
+    }
     const santosRow = page.getByRole("option", {
       name: "SANTOS, JOSE MIGUEL, Individual",
+      exact: true,
     });
     await santosRow.focus();
     await expect(santosRow).toBeFocused();
