@@ -999,7 +999,11 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     console.log("✅ Request Type: Edit Individual Information");
 
     await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
-    await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).click();
+    // Result rows are listbox options (#580); their cells are presentational to
+    // the accessibility tree, so the row is addressed by its option name.
+    await page
+      .getByRole("option", {name: "SANTOS, JOSE MIGUEL, Individual", exact: true})
+      .click();
     console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
@@ -1066,7 +1070,7 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     console.log("✅ Request Type: Edit Group Information");
 
     await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
-    await page.getByRole("cell", {name: "Santos Family"}).click();
+    await page.getByRole("option", {name: "Santos Family, Group", exact: true}).click();
     console.log("✅ Registrant selected: Santos Family");
 
     await page.getByRole("button", {name: "Create"}).click();
