@@ -1005,6 +1005,19 @@ pathways</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): enforce manager-only approval of graduation assessments
+server-side. <tt class="docutils literal">action_approve</tt> / <tt class="docutils literal">action_reject</tt> /
+<tt class="docutils literal">action_reset_draft</tt> now require the graduation manager group (the
+view-level button gating was UI-only and bypassable via RPC), and
+non-managers can no longer set the approval fields (<tt class="docutils literal">approved_by_id</tt>
+/ <tt class="docutils literal">approved_date</tt> / <tt class="docutils literal">graduation_date</tt>), move <tt class="docutils literal">state</tt> beyond
+<tt class="docutils literal">draft → submitted</tt>, or edit a submitted assessment’s content.
+Prevents a user from self-approving their own assessment.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(views): add a “Graduation Criteria” menu item directly under the
@@ -1019,7 +1032,7 @@ above.</li>
 the Settings → Users access-rights UI.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
