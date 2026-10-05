@@ -81,7 +81,18 @@ class DCISecurityWarning(models.AbstractModel):
         Returns:
             dict: Summary with count and details
         """
-        warnings = self.get_security_warnings()
+        return self.summarize(self.get_security_warnings())
+
+    @api.model
+    def summarize(self, warnings):
+        """Shape a list of warnings into the payload the systray widget reads.
+
+        Args:
+            warnings: list of INSECURE_SETTINGS entries that are enabled
+
+        Returns:
+            dict: Summary with count and details
+        """
         return {
             "has_warnings": len(warnings) > 0,
             "warning_count": len(warnings),

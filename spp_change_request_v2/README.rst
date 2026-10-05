@@ -853,6 +853,17 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.17
+~~~~~~~~~~~
+
+- fix(change_request): ``CRReviewPanel`` no longer requests the ``rpc``
+  web service in its setup. Odoo 19 has no such service and
+  ``useService("rpc")`` throws the moment a component asking for it is
+  mounted; the handle was never used anyway. The panel is not wired into
+  any view today, so no screen was affected, but whoever mounts it next
+  would have hit the crash (#450). Whether the panel is wired in or
+  removed is tracked in #524
+
 19.0.3.1.16
 ~~~~~~~~~~~
 

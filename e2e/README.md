@@ -27,10 +27,11 @@ Tests run sequentially (1 worker). Each test file resets the database before run
 
 ## Test files
 
-| File                                     | Module                        | Description                                                     |
-| ---------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
-| `01-spp-starter-spmis.spec.ts`           | `spp_starter_sp_mis`          | Installs OpenSPP Starter SP-MIS and verifies nav menus          |
-| `02-spp-starter-farmer-registry.spec.ts` | `spp_starter_farmer_registry` | Installs OpenSPP Starter Farmer Registry and verifies nav menus |
+| File                                     | Module                        | Description                                                            |
+| ---------------------------------------- | ----------------------------- | ---------------------------------------------------------------------- |
+| `01-spp-starter-spmis.spec.ts`           | `spp_starter_sp_mis`          | Installs OpenSPP Starter SP-MIS and verifies nav menus                 |
+| `02-spp-starter-farmer-registry.spec.ts` | `spp_starter_farmer_registry` | Installs OpenSPP Starter Farmer Registry and verifies nav menus        |
+| `03-spp-dci-compliance.spec.ts`          | `spp_dci_compliance`          | Installs DCI Compliance and verifies the security-warning systray item |
 
 ## How each test works
 

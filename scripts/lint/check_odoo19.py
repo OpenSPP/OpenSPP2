@@ -9,6 +9,9 @@ Validates code against Odoo 19 compatibility requirements:
 - group_expand signature: Detects old 3-parameter _read_group_* methods
 - Legacy _sql_constraints: Detects the _sql_constraints class attribute, which
   Odoo 19 ignores (constraints are silently never created); use models.Constraint
+- Removed web services (--js): Detects useService("rpc") / useService("user") and
+  env.services.rpc / env.services.user in frontend JavaScript; both services are
+  gone and requesting them crashes the component at setup()
 
 Features:
 - Auto-fix support for Command API tuples (--fix)
@@ -89,6 +92,22 @@ XPATH_TITLE_PATTERN = re.compile(r"@title\s*[=\]]")
 GROUP_EXPAND_PATTERN = re.compile(
     r"def\s+(_read_group_\w+|_group_expand_\w+)\s*\(\s*self\s*,\s*\w+\s*,\s*\w+\s*,\s*\w+\s*\)"
 )
+
+# Web services that no longer exist. useService() raises
+# "Service <name> is not available" for them at component setup(), so a
+# component still requesting one crashes the moment it is mounted. Nothing
+# fails at asset-build time because the useService import itself resolves.
+REMOVED_WEB_SERVICES = {
+    "rpc": 'import {rpc} from "@web/core/network/rpc"; and call rpc(url, params) directly',
+    "user": 'import {user} from "@web/core/user";',
+}
+REMOVED_SERVICE_PATTERN = re.compile(
+    r"""(?<![\w$])useService\(\s*["'`](rpc|user)["'`]\s*[,)]"""  # useService("rpc") / useService('user', ...)
+    r"""|\benv\.services\.(rpc|user)\b"""  # this.env.services.rpc
+)
+# Comments are stripped before matching so a migration note quoting the old
+# call does not trip the check. Newlines are kept so line numbers stay right.
+JS_COMMENT_PATTERN = re.compile(r"//[^\n]*|/\*.*?\*/", re.DOTALL)
 
 
 class CommandTupleVisitor(ast.NodeVisitor):
@@ -328,6 +347,45 @@ class Odoo19Checker:
         """Check if XML file contains view definitions."""
         return "views" in path.parts or "view" in path.name.lower() or "wizard" in path.parts
 
+    def check_js_file(self, file_path: str) -> list[Violation]:
+        """Check a frontend JavaScript file for Odoo 19 issues."""
+        violations = []
+        path = Path(file_path)
+
+        if not path.exists() or path.suffix != ".js":
+            return violations
+
+        if self.config.should_ignore(file_path):
+            return violations
+
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                content = f.read()
+        except Exception:
+            return violations
+
+        # Match the whole file (a formatter may wrap the call over several lines).
+        content = JS_COMMENT_PATTERN.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), content)
+
+        for match in REMOVED_SERVICE_PATTERN.finditer(content):
+            service = match.group(1) or match.group(2)
+            line_num = content.count("\n", 0, match.start()) + 1
+            violations.append(
+                Violation(
+                    file_path=file_path,
+                    line=line_num,
+                    message=(
+                        f"the {service!r} web service no longer exists; requesting it crashes the component at setup()"
+                    ),
+                    rule_id="odoo19.removed_web_service",
+                    severity=Severity.ERROR,
+                    suggestion=f"Use {REMOVED_WEB_SERVICES[service]}",
+                    doc_link="docs/principles/odoo19-compatibility.md#removed-web-services",
+                )
+            )
+
+        return violations
+
     def _check_search_view_groups(self, file_path: str, root: ET.Element, lines: list[str]) -> list[Violation]:
         """Check for <group expand=...> or <group string=...> in search views."""
         violations = []
@@ -566,6 +624,9 @@ Examples:
   # Check XML files
   python check_odoo19.py --xml spp_programs/views/*.xml
 
+  # Check frontend JavaScript files
+  python check_odoo19.py --js spp_programs/static/src/**/*.js
+
   # Auto-fix Command API tuples
   python check_odoo19.py --fix spp_programs/models/*.py
 
@@ -577,6 +638,7 @@ Examples:
     add_common_args(parser)
     parser.add_argument("files", nargs="*", help="Files to check")
     parser.add_argument("--xml", action="store_true", help="Check XML files for search view issues")
+    parser.add_argument("--js", action="store_true", help="Check JavaScript files for removed web services")
     parser.add_argument("--fix", action="store_true", help="Auto-fix Command API tuples")
     parser.add_argument(
         "--dry-run",
@@ -602,6 +664,8 @@ Examples:
         if args.xml:
             files_to_check.extend(module_path.glob("views/*.xml"))
             files_to_check.extend(module_path.glob("wizard/*.xml"))
+        elif args.js:
+            files_to_check.extend(module_path.glob("static/src/**/*.js"))
         else:
             files_to_check.extend(module_path.glob("models/*.py"))
             files_to_check.extend(module_path.glob("wizard/*.py"))
@@ -640,6 +704,8 @@ Examples:
         file_str = str(file_path)
         if args.xml or file_str.endswith(".xml"):
             violations = checker.check_xml_file(file_str)
+        elif args.js or file_str.endswith(".js"):
+            violations = checker.check_js_file(file_str)
         else:
             violations = checker.check_python_file(file_str)
         all_violations.extend(violations)
