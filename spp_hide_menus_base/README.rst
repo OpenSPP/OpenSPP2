@@ -103,6 +103,21 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.1
+~~~~~~~~~~
+
+- ``_register_hook`` now re-hides menus only after a registry load that
+  installed or updated modules (``registry.updated_modules``), which is
+  every path that can reset ``group_ids``. Other loads — each HTTP and
+  cron worker, and the job worker, reloading after another process
+  signals a change — no longer repeat the same ``ir.ui.menu`` /
+  ``spp.hide.menu`` writes, which raced the upgrading process for the
+  same rows during deploys.
+- Operator-facing change: hidden menus that become visible for any
+  reason other than a module update (for example a manual edit of a
+  menu's groups) are no longer re-hidden by a plain restart. Upgrade the
+  module (``-u spp_hide_menus_base``) to re-apply hiding.
+
 19.0.2.1.0
 ~~~~~~~~~~
 
