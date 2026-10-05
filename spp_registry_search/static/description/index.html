@@ -497,6 +497,19 @@ search interface</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.1.2</h1>
+<ul class="simple">
+<li>fix(security): enforce the configured Registry Search controls
+server-side in the <tt class="docutils literal">search_registrants</tt> RPC method. The
+minimum-character requirement (counting effective, non-wildcard
+characters), the administrator’s maximum result limit, and the
+targeted search mode (no fallback to unified search when the field is
+missing or invalid) are now applied on the server instead of only in
+the JavaScript client, and malformed RPC inputs are rejected instead
+of raising errors.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>fix(security): gate the Registry Search “New Individual/Group” buttons
@@ -505,7 +518,7 @@ on the registry create-permission roles instead of generic
 rights (e.g. validators) can no longer initiate creation (#1124)</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

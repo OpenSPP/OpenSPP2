@@ -447,7 +447,7 @@ access from:</p>
 <div class="section" id="extension-points">
 <h1>Extension Points</h1>
 <ul class="simple">
-<li>Override <tt class="docutils literal">get_emergency_eligible_registrants()</tt> to customize
+<li>Override <tt class="docutils literal">_get_emergency_eligible_registrants()</tt> to customize
 eligibility logic beyond damage levels</li>
 <li>Override <tt class="docutils literal">_get_damage_level_domain()</tt> to add custom damage filtering
 rules</li>
@@ -698,6 +698,23 @@ response programs for each incident</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.1</h1>
+<ul class="simple">
+<li>fix(security): read <tt class="docutils literal">spp.hazard.impact</tt> via <tt class="docutils literal">sudo</tt> in the
+emergency-eligibility computes (<tt class="docutils literal">affected_registrant_count</tt>,
+<tt class="docutils literal">get_emergency_eligible_registrants</tt>), so they keep working for
+non-hazard program users after impact read access was restricted to
+hazard/registry roles. Only aggregate counts are surfaced to program
+users without impact read; the list of eligible (impacted) registrants
+is the identity linkage the impact ACL protects, so
+<tt class="docutils literal">action_view_affected_registrants</tt> now checks impact read access
+server-side, its stat button is gated in the form, and
+<tt class="docutils literal">get_emergency_eligible_registrants()</tt> is renamed
+<tt class="docutils literal">_get_emergency_eligible_registrants()</tt> so it is no longer callable
+over RPC (Python callers and overrides are unaffected).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

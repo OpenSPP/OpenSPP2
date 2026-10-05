@@ -514,6 +514,18 @@ Only for development or testing purpose, do not use in production.</p>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.2</h1>
+<ul class="simple">
+<li>fix(security): make the OAuth2 token/header methods private so they
+are no longer callable over RPC — a low-privilege internal user can no
+longer mint a DCI access token or obtain a Bearer header via
+<tt class="docutils literal">get_oauth2_token()</tt> / <tt class="docutils literal">get_headers()</tt>. Restrict the token cache
+fields (<tt class="docutils literal">_oauth2_access_token</tt> / <tt class="docutils literal">_oauth2_token_expires_at</tt>) to
+system administrators, and require write access to run a connection
+test.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

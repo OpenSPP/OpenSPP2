@@ -381,7 +381,7 @@ class TestOutgoingLogIntegration(TransactionCase):
 
         envelope = self._build_test_envelope(client)
 
-        with patch.object(ds, "clear_oauth2_token_cache"):
+        with patch.object(ds, "_clear_oauth2_token_cache"):
             client._make_request("/registry/sync/search", envelope)
 
         # Should have two log entries: one for 401, one for retry success

@@ -137,7 +137,7 @@ class TestProgramHazardIntegration(HazardProgramsTestCase):
                 "qualifying_damage_levels": "any",
             }
         )
-        registrants = self.program.get_emergency_eligible_registrants()
+        registrants = self.program._get_emergency_eligible_registrants()
         self.assertEqual(len(registrants), 2)
         self.assertIn(self.registrant_1, registrants)
         self.assertIn(self.registrant_2, registrants)
@@ -146,7 +146,7 @@ class TestProgramHazardIntegration(HazardProgramsTestCase):
 
     def test_get_emergency_eligible_registrants_no_incidents(self):
         """Test eligible registrants returns empty when no incidents linked."""
-        registrants = self.program.get_emergency_eligible_registrants()
+        registrants = self.program._get_emergency_eligible_registrants()
         self.assertEqual(len(registrants), 0)
 
     def test_get_emergency_eligible_registrants_with_filter(self):
@@ -157,7 +157,7 @@ class TestProgramHazardIntegration(HazardProgramsTestCase):
                 "qualifying_damage_levels": "critical_only",
             }
         )
-        registrants = self.program.get_emergency_eligible_registrants()
+        registrants = self.program._get_emergency_eligible_registrants()
         self.assertEqual(len(registrants), 1)
         self.assertIn(self.registrant_1, registrants)
 

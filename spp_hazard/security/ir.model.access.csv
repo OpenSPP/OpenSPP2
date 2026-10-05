@@ -3,7 +3,6 @@ access_spp_hazard_category_user,spp.hazard.category user,model_spp_hazard_catego
 access_spp_hazard_incident_user,spp.hazard.incident user,model_spp_hazard_incident,base.group_user,1,0,0,0
 access_spp_hazard_incident_area_user,spp.hazard.incident.area user,model_spp_hazard_incident_area,base.group_user,1,0,0,0
 access_spp_hazard_impact_type_user,spp.hazard.impact.type user,model_spp_hazard_impact_type,base.group_user,1,0,0,0
-access_spp_hazard_impact_user,spp.hazard.impact user,model_spp_hazard_impact,base.group_user,1,0,0,0
 access_spp_hazard_category_sysadmin,Hazard Category System Admin,model_spp_hazard_category,base.group_system,1,1,1,1
 access_spp_hazard_incident_sysadmin,Hazard Incident System Admin,model_spp_hazard_incident,base.group_system,1,1,1,1
 access_spp_hazard_incident_area_sysadmin,Hazard Incident Area System Admin,model_spp_hazard_incident_area,base.group_system,1,1,1,1

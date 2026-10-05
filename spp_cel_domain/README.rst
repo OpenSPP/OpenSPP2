@@ -142,6 +142,31 @@ Dependencies
 Changelog
 =========
 
+19.0.2.1.2
+~~~~~~~~~~
+
+- fix: recognise ``me`` as a CEL context identifier. The resolver
+  rewrites cached variables (and the DCI override rewrites dotted
+  accessors) into ``metric('<accessor>', me)`` before identifiers are
+  extracted; because ``me`` was missing from
+  ``CEL_CONTEXT_IDENTIFIERS``, ``validate_expression`` /
+  ``validate_formula_expression`` wrongly reported valid expressions as
+  ``Undefined variables: me``. ``me`` is the individual record proxy in
+  the eval context, so it is now a recognised context identifier.
+
+19.0.2.1.1
+~~~~~~~~~~
+
+- fix(security): key metric cache lookups strictly by the requested
+  params. The provider clause used to fall back to param-agnostic cache
+  rows (``(provider, "")`` and ``("", "")``), so a parameterized
+  ``metric(..., arg=…)`` predicate could be satisfied by an
+  unparameterized/legacy cached value — silently selecting subjects by a
+  less-specific value in eligibility/targeting/DCI-search flows. Reads
+  are now keyed by the exact ``params_hash`` (both the freshness
+  preflight and the SQL fast path), and the compute/refresh path
+  re-caches under the correct params key.
+
 19.0.2.1.0
 ~~~~~~~~~~
 
