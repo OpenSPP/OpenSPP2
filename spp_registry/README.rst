@@ -139,6 +139,19 @@ Dependencies
 Changelog
 =========
 
+19.0.2.2.7
+~~~~~~~~~~
+
+- test(registry): make two tests hold when other modules are installed
+  alongside spp_registry, as on every full stack. The unparseable-phone
+  fallback test builds its record with ``new()`` instead of
+  ``create()``, because ``spp_base_common`` overrides ``create()`` to
+  refuse a number containing letters before the registry compute is
+  reached; the unlink-permission tests pin the starter bundles'
+  admin-only registry switch off for their transaction, because it is
+  shipped on and enforced server-side and would refuse the manager the
+  registry rule allows. No behaviour change (#443)
+
 19.0.2.2.4
 ~~~~~~~~~~
 
