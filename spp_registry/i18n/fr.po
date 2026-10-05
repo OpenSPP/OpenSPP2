@@ -1536,12 +1536,6 @@ msgstr "Vous n’avez pas l’autorisation de supprimer cette pièce jointe."
 
 #. module: spp_registry
 #. odoo-python
-#: code:addons/spp_registry/controllers/mail.py:0
-msgid "You do not have permission to update this message."
-msgstr "Vous n’avez pas l’autorisation de mettre à jour ce message."
-
-#. module: spp_registry
-#. odoo-python
 #: code:addons/spp_registry/models/registrant.py:0
 msgid "You do not have the necessary permissions to delete partner records."
 msgstr ""
