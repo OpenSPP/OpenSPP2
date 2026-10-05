@@ -1,3 +1,7 @@
+### 19.0.4.0.5
+
+- fix(tests): the SLA completeness test now checks only the priority codes spp_drims itself ships. It compared against every code in the vocabulary, so installing an overlay that legitimately extends priorities — spp_drims_sl adds life_threatening — made the exact-match assertion fail on a fourth key the module never claimed to cover
+
 ### 19.0.4.0.4
 
 - fix(drims): name constants after codes the vocabulary actually ships, and fix the three places that used the wrong ones. An urgent request answered a 24-hour approval SLA instead of 8 hours, the priority badge and list decorations never fired, and the High Priority search filter always returned nothing — all because the code asked for priorities the data does not contain. A test now walks every code constant against its vocabulary, so one naming a code that does not exist fails the build instead of silently matching nothing (#1165)
