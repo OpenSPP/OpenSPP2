@@ -33,8 +33,10 @@ from ..services.api_audit_service import ApiAuditService
 from ..services.consent_service import ConsentService
 from ..services.field_filter import filter_fields, filter_list
 from ..services.individual_service import IndividualService
-from ..services.search_service import SearchService
-from ..utils.pagination import fetch_with_consent
+from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
+from ..services.search_service import InvalidSearchParam, SearchService
+from ..utils.pagination import MAX_OFFSET, fetch_with_consent, page_total_and_next
+from ..utils.registrant_lookup import ambiguous_filter_result, lookup_registrant
 from .dependencies import check_individual_access, parse_identifier
 
 _logger = logging.getLogger(__name__)
@@ -76,13 +78,13 @@ async def read_individual(
 
     # Find individual by namespace_uri + value
     service = IndividualService(env)
-    partner = service.find_by_identifier(system, value)
+    partner = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # SECURITY: Prevent user enumeration
     # For clients requiring consent, return same error for "not found" and "no consent"
     # to prevent attackers from determining which individuals exist in the system.
     if not partner:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             # SECURITY: Add timing jitter to prevent timing-based enumeration
             # Simulate the time it would take to process a found record
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
@@ -109,7 +111,7 @@ async def read_individual(
     )
 
     # SECURITY: Check if consent was denied and return same error as "not found"
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_info = filtered_data.get("_consent", {})
         if consent_info.get("status") in ("no_consent", "scope_mismatch"):
             raise HTTPException(
@@ -158,7 +160,7 @@ async def search_individuals(
     membership_role: Annotated[str | None, Query(alias="membership-role")] = None,
     last_updated: Annotated[str | None, Query(alias="_lastUpdated")] = None,
     count: Annotated[int, Query(alias="_count", ge=1, le=100)] = 20,
-    offset: Annotated[int, Query(alias="_offset", ge=0)] = 0,
+    offset: Annotated[int, Query(alias="_offset", ge=0, le=MAX_OFFSET)] = 0,
     sort: Annotated[str | None, Query(alias="_sort")] = None,
     elements: Annotated[str | None, Query(alias="_elements")] = None,
     extensions: Annotated[str | None, Query(alias="_extensions")] = None,
@@ -214,7 +216,13 @@ async def search_individuals(
 
     def search_function(offset, limit):
         search_params = {**params, "_count": limit, "_offset": offset}
-        return search_service.search_individuals(search_params)
+        try:
+            return search_service.search_individuals(search_params)
+        except InvalidSearchParam as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+        except AmbiguousIdentifierError as e:
+            # A filter reference (group=) matches more than one registrant
+            return ambiguous_filter_result(env, api_client, e, env["res.partner"])
 
     def consent_filter_function(partner):
         data = individual_service.to_api_schema(partner, extensions=extension_list)
@@ -235,13 +243,17 @@ async def search_individuals(
     if elements:
         individuals_data = filter_list(individuals_data, elements)
 
-    # When consent filtering is active, suppress the exact total to
-    # avoid leaking the count of denied records. Clients detect
-    # end-of-results when they receive fewer than `count` records.
-    if consent_was_applied:
-        total = len(individuals_data)
-    else:
-        total = raw_total
+    # For a consent-filtered client the total is the page size and the next
+    # link continues while rows remain: clients follow `next` until it is
+    # null, a short or empty page is not the end of the results
+    total, next_offset = page_total_and_next(
+        returned=len(individuals_data),
+        count=count,
+        offset=offset,
+        db_offset_consumed=db_offset_consumed,
+        raw_total=raw_total,
+        consent_filtered=consent_was_applied or consent_service.is_consent_filtered(api_client),
+    )
 
     # Build pagination links with proper URL encoding
     base_url = "/api/v2/spp/Individual"
@@ -252,12 +264,8 @@ async def search_individuals(
         url_params = {**base_params, "_count": count, "_offset": offset_val}
         return f"{base_url}?{urlencode(url_params)}"
 
-    # Use the consumed DB offset for next page link when consent filtering
-    next_offset = db_offset_consumed if consent_was_applied else offset + count
-    has_more = len(individuals_data) >= count
-
     self_url = build_url(offset)
-    next_url = build_url(next_offset) if has_more else None
+    next_url = build_url(next_offset) if next_offset is not None else None
     prev_url = build_url(max(0, offset - count)) if offset > 0 else None
 
     return create_search_result(
@@ -306,6 +314,19 @@ async def create_individual(
         # api_authorized=True tells service to skip user group check since
         # API client scope (verified above) is the authorization for API calls
         partner = service.create(individual, source=source_system, api_authorized=True)
+    except IdentifierInUseError as e:
+        # Another registrant holds one of the identifiers: creating a second
+        # would leave neither addressable unambiguously
+        audit_service.log_create(
+            "individual",
+            individual.identifier[0].system + "|" + individual.identifier[0].value
+            if individual.identifier
+            else "unknown",
+            None,
+            status="validation_error",
+            error_detail="Identifier in use",
+        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=e.args[0]) from e
     except ValidationError as ve:
         _logger.warning("Validation error creating individual: %s", ve)
         # Log failed create attempt
@@ -385,7 +406,7 @@ async def update_individual(
         ip_address=request.client.host if request.client else None,
         user_agent=request.headers.get("user-agent"),
     )
-    partner = service.find_by_identifier(system, value)
+    partner = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_individual_access(partner, api_client, env, "update")
@@ -461,7 +482,7 @@ async def patch_individual(
         ip_address=request.client.host if request.client else None,
         user_agent=request.headers.get("user-agent"),
     )
-    partner = service.find_by_identifier(system, value)
+    partner = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_individual_access(partner, api_client, env, "update")
@@ -544,7 +565,7 @@ async def get_individual_groups(
     # Parse identifier and find individual
     system, value = parse_identifier(identifier)
     service = IndividualService(env)
-    partner = service.find_by_identifier(system, value)
+    partner = await lookup_registrant(env, api_client, service.find_by_identifier, system, value)
 
     # Security checks (enumeration prevention + consent)
     await check_individual_access(partner, api_client, env, "read")

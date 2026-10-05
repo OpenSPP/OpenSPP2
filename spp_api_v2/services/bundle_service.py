@@ -5,16 +5,35 @@ import logging
 import re
 from typing import Any
 
+from pydantic import ValidationError as PydanticValidationError
+
 from odoo.api import Environment
 from odoo.exceptions import UserError, ValidationError
+
+from fastapi import status
 
 from ..schemas.bundle import Bundle, BundleEntry
 from ..schemas.group import Group
 from ..schemas.individual import Individual
+from ..utils.registrant_lookup import ambiguous_identifier_status
 from .group_service import GroupService
 from .individual_service import IndividualService
+from .registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
 
 _logger = logging.getLogger(__name__)
+
+# Errors a bundle entry raises for bad input. Their messages can carry the
+# identifiers the client sent (often national IDs), and a schema error quotes
+# the input (input_value=...), so they are logged by type
+CLIENT_ERRORS = (ValidationError, UserError, AmbiguousIdentifierError, PydanticValidationError)
+
+
+def _log_entry_failure(bundle_kind, idx, error):
+    """Log a failed entry: a client error by type only, anything else with its traceback."""
+    if isinstance(error, CLIENT_ERRORS):
+        _logger.warning("%s entry %s failed: %s", bundle_kind, idx + 1, type(error).__name__)
+    else:
+        _logger.error("%s entry %s failed", bundle_kind, idx + 1, exc_info=error)
 
 
 class BundleProcessor:
@@ -87,7 +106,7 @@ class BundleProcessor:
 
                 except Exception as e:
                     # Transaction failed - savepoint will rollback automatically
-                    _logger.error(f"Transaction entry {idx + 1} failed: {str(e)}", exc_info=True)
+                    _log_entry_failure("Transaction", idx, e)
                     raise ValidationError(
                         f"Transaction failed at entry {idx + 1} ({entry.full_url or 'unknown'}): {str(e)}"
                     ) from e
@@ -154,10 +173,10 @@ class BundleProcessor:
 
             except Exception as e:
                 # For batch, continue processing - just record the error
-                _logger.warning(f"Batch entry {idx + 1} failed: {str(e)}", exc_info=True)
+                _log_entry_failure("Batch", idx, e)
 
                 # Create error response
-                error_response = self._create_error_response(e)
+                error_response = self._create_error_response(e, api_client)
 
                 results.append(
                     {
@@ -371,9 +390,7 @@ class BundleProcessor:
                 raise ValidationError("Client does not have permission to update individuals")
 
             # Find individual
-            partner = self.individual_service.find_by_identifier(system, value)
-            if not partner:
-                raise ValidationError(f"Individual not found: {system}|{value}")
+            partner = self._find_registrant(self.individual_service, "Individual", system, value, api_client)
 
             # Parse schema
             individual = Individual(**resource_data)
@@ -397,9 +414,7 @@ class BundleProcessor:
                 raise ValidationError("Client does not have permission to update groups")
 
             # Find group
-            group_record = self.group_service.find_by_identifier(system, value)
-            if not group_record:
-                raise ValidationError(f"Group not found: {system}|{value}")
+            group_record = self._find_registrant(self.group_service, "Group", system, value, api_client)
 
             # Parse schema
             group = Group(**resource_data)
@@ -441,9 +456,7 @@ class BundleProcessor:
                 raise ValidationError("Client does not have permission to read individuals")
 
             # Find individual
-            partner = self.individual_service.find_by_identifier(system, value)
-            if not partner:
-                raise ValidationError(f"Individual not found: {system}|{value}")
+            partner = self._find_registrant(self.individual_service, "Individual", system, value, api_client)
 
             # Convert to API schema
             result = self.individual_service.to_api_schema(partner)
@@ -461,9 +474,7 @@ class BundleProcessor:
                 raise ValidationError("Client does not have permission to read groups")
 
             # Find group
-            group_record = self.group_service.find_by_identifier(system, value)
-            if not group_record:
-                raise ValidationError(f"Group not found: {system}|{value}")
+            group_record = self._find_registrant(self.group_service, "Group", system, value, api_client)
 
             # Convert to API schema
             result = self.group_service.to_api_schema(group_record)
@@ -499,9 +510,7 @@ class BundleProcessor:
                 raise ValidationError("Client does not have permission to delete individuals")
 
             # Find individual
-            partner = self.individual_service.find_by_identifier(system, value)
-            if not partner:
-                raise ValidationError(f"Individual not found: {system}|{value}")
+            partner = self._find_registrant(self.individual_service, "Individual", system, value, api_client)
 
             # Soft delete (set active=False)
             partner.with_context(source_system=source).write({"active": False})
@@ -521,9 +530,7 @@ class BundleProcessor:
                 raise ValidationError("Client does not have permission to delete groups")
 
             # Find group
-            group_record = self.group_service.find_by_identifier(system, value)
-            if not group_record:
-                raise ValidationError(f"Group not found: {system}|{value}")
+            group_record = self._find_registrant(self.group_service, "Group", system, value, api_client)
 
             # Soft delete (set active=False)
             group_record.with_context(source_system=source).write({"active": False})
@@ -539,6 +546,29 @@ class BundleProcessor:
 
         else:
             raise ValidationError(f"Unsupported resource type: {resource_type}")
+
+    def _find_registrant(self, service, resource_type: str, system: str, value: str, api_client):
+        """
+        Find the one registrant an entry addresses, or raise "not found".
+
+        An identifier held by several registrants is a 409 only for a client
+        that may read every match; anyone else gets the "not found" answer,
+        so it doesn't learn that the identifier exists.
+
+        Raises:
+            AmbiguousIdentifierError: several registrants hold it and the
+                client may read them all
+            ValidationError: no registrant (as far as the client may know)
+        """
+        try:
+            record = service.find_by_identifier(system, value)
+        except AmbiguousIdentifierError as e:
+            if ambiguous_identifier_status(self.env, api_client, e) != status.HTTP_403_FORBIDDEN:
+                raise
+            record = None
+        if not record:
+            raise ValidationError(f"{resource_type} not found: {system}|{value}")
+        return record
 
     def _extract_identifier_from_result(self, result: dict[str, Any]) -> str | None:
         """
@@ -569,18 +599,37 @@ class BundleProcessor:
 
         return None
 
-    def _create_error_response(self, exception: Exception) -> dict[str, Any]:
+    def _create_error_response(self, exception: Exception, api_client) -> dict[str, Any]:
         """
         Create error response from exception.
 
         Args:
             exception: Exception that occurred
+            api_client: client the bundle is answered to
 
         Returns:
             Dict with status and OperationOutcome
         """
         # Determine status code based on exception type
-        if isinstance(exception, ValidationError):
+        if (
+            isinstance(exception, AmbiguousIdentifierError)
+            and ambiguous_identifier_status(self.env, api_client, exception) == status.HTTP_403_FORBIDDEN
+        ):
+            # Only a client that may read every match learns the identifier is
+            # ambiguous; the others get the 403 POST /Group gives them
+            return {
+                "status": "403 Forbidden",
+                "outcome": {
+                    "resourceType": "OperationOutcome",
+                    "issue": [{"severity": "error", "code": "forbidden", "diagnostics": "Access denied"}],
+                },
+            }
+        if isinstance(exception, AmbiguousIdentifierError | IdentifierInUseError):
+            # The identifier matches, or would match, more than one registrant
+            status_code = "409 Conflict"
+            severity = "error"
+            code = "conflict"
+        elif isinstance(exception, ValidationError):
             status_code = "422 Unprocessable Entity"
             severity = "error"
             code = "invalid"

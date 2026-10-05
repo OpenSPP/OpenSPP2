@@ -14,6 +14,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from ..middleware.auth import get_authenticated_client
 from ..schemas.bundle import RegistrantBundle
 from ..services.bundle_service import BundleProcessor
+from ..services.registrant_resolver import AmbiguousIdentifierError, IdentifierInUseError
+from ..utils.registrant_lookup import ambiguous_identifier_status
 
 _logger = logging.getLogger(__name__)
 
@@ -128,7 +130,36 @@ async def process_bundle(
             return result
 
     except ValidationError as e:
-        _logger.error(f"Bundle processing failed for client {api_client.client_id}: {str(e)}")
+        if (
+            isinstance(e.__cause__, AmbiguousIdentifierError)
+            and ambiguous_identifier_status(env, api_client, e.__cause__) == status.HTTP_403_FORBIDDEN
+        ):
+            # Only a client that may read every match learns the identifier is
+            # ambiguous; the others get the 403 POST /Group gives them
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "resourceType": "OperationOutcome",
+                    "issue": [{"severity": "error", "code": "forbidden", "diagnostics": "Access denied"}],
+                },
+            ) from e
+        if isinstance(e.__cause__, AmbiguousIdentifierError | IdentifierInUseError):
+            # A transaction entry's identifier matches, or would match, more
+            # than one registrant: a conflict, as for the single-resource endpoints
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "resourceType": "OperationOutcome",
+                    "issue": [{"severity": "error", "code": "conflict", "diagnostics": str(e)}],
+                },
+            ) from e
+        # The message can carry the identifiers the client sent (PII): log the
+        # failing entry's error type, not its text
+        _logger.warning(
+            "Bundle processing failed for client %s: %s",
+            api_client.client_id,
+            type(e.__cause__ or e).__name__,
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={

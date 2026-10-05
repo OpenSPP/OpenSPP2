@@ -14,8 +14,18 @@ from ..schemas.base import (
 from ..schemas.individual import Individual
 from ..schemas.patch import IndividualPatch
 from .membership_utils import membership_to_response
+from .registrant_resolver import (
+    assert_new_identifiers_free,
+    live_registry_ids,
+    primary_registry_id,
+    resolve_registrant,
+    resolve_registrants,
+)
 
 _logger = logging.getLogger(__name__)
+
+# The vocabulary gender codes come from (gender_id's domain)
+GENDER_SYSTEM = "urn:iso:std:iso:5218"
 
 
 class IndividualService:
@@ -23,6 +33,30 @@ class IndividualService:
 
     def __init__(self, env: Environment):
         self.env = env
+
+    def _resolve_gender_code(self, system, code):
+        """
+        Resolve a gender coding to its vocabulary code.
+
+        Only codes of the ISO 5218 vocabulary are genders: an unknown code, or
+        a code from another vocabulary (eg a membership role), is a
+        ValidationError.
+        """
+        gender_code = self.env["spp.vocabulary.code"]
+        if system == GENDER_SYSTEM:
+            # The API runs as the public user; vocabularies are public reference data
+            gender_code = (
+                self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
+                .sudo()
+                .search([("namespace_uri", "=", GENDER_SYSTEM), ("code", "=", code)], limit=1)
+            )
+        if not gender_code:
+            raise ValidationError(
+                f"Invalid gender code: system='{system}', code='{code}'. "
+                f"Expected system '{GENDER_SYSTEM}' with codes: "
+                f"0 (Not Known), 1 (Male), 2 (Female), 9 (Not Applicable)."
+            )
+        return gender_code
 
     def find_by_identifier(self, system_uri: str, value: str):
         """
@@ -35,25 +69,13 @@ class IndividualService:
             value: Identifier value
 
         Returns:
-            res.partner record or empty recordset (in sudo context)
+            res.partner record or empty recordset (in sudo context - API
+            handlers run as Public user)
+
+        Raises:
+            AmbiguousIdentifierError: several registrants hold the identifier
         """
-        reg_id = (
-            self.env["spp.registry.id"]  # nosemgrep: odoo-sudo-without-context — API auth
-            .sudo()
-            .search(
-                [
-                    ("id_type_id.uri", "=", system_uri),
-                    ("value", "=", value),
-                ],
-                limit=1,
-            )
-        )
-        if reg_id and reg_id.partner_id:
-            # Return sudo partner - API handlers run as Public user
-            # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — API auth
-            return self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-        # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context
-        return self.env["res.partner"].sudo()
+        return resolve_registrant(self.env, system_uri, value, is_group=False)
 
     def find_by_identifiers(self, identifiers: list[tuple[str, str]]):
         """
@@ -63,36 +85,11 @@ class IndividualService:
             identifiers: List of (system_uri, value) tuples
 
         Returns:
-            Dict mapping "system_uri|value" to res.partner record (or None)
+            Dict mapping "system_uri|value" to the res.partner record (sudo),
+            or to an AmbiguousIdentifierError when several registrants hold
+            it; identifiers with no match are absent
         """
-        if not identifiers:
-            return {}
-
-        # Build OR domain for batch search
-        or_domains = []
-        for system_uri, value in identifiers:
-            or_domains.append("&")
-            or_domains.append(("id_type_id.uri", "=", system_uri))
-            or_domains.append(("value", "=", value))
-
-        # Combine with OR: need (n-1) | operators for n terms
-        if len(identifiers) > 1:
-            domain = ["|"] * (len(identifiers) - 1) + or_domains
-        else:
-            domain = or_domains
-
-        # nosemgrep: odoo-sudo-without-context — API auth; batch identifier lookup
-        reg_ids = self.env["spp.registry.id"].sudo().search(domain)
-
-        # Build result map
-        result = {}
-        for reg_id in reg_ids:
-            key = f"{reg_id.id_type_id.uri}|{reg_id.value}"
-            if reg_id.partner_id:
-                # nosemgrep: odoo-sudo-on-sensitive-models, odoo-sudo-without-context — API auth
-                result[key] = self.env["res.partner"].sudo().browse(reg_id.partner_id.id)
-
-        return result
+        return resolve_registrants(self.env, identifiers, is_group=False)
 
     def to_api_schema(self, partner, extensions=None) -> dict[str, Any]:
         """
@@ -116,7 +113,8 @@ class IndividualService:
 
         # Build identifier list (REQUIRED, at least one)
         identifiers = []
-        for reg_id in partner.reg_ids:
+        # Live IDs only: a soft-removed ID no longer resolves, so it is not offered as a key
+        for reg_id in live_registry_ids(partner):
             # Use id_type_id.uri for full code URI (e.g., urn:openspp:vocab:id-type#national_id)
             # NOT namespace_uri which only returns vocabulary namespace
             if reg_id.id_type_id and reg_id.id_type_id.uri and reg_id.value:
@@ -280,10 +278,11 @@ class IndividualService:
 
     def _build_group_reference(self, group) -> dict:
         """Build Reference to a Group"""
-        # Get primary identifier for group
-        if group.reg_ids:
-            primary_id = group.reg_ids[0]
-            ref = f"Group/{primary_id.namespace_uri}|{primary_id.value}"
+        # Get primary identifier for group (a live one: removed IDs don't resolve)
+        primary_id = primary_registry_id(group)
+        if primary_id:
+            # id_type_id.uri (full code URI), NOT namespace_uri, so the reference resolves
+            ref = f"Group/{primary_id.id_type_id.uri}|{primary_id.value}"
         else:
             # No identifier - this should not happen in a properly configured system
             _logger.error(
@@ -352,26 +351,7 @@ class IndividualService:
         # Gender - CRITICAL: Find gender_id by namespace_uri + code
         if schema.gender and schema.gender.coding:
             gender_coding = schema.gender.coding[0]
-            gender_code = (
-                self.env["spp.vocabulary.code"]  # nosemgrep: odoo-sudo-without-context
-                .sudo()
-                .search(
-                    [
-                        ("namespace_uri", "=", gender_coding.system),
-                        ("code", "=", gender_coding.code),
-                    ],
-                    limit=1,
-                )
-            )
-            if gender_code:
-                vals["gender_id"] = gender_code.id
-            else:
-                # Gender code not found - raise validation error with helpful message
-                raise ValidationError(
-                    f"Invalid gender code: system='{gender_coding.system}', code='{gender_coding.code}'. "
-                    f"Expected system 'urn:iso:std:iso:5218' with codes: "
-                    f"0 (Not Known), 1 (Male), 2 (Female), 9 (Not Applicable)."
-                )
+            vals["gender_id"] = self._resolve_gender_code(gender_coding.system, gender_coding.code).id
 
         # Telecom
         for contact in schema.telecom or []:
@@ -497,6 +477,7 @@ class IndividualService:
             )
 
         vals = self.from_api_schema(schema)
+        assert_new_identifiers_free(self.env, vals.get("reg_ids", []))
 
         # Add source tracking (ADR-008) - if fields exist
         if hasattr(self.env["res.partner"], "_fields") and "source_system" in self.env["res.partner"]._fields:
@@ -608,15 +589,10 @@ class IndividualService:
             if gender:
                 if gender.get("coding"):
                     gender_coding = gender["coding"][0]
-                    gender_code = self.env["spp.vocabulary.code"].search(
-                        [
-                            ("namespace_uri", "=", gender_coding.get("system")),
-                            ("code", "=", gender_coding.get("code")),
-                        ],
-                        limit=1,
-                    )
-                    if gender_code:
-                        vals["gender_id"] = gender_code.id
+                    # As on create: an unknown code is an error, not a no-op
+                    vals["gender_id"] = self._resolve_gender_code(
+                        gender_coding.get("system"), gender_coding.get("code")
+                    ).id
             else:
                 # RFC 7396: null clears the field
                 vals["gender_id"] = False

@@ -61,19 +61,23 @@ class TestSearchService(ApiV2TestCase):
         self.assertIn("Alice Brown", names)
 
     def test_parse_identifier_param(self):
-        """identifier=system|value creates proper domain"""
+        """identifier=system|value creates proper domain, both conditions on the same ID"""
         domain = self.service._parse_identifier_param("urn:openspp:vocab:id-type#test_national_id|IND-001")
 
-        self.assertEqual(len(domain), 2)
-        self.assertIn(
-            (
-                "reg_ids.id_type_id.uri",
-                "=",
-                "urn:openspp:vocab:id-type#test_national_id",
-            ),
+        self.assertEqual(
             domain,
+            [
+                (
+                    "reg_ids",
+                    "any",
+                    [
+                        ("id_type_id.uri", "=", "urn:openspp:vocab:id-type#test_national_id"),
+                        ("value", "=", "IND-001"),
+                        ("status", "!=", "invalid"),
+                    ],
+                )
+            ],
         )
-        self.assertIn(("reg_ids.value", "=", "IND-001"), domain)
 
     def test_search_by_identifier(self):
         """Search by identifier finds exact match"""
@@ -282,3 +286,12 @@ class TestSearchGroups(ApiV2TestCase):
 
         self.assertGreaterEqual(total, 2)
         self.assertEqual(len(records), 1)
+
+    def test_search_groups_offset(self):
+        """_offset skips records: page 2 is the second group, not page 1 again"""
+        all_records, _total = self.service.search_groups({"_count": 100})
+        first_page, _total = self.service.search_groups({"_count": 1, "_offset": 0})
+        second_page, _total = self.service.search_groups({"_count": 1, "_offset": 1})
+
+        self.assertEqual(first_page, all_records[0])
+        self.assertEqual(second_page, all_records[1])

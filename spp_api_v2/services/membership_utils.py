@@ -5,6 +5,8 @@ from typing import Any
 
 from odoo.exceptions import ValidationError
 
+from .registrant_resolver import primary_registry_id
+
 
 def membership_to_response(membership) -> dict[str, Any]:
     """
@@ -24,23 +26,25 @@ def membership_to_response(membership) -> dict[str, Any]:
     """
     # Build group reference
     group = membership.group
-    group_id = group.reg_ids[0] if group.reg_ids else None
+    group_id = primary_registry_id(group)
     if not group_id:
         raise ValidationError(f"Group {group.name} has no valid external identifiers")
 
+    # id_type_id.uri (full code URI), NOT namespace_uri: the reference must
+    # resolve through the identifier lookups, which match on the code URI
     group_ref = {
-        "reference": f"Group/{group_id.namespace_uri}|{group_id.value}",
+        "reference": f"Group/{group_id.id_type_id.uri}|{group_id.value}",
         "display": group.name,
     }
 
     # Build individual reference
     individual = membership.individual
-    individual_id = individual.reg_ids[0] if individual.reg_ids else None
+    individual_id = primary_registry_id(individual)
     if not individual_id:
         raise ValidationError(f"Individual {individual.name} has no valid external identifiers")
 
     individual_ref = {
-        "reference": f"Individual/{individual_id.namespace_uri}|{individual_id.value}",
+        "reference": f"Individual/{individual_id.id_type_id.uri}|{individual_id.value}",
         "display": individual.name,
     }
 

@@ -94,7 +94,7 @@ async def check_group_access(
     # SECURITY: Prevent user enumeration
     # For clients requiring consent, return same error for "not found" and "no consent"
     if not group:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             # SECURITY: Add timing jitter to prevent timing-based enumeration
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
             raise HTTPException(
@@ -107,7 +107,7 @@ async def check_group_access(
         )
 
     # SECURITY: Check consent before allowing operation (for clients requiring consent)
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_service = ConsentService(env)
         if not consent_service.check_access(group.id, api_client, "group", operation):
             raise HTTPException(
@@ -140,7 +140,7 @@ async def check_individual_access(
     """
     # SECURITY: Prevent user enumeration
     if not individual:
-        if api_client.is_require_consent:
+        if ConsentService.is_consent_filtered(api_client):
             # SECURITY: Add timing jitter to prevent timing-based enumeration
             await asyncio.sleep(0.05 + random.uniform(0, 0.02))  # 50-70ms delay
             raise HTTPException(
@@ -153,7 +153,7 @@ async def check_individual_access(
         )
 
     # SECURITY: Check consent before allowing operation (for clients requiring consent)
-    if api_client.is_require_consent:
+    if ConsentService.is_consent_filtered(api_client):
         consent_service = ConsentService(env)
         if not consent_service.check_access(individual.id, api_client, "individual", operation):
             raise HTTPException(
