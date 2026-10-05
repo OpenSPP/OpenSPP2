@@ -4,7 +4,7 @@
 The API refuses to guess (409). But saying "this identifier is ambiguous"
 also says "it exists", so a client only learns it when it may read every
 matching registrant; otherwise it gets exactly what it would get for a
-registrant that does not exist (api-error-responses.md, anti-enumeration):
+registrant that does not exist (the API's anti-enumeration rule):
 the 403 of a read, or the empty page of a search.
 """
 
