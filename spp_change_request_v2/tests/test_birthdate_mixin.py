@@ -64,11 +64,11 @@ class TestBirthdateMixin(TransactionCase):
     def test_edit_individual_prefill_skips_future_birthdate(self):
         """A change request can still be opened on a registrant holding one.
 
-        ``spp.change.request.create`` prefills the detail from the registrant,
-        and that prefill is a write: offering the birthdate back would raise
-        the mixin's constraint while the request is being created, so the
-        request could not be opened at all — closing the very path field staff
-        use to correct the date.
+        ``spp.change.request.create`` prefills the detail from the registrant
+        (inside the detail's own ``create()``, where the mixin's constraint
+        runs too): offering the birthdate back would raise while the request
+        is being created, so the request could not be opened at all — closing
+        the very path field staff use to correct the date.
         """
         subject = self.Partner.create(
             {
