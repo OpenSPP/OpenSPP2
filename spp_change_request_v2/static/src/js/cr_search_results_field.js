@@ -40,6 +40,10 @@ export class CrSearchResultsField extends Component {
         // change: the selectors to try in order, and the element that had
         // focus when the page change started.
         this.pendingFocus = null;
+        // Deferred writes that must not outlive the widget: the frame that
+        // fills the live region, and the first announcement after mount.
+        this.announceFrame = null;
+        this.mountTimer = null;
         onMounted(() => {
             // One delegated listener each: the server re-renders the whole
             // results blob on every search or page change, so per-row handlers
@@ -50,7 +54,10 @@ export class CrSearchResultsField extends Component {
             el.addEventListener("focusin", (ev) => this._onFocusin(ev));
             this.renderedHtml = this.htmlContent;
             this.formEl = el.closest(".o_form_view");
-            setTimeout(() => this._announceStatus(), MOUNT_ANNOUNCE_DELAY_MS);
+            this.mountTimer = setTimeout(
+                () => this._announceStatus(),
+                MOUNT_ANNOUNCE_DELAY_MS
+            );
         });
         onPatched(() => {
             // Compared as text: the record may hand out a new Markup object
@@ -63,9 +70,13 @@ export class CrSearchResultsField extends Component {
             this._applyPendingFocus();
         });
         // The results go away when the search is cleared or a registrant is
-        // chosen; the range text must not linger in the live region. A
-        // selection writes its own confirmation afterwards.
-        onWillUnmount(() => this._announce(""));
+        // chosen; the range text must not linger in the live region, nor
+        // arrive late from the mount timer. A selection writes its own
+        // confirmation afterwards.
+        onWillUnmount(() => {
+            clearTimeout(this.mountTimer);
+            this._announce("");
+        });
     }
 
     get htmlContent() {
@@ -269,16 +280,24 @@ export class CrSearchResultsField extends Component {
 
     /**
      * Write into the live region, clearing it first so that an unchanged text
-     * (a refined search with the same range) is announced again.
+     * (a refined search with the same range) is announced again. The write
+     * waits a frame, so a frame still pending from an earlier call is dropped:
+     * otherwise it would land after this call's clear, and the region would
+     * end up showing text that was superseded (or, on unmount, should be gone).
      */
     _announce(text) {
         const region = this.formEl && this.formEl.querySelector(LIVE_REGION_SELECTOR);
         if (!region) {
             return;
         }
+        if (this.announceFrame) {
+            cancelAnimationFrame(this.announceFrame);
+            this.announceFrame = null;
+        }
         region.textContent = "";
         if (text) {
-            requestAnimationFrame(() => {
+            this.announceFrame = requestAnimationFrame(() => {
+                this.announceFrame = null;
                 region.textContent = text;
             });
         }
