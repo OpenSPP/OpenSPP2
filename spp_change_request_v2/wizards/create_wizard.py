@@ -192,12 +192,12 @@ class SPPCRCreateWizard(models.TransientModel):
                 if reg.is_group:
                     member_count = len(reg.group_membership_ids) if hasattr(reg, "group_membership_ids") else 0
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'><i class='fa fa-users me-1'></i>{} members</span>"
-                    ).format(member_count)
+                        "<span class='text-muted ms-2'><i class='fa fa-users me-1' aria-hidden='true'></i>{}</span>"
+                    ).format(_("%s members", member_count))
                 else:
                     type_badge = Markup(
-                        "<span class='text-muted ms-2'><i class='fa fa-user me-1'></i>Individual</span>"
-                    )
+                        "<span class='text-muted ms-2'><i class='fa fa-user me-1' aria-hidden='true'></i>{}</span>"
+                    ).format(_("Individual"))
                 lines.append(Markup("<div><strong>{}</strong>{}</div>").format(name, type_badge))
 
                 rec.registrant_info_html = Markup("").join(lines)
@@ -280,7 +280,9 @@ class SPPCRCreateWizard(models.TransientModel):
         total = self.env["res.partner"].search_count(search_domain)
 
         if not total:
-            self.search_results_html = Markup("<p class='text-muted'>No registrants found.</p>")
+            self.search_results_html = Markup("<p class='text-muted o_cr_search_status'>{}</p>").format(
+                _("No registrants found.")
+            )
             return
 
         page = self._search_page or 0
@@ -291,42 +293,78 @@ class SPPCRCreateWizard(models.TransientModel):
         offset = page * page_size
         partners = self.env["res.partner"].search(search_domain, limit=page_size, offset=offset)
 
+        # Each row is an option of a listbox so keyboard and screen-reader
+        # users can reach and pick it; the widget handles the keys. Only the
+        # first row is in the Tab order (roving tabindex), the arrow keys move
+        # between rows. The aria-label repeats what the two cells show because
+        # an option's children are presentational to assistive technology, and
+        # setsize/posinset give the position within the whole result set rather
+        # than within the page.
         rows = []
-        for p in partners:
-            ptype = '<i class="fa fa-users"></i> Group' if p.is_group else '<i class="fa fa-user"></i> Individual'
+        for index, p in enumerate(partners):
+            type_label, type_icon = (_("Group"), "fa-users") if p.is_group else (_("Individual"), "fa-user")
+            name = escape(p.name or "")
             rows.append(
                 Markup(
                     '<tr class="o_cr_search_result" style="cursor:pointer"'
+                    ' role="option" tabindex="{}" aria-label="{}, {}"'
+                    ' aria-setsize="{}" aria-posinset="{}"'
                     ' data-partner-id="{}" data-partner-name="{}">'
                     "<td>{}</td>"
-                    "<td>{}</td></tr>"
+                    '<td><i class="fa {}" aria-hidden="true"></i> {}</td></tr>'
                 ).format(
+                    "0" if index == 0 else "-1",
+                    name,
+                    type_label,
+                    total,
+                    offset + index + 1,
                     p.id,
-                    escape(p.name or ""),
-                    escape(p.name or ""),
-                    Markup(ptype),
+                    name,
+                    name,
+                    type_icon,
+                    type_label,
                 )
             )
 
+        # The table is layout only for assistive technology: the body is the
+        # listbox and the header row would otherwise be a table with no data
+        # cells. Sighted users still see the column headings.
         table = Markup(
-            '<table class="table table-hover table-sm mb-0 w-100">'
-            "<thead><tr><th>Name</th><th>Type</th></tr></thead>"
-            "<tbody>{}</tbody></table>"
-        ).format(Markup("").join(rows))
+            '<table class="table table-hover table-sm mb-0 w-100" role="presentation">'
+            '<thead aria-hidden="true"><tr><th>{}</th><th>{}</th></tr></thead>'
+            '<tbody role="listbox" aria-label="{}">{}</tbody></table>'
+        ).format(_("Name"), _("Type"), _("Registrant search results"), Markup("").join(rows))
 
-        # Pagination header
+        # Pagination header. Previous/Next are real buttons so they are
+        # focusable and respond to Enter/Space natively; a real `disabled`
+        # attribute (not just muted styling) takes the edge out of the Tab order.
+        # The arrows are decoration (screen readers would read "left arrow"),
+        # and the accessible names say "page of results" because a bare "Next"
+        # in a wizard dialog sounds like a wizard step. The range summary
+        # carries o_cr_search_status so the widget can mirror it into a live
+        # region.
         start = offset + 1
         end = min(offset + page_size, total)
-        prev_cls = "text-muted" if page == 0 else "o_cr_page_prev"
-        next_cls = "text-muted" if page >= max_page else "o_cr_page_next"
         pagination = Markup(
             '<div class="d-flex justify-content-between align-items-center mb-2 px-1">'
-            '<small class="text-muted">{}-{} of {}</small>'
+            '<small class="text-muted o_cr_search_status">{}</small>'
             "<div>"
-            '<a class="{} me-3" style="cursor:pointer" data-page="{}">← Previous</a>'
-            '<a class="{}" style="cursor:pointer" data-page="{}">Next →</a>'
+            '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_prev me-3"'
+            ' aria-label="{}" data-page="{}"{}><span aria-hidden="true">← </span>{}</button>'
+            '<button type="button" class="btn btn-link btn-sm p-0 o_cr_page_next"'
+            ' aria-label="{}" data-page="{}"{}>{}<span aria-hidden="true"> →</span></button>'
             "</div></div>"
-        ).format(start, end, total, prev_cls, page - 1, next_cls, page + 1)
+        ).format(
+            _("%(start)s-%(end)s of %(total)s", start=start, end=end, total=total),
+            _("Previous page of results"),
+            page - 1,
+            Markup(" disabled") if page == 0 else Markup(""),
+            _("Previous"),
+            _("Next page of results"),
+            page + 1,
+            Markup(" disabled") if page >= max_page else Markup(""),
+            _("Next"),
+        )
 
         self.search_results_html = pagination + table
 

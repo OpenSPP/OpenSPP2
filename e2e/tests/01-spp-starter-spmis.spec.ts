@@ -18,7 +18,7 @@
 //   15 - Manually defines 5 more Change Request Document Type vocabulary codes for the Philippines (BIR Form 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent), matching the e2e fixture PDFs in e2e/fixtures/, by adding rows to the same vocabulary's Codes tab as test 14
 //   16 - Creates an "Edit Individual Information" change request for Santos, Jose Miguel (as admin), uploads a supporting document, and submits it for approval
 //   17 - Creates an "Edit Group Information" change request for Santos Family (as admin), uploads a supporting document, and submits it for approval
-//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
+//   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), selecting the registrant by keyboard only and checking that the live region does not receive a late range announcement after the results are gone, sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
 //   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
 //   20 - Logs in as the HQ validator and resolves all three pending change requests: approves
 //        Edit Individual Information, rejects Edit Group Information (with a reason), and
@@ -67,6 +67,58 @@ async function logout(page: Page) {
   await page.getByRole("button", {name: "User User is online"}).click();
   await expect(page.getByRole("link", {name: "User is online Online "})).toBeVisible();
   await page.getByRole("menuitem", {name: "Log out"}).click();
+}
+
+type HeldFrames = {
+  pending: Map<number, FrameRequestCallback>;
+  next: number;
+  request: typeof window.requestAnimationFrame;
+  cancel: typeof window.cancelAnimationFrame;
+};
+
+// Hold every requestAnimationFrame callback instead of running it. Owl keeps
+// its own bound copy of the function, so rendering is unaffected; only direct
+// callers such as the CR search results widget are intercepted. This pins the
+// ordering "the widget unmounts before its pending frame fires", so a test can
+// check what that frame would have written once the widget is gone.
+async function holdAnimationFrames(page: Page) {
+  await page.evaluate(() => {
+    const held: HeldFrames = {
+      pending: new Map(),
+      next: 1,
+      request: window.requestAnimationFrame,
+      cancel: window.cancelAnimationFrame,
+    };
+    (window as unknown as {__heldFrames: HeldFrames}).__heldFrames = held;
+    window.requestAnimationFrame = (cb) => {
+      const id = held.next++;
+      held.pending.set(id, cb);
+      return id;
+    };
+    window.cancelAnimationFrame = (id) => {
+      held.pending.delete(id);
+    };
+  });
+}
+
+// Restore the real functions, run whatever was held, and read the text of the
+// given element right after, in the same tick, before any continuation that
+// was waiting on a frame can write to it.
+async function releaseAnimationFrames(page: Page, readSelector: string) {
+  return page.evaluate((selector) => {
+    const held = (window as unknown as {__heldFrames: HeldFrames}).__heldFrames;
+    window.requestAnimationFrame = held.request;
+    window.cancelAnimationFrame = held.cancel;
+    const callbacks = [...held.pending.values()];
+    held.pending.clear();
+    for (const cb of callbacks) {
+      cb(performance.now());
+    }
+    return {
+      ran: callbacks.length,
+      text: document.querySelector(selector)?.textContent ?? null,
+    };
+  }, readSelector);
 }
 
 function formatDateMDY(date: Date): string {
@@ -135,6 +187,23 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   });
 
   test.afterEach(async ({}, testInfo) => {
+    // A test that fails between holdAnimationFrames and releaseAnimationFrames
+    // would leave the stub in place for every later test in this serial suite;
+    // restore the real functions so their failures report their own cause.
+    // The page may be closed or mid-navigation after a failure, so a throw
+    // here must not mask the test's own error.
+    if (page) {
+      await page
+        .evaluate(() => {
+          const w = window as unknown as {__heldFrames?: HeldFrames};
+          if (w.__heldFrames) {
+            window.requestAnimationFrame = w.__heldFrames.request;
+            window.cancelAnimationFrame = w.__heldFrames.cancel;
+            delete w.__heldFrames;
+          }
+        })
+        .catch(() => {});
+    }
     if (testInfo.status !== testInfo.expectedStatus && !process.env.CI) {
       console.log(
         `❌ "${testInfo.title}" failed — pausing for investigation (set CI=1 to skip)`
@@ -998,8 +1067,12 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Edit Individual Information").click();
     console.log("✅ Request Type: Edit Individual Information");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
-    await page.getByRole("cell", {name: "SANTOS, JOSE MIGUEL"}).click();
+    await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
+    // Result rows are listbox options (#580); their cells are presentational to
+    // the accessibility tree, so the row is addressed by its option name.
+    await page
+      .getByRole("option", {name: "SANTOS, JOSE MIGUEL, Individual", exact: true})
+      .click();
     console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
@@ -1065,8 +1138,8 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Edit Group Information").click();
     console.log("✅ Request Type: Edit Group Information");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("san");
-    await page.getByRole("cell", {name: "Santos Family"}).click();
+    await page.getByRole("textbox", {name: "Search Registrant"}).fill("san");
+    await page.getByRole("option", {name: "Santos Family, Group", exact: true}).click();
     console.log("✅ Registrant selected: Santos Family");
 
     await page.getByRole("button", {name: "Create"}).click();
@@ -1126,11 +1199,51 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await page.getByText("Update ID Document").click();
     console.log("✅ Request Type: Update ID Document");
 
-    await page.getByRole("textbox", {name: "Enter name or ID number..."}).fill("sant");
-    await page
-      .locator("tr.o_cr_search_result", {hasText: "SANTOS, JOSE MIGUEL"})
-      .click();
-    console.log("✅ Registrant selected: SANTOS, JOSE MIGUEL");
+    const searchBox = page.getByRole("textbox", {name: "Search Registrant"});
+    // Frames are held from before the results mount until after the selection:
+    // the widget fills the live region one frame after clearing it, and the
+    // selection unmounts the widget, so the frame holding the range
+    // announcement must be cancelled on unmount rather than land on the
+    // emptied region once the results are gone (#581 review).
+    await holdAnimationFrames(page);
+    await searchBox.fill("sant");
+    // Keyboard path (#580): the result rows are listbox options. The role
+    // locator proves role + accessible name; Tab from the search box proves the
+    // list is in the Tab order (fewer than 11 hits, so both pager buttons are
+    // disabled and skipped); ArrowDown proves the keydown handler moves focus;
+    // Enter exercises the keydown path rather than click, and the focus
+    // assertion proves focus is handed to "Change Registrant" once the results
+    // block disappears. Tests 16 and 17 keep the mouse path.
+    const options = page.getByRole("option");
+    await options.first().waitFor();
+    await searchBox.press("Tab");
+    await expect(options.first()).toBeFocused();
+    if ((await options.count()) > 1) {
+      await page.keyboard.press("ArrowDown");
+      await expect(options.nth(1)).toBeFocused();
+      await page.keyboard.press("Home");
+      await expect(options.first()).toBeFocused();
+    }
+    const santosRow = page.getByRole("option", {
+      name: "SANTOS, JOSE MIGUEL, Individual",
+      exact: true,
+    });
+    await santosRow.focus();
+    await expect(santosRow).toBeFocused();
+    await page.keyboard.press("Enter");
+    const changeRegistrant = page.getByRole("button", {name: /Change Registrant/});
+    await expect(changeRegistrant).toBeVisible();
+    // The results are gone, so the widget has unmounted and cleared the live
+    // region; the frame it had queued for the range announcement must have
+    // gone with it, or releasing the frames writes the range back.
+    const liveRegion = page.locator(".o_cr_search_live").first();
+    await expect(liveRegion).toHaveText("");
+    const released = await releaseAnimationFrames(page, ".o_cr_search_live");
+    expect(released.text, "no range announcement after the results are gone").toBe("");
+    // With frames running again the focus hand-off completes and is confirmed.
+    await expect(changeRegistrant).toBeFocused();
+    await expect(liveRegion).toHaveText("Selected: SANTOS, JOSE MIGUEL, Individual");
+    console.log("✅ Registrant selected by keyboard: SANTOS, JOSE MIGUEL");
 
     await page.getByRole("button", {name: "Create"}).click();
     await page.waitForLoadState("domcontentloaded");

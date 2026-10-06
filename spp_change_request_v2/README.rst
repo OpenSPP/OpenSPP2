@@ -853,6 +853,40 @@ Before declaring a new CR type complete:
 Changelog
 =========
 
+19.0.3.1.17
+~~~~~~~~~~~
+
+- fix(change_request): the registrant search results in the Create
+  Change Request wizard can be used from the keyboard and are announced
+  by screen readers (WCAG 2.1.1 Keyboard, 4.1.2 Name/Role/Value). The
+  result rows were plain table rows with a mouse click handler, so a
+  keyboard user could type a search but never pick a result, and the
+  Previous/Next pager was made of links without a target that cannot
+  take focus at all. Rows are now options of a listbox — Tab reaches the
+  list, the arrow keys move between rows, Enter or Space selects — each
+  carrying the registrant's name and type as its accessible name and its
+  position in the whole result set, while the table around them is
+  presentational for assistive technology so its header row is not
+  announced as an empty table; the pager is made of real buttons whose
+  out-of-range side is disabled rather than merely greyed; the result
+  range and the empty-result message are mirrored into a live region;
+  focus is kept on the pager button after a page change and handed to
+  "Change Registrant" after a selection, instead of being dropped when
+  the results re-render, and is left alone when the user has moved it
+  elsewhere while a request was in flight; the selection is confirmed
+  through the same live region ("Selected: NAME, Individual") after the
+  focus move so a screen reader speaks both, which replaces the alert
+  role on the selected-registrant card (the request-type hint is a
+  status rather than an alert for the same reason); the pager buttons
+  are named "Previous/Next page of results" so they are not mistaken for
+  wizard steps; the icons on the selected-registrant card are hidden
+  from assistive technology like those in the rows; and every string the
+  search and the card render is now translatable. The search box is also
+  now labelled by its "Search Registrant" label rather than by its
+  placeholder, and the decorative type icons are hidden from assistive
+  technology. The inline results table looks and behaves the same for
+  mouse users (#580)
+
 19.0.3.1.16
 ~~~~~~~~~~~
 
