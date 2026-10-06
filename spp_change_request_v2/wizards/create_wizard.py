@@ -358,11 +358,11 @@ class SPPCRCreateWizard(models.TransientModel):
             _("%(start)s-%(end)s of %(total)s", start=start, end=end, total=total),
             _("Previous page of results"),
             page - 1,
-            " disabled" if page == 0 else "",
+            Markup(" disabled") if page == 0 else Markup(""),
             _("Previous"),
             _("Next page of results"),
             page + 1,
-            " disabled" if page >= max_page else "",
+            Markup(" disabled") if page >= max_page else Markup(""),
             _("Next"),
         )
 
