@@ -187,6 +187,23 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
   });
 
   test.afterEach(async ({}, testInfo) => {
+    // A test that fails between holdAnimationFrames and releaseAnimationFrames
+    // would leave the stub in place for every later test in this serial suite;
+    // restore the real functions so their failures report their own cause.
+    // The page may be closed or mid-navigation after a failure, so a throw
+    // here must not mask the test's own error.
+    if (page) {
+      await page
+        .evaluate(() => {
+          const w = window as unknown as {__heldFrames?: HeldFrames};
+          if (w.__heldFrames) {
+            window.requestAnimationFrame = w.__heldFrames.request;
+            window.cancelAnimationFrame = w.__heldFrames.cancel;
+            delete w.__heldFrames;
+          }
+        })
+        .catch(() => {});
+    }
     if (testInfo.status !== testInfo.expectedStatus && !process.env.CI) {
       console.log(
         `❌ "${testInfo.title}" failed — pausing for investigation (set CI=1 to skip)`
