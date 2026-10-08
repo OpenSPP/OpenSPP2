@@ -495,6 +495,25 @@ additional modules</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix(ui): the form view’s <strong>New</strong> button respects Odoo’s create guard
+again. The <tt class="docutils literal">web.FormView</tt> extension that lets a module hide the
+button with <tt class="docutils literal">hideFormCreateButton</tt> replaced the button’s condition
+instead of extending it, dropping Odoo’s <tt class="docutils literal">canCreate</tt>. As a result
+every form opened with create disabled — <tt class="docutils literal">{'create': False}</tt> in the
+action context, <tt class="docutils literal"><span class="pre">create=&quot;0&quot;</span></tt> on the form arch, a role without create
+access, or <tt class="docutils literal">preventCreate</tt> — still rendered a working <strong>New</strong> button
+that opened a blank editable record, or failed with an access error on
+save (visible on installs without <tt class="docutils literal">spp_programs</tt>; with it, a
+workaround hid the rendered button after the fact). The condition is
+now <tt class="docutils literal">canCreate and !hideFormCreateButton</tt>: the flag can only hide
+the button, never show it, and modules using it keep working
+unchanged. Forms shown in dialogs use a separate template and were
+never affected (#582).</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>test: add a regression test guarding the PDF backend selected by
@@ -506,7 +525,7 @@ printing with a <tt class="docutils literal">DeprecationError</tt> (OP#1168). Th
 this test fails on any image that regresses.</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix(security): add <tt class="docutils literal"><span class="pre">groups=&quot;base.group_system&quot;</span></tt> to the existing
@@ -522,7 +541,7 @@ re-writes the record without a <tt class="docutils literal">groups</tt> attribut
 <tt class="docutils literal">group_ids</tt> to empty.</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
