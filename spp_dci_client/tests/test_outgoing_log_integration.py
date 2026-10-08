@@ -2,6 +2,7 @@
 """Tests for outgoing API log integration in DCI client"""
 
 import unittest
+import uuid
 from unittest.mock import MagicMock, patch
 
 from odoo.tests import TransactionCase
@@ -96,14 +97,21 @@ class TestOutgoingLogClientMethods(TransactionCase):
         self.assertEqual(copied, envelope)
 
 
-@unittest.skipUnless(
-    True,  # Actual check is in setUpClass since we need the Odoo env
-    "spp_api_v2 required",
-)
 class TestOutgoingLogIntegration(TransactionCase):
     """Test DCI client integration with outgoing API log.
 
-    These tests require spp_api_v2 to be installed (provides spp.api.outgoing.log).
+    These tests require spp_api_v2 to be installed (provides spp.api.outgoing.log),
+    so they run only on a database that has both modules — a full stack, never
+    spp_dci_client's own module CI.
+
+    Assertions are made at the ``OutgoingApiLogService`` seam rather than by
+    reading rows back. ``_log_outgoing_call`` deliberately writes through a
+    separate, committed cursor so the audit row survives the request's
+    rollback; a plain ``TransactionCase`` runs at REPEATABLE READ and cannot
+    see rows committed after its snapshot, while it can see rows committed by
+    earlier test classes, so a "latest row" query returns another class's row.
+    One test still proves the real write, reading it back through a fresh
+    cursor of its own and cleaning up.
     """
 
     @classmethod
@@ -113,6 +121,18 @@ class TestOutgoingLogIntegration(TransactionCase):
             raise unittest.SkipTest("spp_api_v2 not installed (spp.api.outgoing.log model not available)")
         cls.DataSource = cls.env["spp.dci.data.source"]
         cls.OutgoingLog = cls.env["spp.api.outgoing.log"]
+
+    def setUp(self):
+        super().setUp()
+        from odoo.addons.spp_api_v2.services.outgoing_api_log_service import OutgoingApiLogService
+
+        # The service is imported inside _log_outgoing_call from this module, so
+        # patching the class attribute is seen by production code. The cursor is
+        # still opened and the service still constructed for real; only the
+        # INSERT is replaced, so nothing is committed.
+        patcher = patch.object(OutgoingApiLogService, "log_call", autospec=True)
+        self.log_call = patcher.start()
+        self.addCleanup(patcher.stop)
 
     def _create_test_data_source(self, **kwargs):
         """Helper to create a test data source"""
@@ -137,274 +157,227 @@ class TestOutgoingLogIntegration(TransactionCase):
         mock_response.raise_for_status = MagicMock()
         return mock_response
 
+    def _mock_http(self, mock_client_class, *, response=None, side_effect=None):
+        """Wire ``httpx.Client`` to one canned response or exception per call."""
+        mock_http_client = MagicMock()
+        if side_effect is not None:
+            mock_http_client.post.side_effect = side_effect
+        else:
+            mock_http_client.post.return_value = response
+        mock_http_client.__enter__.return_value = mock_http_client
+        mock_http_client.__exit__.return_value = None
+        mock_client_class.return_value = mock_http_client
+        return mock_http_client
+
     def _build_test_envelope(self, client):
         """Helper to build a test envelope"""
         return client._build_envelope(action="search", message={"test": "data"})
 
-    def _find_latest_log(self, url_filter="crvs.example.org"):
-        """Helper to find the most recent outgoing log entry"""
-        return self.OutgoingLog.search(
-            [("url", "like", url_filter)],
-            order="id desc",
-            limit=1,
-        )
+    def _logged(self):
+        """The kwargs of every log_call made during the test, in call order."""
+        return [call.kwargs for call in self.log_call.call_args_list]
+
+    def _single_logged(self):
+        logged = self._logged()
+        self.assertEqual(len(logged), 1, f"expected exactly one outgoing log call, got {len(logged)}")
+        return logged[0]
+
+    def _request_expecting_user_error(self, client, envelope):
+        from odoo.exceptions import UserError
+
+        with self.assertRaises(UserError):
+            client._make_request("/registry/sync/search", envelope)
 
     @patch("httpx.Client")
     def test_make_request_logs_success(self, mock_client_class):
-        """Successful request creates outgoing log with status=success"""
+        """Successful request logs status=success with the call's details."""
         from ..services.client import DCIClient
 
         ds = self._create_test_data_source()
         client = DCIClient(ds, self.env)
+        self._mock_http(mock_client_class, response=self._make_mock_response())
 
-        mock_response = self._make_mock_response()
-        mock_http_client = MagicMock()
-        mock_http_client.post.return_value = mock_response
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
+        client._make_request("/registry/sync/search", self._build_test_envelope(client))
 
-        envelope = self._build_test_envelope(client)
-        client._make_request("/registry/sync/search", envelope)
+        log = self._single_logged()
+        self.assertEqual(log["status"], "success")
+        self.assertEqual(log["response_status_code"], 200)
+        self.assertEqual(log["endpoint"], "/registry/sync/search")
+        self.assertEqual(log["url"], "https://crvs.example.org/api/registry/sync/search")
+        self.assertEqual(log["origin_model"], "spp.dci.data.source")
+        self.assertEqual(log["origin_record_id"], ds.id)
+        # A mocked HTTP round trip completes in well under a millisecond.
+        self.assertGreaterEqual(log["duration_ms"], 0)
+        self.assertIsNone(log["error_detail"])
 
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on success")
-        self.assertEqual(log.status, "success")
-        self.assertEqual(log.response_status_code, 200)
-        self.assertEqual(log.endpoint, "/registry/sync/search")
-        self.assertEqual(log.service_name, "DCI Client")
-        self.assertEqual(log.service_code, "test_crvs")
-        self.assertGreater(log.duration_ms, 0)
+    @patch("httpx.Client")
+    def test_service_is_built_for_the_data_source(self, mock_client_class):
+        """The log service carries the client's identity, not the model's default."""
+        from odoo.addons.spp_api_v2.services.outgoing_api_log_service import OutgoingApiLogService
+
+        from ..services.client import DCIClient
+
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+        self._mock_http(mock_client_class, response=self._make_mock_response())
+
+        with patch.object(OutgoingApiLogService, "__init__", return_value=None, autospec=True) as init:
+            client._make_request("/registry/sync/search", self._build_test_envelope(client))
+
+        self.assertEqual(init.call_count, 1)
+        kwargs = init.call_args.kwargs
+        self.assertEqual(kwargs["service_name"], "DCI Client")
+        self.assertEqual(kwargs["service_code"], "test_crvs")
+        self.assertEqual(kwargs["user_id"], self.env.uid)
 
     @patch("httpx.Client")
     def test_make_request_logs_http_error(self, mock_client_class):
-        """HTTP error creates outgoing log with status=http_error"""
+        """HTTP error logs status=http_error with the response code."""
         import httpx
 
         from ..services.client import DCIClient
 
         ds = self._create_test_data_source()
         client = DCIClient(ds, self.env)
-
         mock_response = MagicMock()
         mock_response.status_code = 500
         mock_response.text = "Internal Server Error"
         mock_response.json.return_value = {"error": "server_error"}
-        mock_request = MagicMock()
 
         def raise_status():
-            raise httpx.HTTPStatusError("Server Error", request=mock_request, response=mock_response)
+            raise httpx.HTTPStatusError("Server Error", request=MagicMock(), response=mock_response)
 
         mock_response.raise_for_status = raise_status
+        self._mock_http(mock_client_class, response=mock_response)
 
-        mock_http_client = MagicMock()
-        mock_http_client.post.return_value = mock_response
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
+        self._request_expecting_user_error(client, self._build_test_envelope(client))
 
-        envelope = self._build_test_envelope(client)
+        log = self._single_logged()
+        self.assertEqual(log["status"], "http_error")
+        self.assertEqual(log["response_status_code"], 500)
+        self.assertTrue(log["error_detail"])
 
-        from odoo.exceptions import UserError
+    def _assert_exception_logged_as(self, mock_client_class, exception, status, detail_contains=None):
+        from ..services.client import DCIClient
 
-        with self.assertRaises(UserError):
-            client._make_request("/registry/sync/search", envelope)
+        ds = self._create_test_data_source()
+        client = DCIClient(ds, self.env)
+        self._mock_http(mock_client_class, side_effect=exception)
 
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on HTTP error")
-        self.assertEqual(log.status, "http_error")
-        self.assertEqual(log.response_status_code, 500)
-        self.assertTrue(log.error_detail)
+        self._request_expecting_user_error(client, self._build_test_envelope(client))
+
+        log = self._single_logged()
+        self.assertEqual(log["status"], status)
+        self.assertTrue(log["error_detail"])
+        if detail_contains:
+            self.assertIn(detail_contains, log["error_detail"].upper())
+        self.assertIsNone(log["response_status_code"])
 
     @patch("httpx.Client")
     def test_make_request_logs_connection_error(self, mock_client_class):
-        """Connection error creates outgoing log with status=connection_error"""
         import httpx
 
-        from ..services.client import DCIClient
-
-        ds = self._create_test_data_source()
-        client = DCIClient(ds, self.env)
-
-        mock_http_client = MagicMock()
-        mock_http_client.post.side_effect = httpx.ConnectError("Connection refused")
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
-
-        envelope = self._build_test_envelope(client)
-
-        from odoo.exceptions import UserError
-
-        with self.assertRaises(UserError):
-            client._make_request("/registry/sync/search", envelope)
-
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on connection error")
-        self.assertEqual(log.status, "connection_error")
-        self.assertTrue(log.error_detail)
+        self._assert_exception_logged_as(
+            mock_client_class, httpx.ConnectError("Connection refused"), "connection_error"
+        )
 
     @patch("httpx.Client")
     def test_make_request_logs_timeout(self, mock_client_class):
-        """Timeout creates outgoing log with status=timeout"""
         import httpx
 
-        from ..services.client import DCIClient
-
-        ds = self._create_test_data_source()
-        client = DCIClient(ds, self.env)
-
-        mock_http_client = MagicMock()
-        mock_http_client.post.side_effect = httpx.ReadTimeout("Read timed out")
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
-
-        envelope = self._build_test_envelope(client)
-
-        from odoo.exceptions import UserError
-
-        with self.assertRaises(UserError):
-            client._make_request("/registry/sync/search", envelope)
-
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on timeout")
-        self.assertEqual(log.status, "timeout")
-        self.assertTrue(log.error_detail)
+        self._assert_exception_logged_as(mock_client_class, httpx.ReadTimeout("Read timed out"), "timeout")
 
     @patch("httpx.Client")
     def test_make_request_logs_ssl_error(self, mock_client_class):
-        """SSL error creates outgoing log with status=connection_error"""
         import httpx
 
-        from ..services.client import DCIClient
-
-        ds = self._create_test_data_source()
-        client = DCIClient(ds, self.env)
-
-        mock_http_client = MagicMock()
-        mock_http_client.post.side_effect = httpx.ConnectError(
-            "[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed"
+        self._assert_exception_logged_as(
+            mock_client_class,
+            httpx.ConnectError("[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed"),
+            "connection_error",
+            detail_contains="SSL",
         )
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
-
-        envelope = self._build_test_envelope(client)
-
-        from odoo.exceptions import UserError
-
-        with self.assertRaises(UserError):
-            client._make_request("/registry/sync/search", envelope)
-
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on SSL error")
-        self.assertEqual(log.status, "connection_error")
-        self.assertIn("SSL", log.error_detail.upper())
 
     @patch("httpx.Client")
     def test_make_request_logs_dns_error(self, mock_client_class):
-        """DNS resolution error creates outgoing log with status=connection_error"""
         import httpx
 
-        from ..services.client import DCIClient
-
-        ds = self._create_test_data_source()
-        client = DCIClient(ds, self.env)
-
-        mock_http_client = MagicMock()
-        mock_http_client.post.side_effect = httpx.ConnectError("Name or service not known")
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
-
-        envelope = self._build_test_envelope(client)
-
-        from odoo.exceptions import UserError
-
-        with self.assertRaises(UserError):
-            client._make_request("/registry/sync/search", envelope)
-
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on DNS error")
-        self.assertEqual(log.status, "connection_error")
-        self.assertTrue(log.error_detail)
+        self._assert_exception_logged_as(
+            mock_client_class, httpx.ConnectError("Name or service not known"), "connection_error"
+        )
 
     @patch("httpx.Client")
     def test_make_request_logs_generic_exception(self, mock_client_class):
-        """Generic exception creates outgoing log with status=error"""
-        from ..services.client import DCIClient
-
-        ds = self._create_test_data_source()
-        client = DCIClient(ds, self.env)
-
-        mock_http_client = MagicMock()
-        mock_http_client.post.side_effect = RuntimeError("Something unexpected")
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
-
-        envelope = self._build_test_envelope(client)
-
-        from odoo.exceptions import UserError
-
-        with self.assertRaises(UserError):
-            client._make_request("/registry/sync/search", envelope)
-
-        log = self._find_latest_log()
-        self.assertTrue(log, "Outgoing log should be created on generic exception")
-        self.assertEqual(log.status, "error")
-        self.assertTrue(log.error_detail)
+        self._assert_exception_logged_as(mock_client_class, RuntimeError("Something unexpected"), "error")
 
     @patch("httpx.Client")
     def test_401_retry_creates_two_log_entries(self, mock_client_class):
-        """401 retry path creates log entry for both the 401 and the retry result"""
+        """The 401 retry path logs both the 401 and the retried result, in call order.
+
+        The retried request runs inside the first one, so its ``finally`` logs
+        first (the success), and the outer call's ``finally`` logs second (the
+        401). Call order is what the code guarantees; row ids are not asserted.
+        """
         from ..services.client import DCIClient
 
-        ds = self._create_test_data_source(auth_type="oauth2")
+        ds = self._create_test_data_source(
+            auth_type="oauth2",
+            oauth2_token_url="https://auth.example.org/token",
+            oauth2_client_id="client123",
+            oauth2_client_secret="secret456",
+        )
         client = DCIClient(ds, self.env)
-
-        # First call returns 401, second returns 200
         mock_401_response = MagicMock()
         mock_401_response.status_code = 401
         mock_401_response.text = "Unauthorized"
         mock_401_response.json.return_value = {"error": "invalid_token"}
         mock_401_response.raise_for_status = MagicMock()
+        self._mock_http(mock_client_class, side_effect=[mock_401_response, self._make_mock_response()])
 
-        mock_200_response = self._make_mock_response()
+        # get_headers() would fetch the OAuth2 token over the same patched HTTP
+        # client and consume the canned 401; the token flow is not under test.
+        with (
+            patch.object(type(ds), "get_headers", return_value={"Content-Type": "application/json"}),
+            patch.object(type(ds), "clear_oauth2_token_cache") as clear_cache,
+        ):
+            client._make_request("/registry/sync/search", self._build_test_envelope(client))
 
-        mock_http_client = MagicMock()
-        mock_http_client.post.side_effect = [mock_401_response, mock_200_response]
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
+        clear_cache.assert_called_once()
+        logged = self._logged()
+        self.assertEqual(len(logged), 2, "one log call for the retried success, one for the 401")
+        retried, first = logged
+        self.assertEqual(retried["status"], "success")
+        self.assertEqual(retried["response_status_code"], 200)
+        self.assertEqual(first["status"], "http_error")
+        self.assertEqual(first["response_status_code"], 401)
+        self.assertIn("retrying", first["error_detail"].lower())
+        # The 401 response body is captured for troubleshooting.
+        self.assertEqual(first["response_summary"], {"error": "invalid_token"})
 
-        envelope = self._build_test_envelope(client)
+    @patch("httpx.Client")
+    def test_log_row_is_committed_on_a_separate_cursor(self, mock_client_class):
+        """The audit row really is written, on its own cursor, so it survives the
+        request's rollback. Read back through a fresh cursor (a new snapshot),
+        scoped by a per-test service code, and removed the same way."""
+        from ..services.client import DCIClient
 
-        with patch.object(ds, "clear_oauth2_token_cache"):
-            client._make_request("/registry/sync/search", envelope)
+        # Let the real service write for this test only.
+        patch.stopall()
+        code = f"e2e_{uuid.uuid4().hex[:8]}"
+        ds = self._create_test_data_source(code=code, base_url=f"https://{code}.example.org/api")
+        client = DCIClient(ds, self.env)
+        self._mock_http(mock_client_class, response=self._make_mock_response())
 
-        # Should have two log entries: one for 401, one for retry success
-        logs = self.OutgoingLog.search(
-            [("url", "like", "crvs.example.org")],
-            order="id desc",
-            limit=2,
-        )
-        self.assertEqual(len(logs), 2, "Should have two log entries (401 + retry)")
+        client._make_request("/registry/sync/search", self._build_test_envelope(client))
 
-        # With order="id desc", logs[0] has the highest ID (created last).
-        # Due to try-finally semantics, the recursive retry's finally runs first
-        # (lower ID = success), then the outer call's finally runs (higher ID = 401).
-        # So logs[0] (highest ID) is the 401 entry, logs[1] (lower ID) is the success.
-        self.assertEqual(logs[0].status, "http_error")
-        self.assertEqual(logs[0].response_status_code, 401)
-        self.assertIn("retrying", logs[0].error_detail.lower())
-        # M-1 fix: 401 response body should be captured
-        self.assertTrue(logs[0].response_summary)
-
-        # Earlier log (lower ID) is the retry success
-        self.assertEqual(logs[1].status, "success")
-        self.assertEqual(logs[1].response_status_code, 200)
+        with self.env.registry.cursor() as cr:
+            rows = self.env(cr=cr)["spp.api.outgoing.log"].search([("service_code", "=", code)])
+            try:
+                self.assertEqual(len(rows), 1)
+                self.assertEqual(rows.status, "success")
+                self.assertEqual(rows.response_status_code, 200)
+            finally:
+                rows.unlink()
 
     @patch("httpx.Client")
     def test_log_failure_does_not_block_request(self, mock_client_class):
@@ -413,33 +386,17 @@ class TestOutgoingLogIntegration(TransactionCase):
 
         ds = self._create_test_data_source()
         client = DCIClient(ds, self.env)
+        self._mock_http(mock_client_class, response=self._make_mock_response())
+        self.log_call.side_effect = RuntimeError("Database error")
 
-        # Mock HTTP response (success)
-        mock_response = self._make_mock_response()
-        mock_http_client = MagicMock()
-        mock_http_client.post.return_value = mock_response
-        mock_http_client.__enter__.return_value = mock_http_client
-        mock_http_client.__exit__.return_value = None
-        mock_client_class.return_value = mock_http_client
-
-        # Monkey-patch the model to raise
-        original_log_call = self.OutgoingLog.__class__.log_call
-
-        def broken_log_call(self_model, **kwargs):
-            raise RuntimeError("Database error")
-
-        self.OutgoingLog.__class__.log_call = broken_log_call
-        try:
-            # This should not raise despite broken logging
-            client._log_outgoing_call(
-                url="https://example.org/test",
-                endpoint="/test",
-                envelope={"header": {"action": "search"}, "message": {}},
-                response_data=None,
-                status_code=200,
-                duration_ms=100,
-                status="success",
-                error_detail=None,
-            )
-        finally:
-            self.OutgoingLog.__class__.log_call = original_log_call
+        # This should not raise despite broken logging
+        client._log_outgoing_call(
+            url="https://example.org/test",
+            endpoint="/test",
+            envelope={"header": {"action": "search"}, "message": {}},
+            response_data=None,
+            status_code=200,
+            duration_ms=100,
+            status="success",
+            error_detail=None,
+        )
