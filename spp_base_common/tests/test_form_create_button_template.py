@@ -63,15 +63,15 @@ class TestFormCreateButtonTemplate(TransactionCase):
         (button,) = form_view.xpath(CREATE_BUTTON_XPATH)
         condition = button.get("t-if")
 
-        self.assertRegex(
+        # Exact match: the condition is a one-line expression under our control,
+        # and a token check would accept "canCreate or !hideFormCreateButton",
+        # which reintroduces the bug.
+        self.assertEqual(
             condition,
-            r"\bcanCreate\b",
-            'the form New button must keep Odoo\'s canCreate guard (action context, create="0", ACL, preventCreate)',
-        )
-        self.assertIn(
-            "!hideFormCreateButton",
-            condition,
-            "the hideFormCreateButton opt-out must still hide the button",
+            "canCreate and !hideFormCreateButton",
+            "the form New button must keep Odoo's canCreate guard "
+            '(action context, create="0", ACL, preventCreate) and the '
+            "hideFormCreateButton opt-out must still hide the button",
         )
 
     def test_dialog_new_button_is_not_touched(self):

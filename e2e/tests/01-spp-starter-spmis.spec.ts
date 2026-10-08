@@ -16,16 +16,15 @@
 //   13 - Creates an Approval Definition (Change request → HQ validator) and assigns it as the Approval Workflow for Edit Individual Information, Edit Group Information, and Update ID Document change request types
 //   14 - Manually defines 5 Change Request Document Type vocabulary codes for the Philippines (PSA Birth Certificate, PhilSys National ID, Barangay Certificate of Residency, PSA Marriage Certificate, Proof of Income), matching what spp_mis_demo_v2's demo generator seeds for "phl", by adding rows to the existing vocabulary's Codes tab via Settings > Vocabularies
 //   15 - Manually defines 5 more Change Request Document Type vocabulary codes for the Philippines (BIR Form 2316, Academic Calendar, Authorization Letter, Certificate of Enrolment, Valid ID of Parent), matching the e2e fixture PDFs in e2e/fixtures/, by adding rows to the same vocabulary's Codes tab as test 14
-//   16 - Creates an "Edit Individual Information" change request for Santos, Jose Miguel (as admin), uploads a supporting document, and submits it for approval
+//   16 - Creates an "Edit Individual Information" change request for Santos, Jose Miguel (as admin), checks that the detail form the wizard opens with create disabled in its context renders no "New" button, uploads a supporting document, and submits it for approval
 //   17 - Creates an "Edit Group Information" change request for Santos Family (as admin), uploads a supporting document, and submits it for approval
 //   18 - Creates an "Update ID Document" change request for Santos, Jose Miguel (as admin), selecting the registrant by keyboard only and checking that the live region does not receive a late range announcement after the results are gone, sets a National ID with tomorrow's expiry date, uploads a supporting document, and submits it for approval
 //   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
 //   20 - Logs in as the HQ validator and resolves all three pending change requests: approves
 //        Edit Individual Information, rejects Edit Group Information (with a reason), and
-//        requests revision on Update ID Document (with revision notes). On the way, checks
-//        that forms the validator may not create from render no "New" button at all: an
-//        approval review form (the role has no create access on reviews) and the CR detail
-//        form (opened with create disabled in the action context)
+//        requests revision on Update ID Document (with revision notes). First checks that an
+//        approval review form (create="0" on the arch, no create access for the role) renders
+//        no "New" button at all
 //   21 - Logs back in as admin and confirms the three resolutions actually took effect: the
 //        approved name change is reflected on the registrant, and the Change Requests list
 //        shows Rejected / Needs Changes for the other two
@@ -1085,6 +1084,15 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     });
     console.log("✅ Change request draft opened for editing");
 
+    // The wizard opens this detail form with `create: False` in the action
+    // context (nothing on the arch or in a FormController patch hides the button
+    // here), so Odoo's canCreate is false and the form's "New" button must not be
+    // rendered at all. Assert on the DOM count, not on visibility: spp_programs'
+    // FormController patch hides the same button with `display: none`, which
+    // would mask a template that renders it anyway (#582).
+    await expect(page.locator(".o_form_button_create")).toHaveCount(0);
+    console.log("✅ No New button on the change request detail form");
+
     await page.getByRole("textbox", {name: "Given Name"}).fill("Jose Miguel Updated");
     await page.getByRole("textbox", {name: "Address Line 1"}).fill("updated");
     await page.getByRole("textbox", {name: "Address Line 2"}).fill("updated");
@@ -1354,22 +1362,20 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await expect(page.getByRole("row", {name: `${crNumber} Update ID`})).toBeVisible();
     console.log("✅ Logged in as HQ validator (hqval@mail.com)");
 
-    // The HQ validator role can read approval reviews but not create them, so
-    // Odoo derives canCreate = false from the ACL and must not render the form's
-    // "New" button. (Registrants are not a read-only model for this role: the
-    // change-request module grants it create on res.partner so that approving a
-    // request can create one.) Assert on the DOM count, not on visibility:
-    // spp_programs' FormController patch hides the same button with
-    // `display: none`, which would mask a template that renders it anyway (#582).
+    // The approval review form declares create="0" on its arch, and the HQ
+    // validator role has no create ACL on reviews either, so Odoo's canCreate is
+    // false and the form's "New" button must not be rendered at all. Assert on
+    // the DOM count, not on visibility: spp_programs' FormController patch hides
+    // the same button with `display: none`, which would mask a template that
+    // renders it anyway (#582).
     await page.getByRole("list").getByRole("menuitem", {name: "Approvals"}).click();
+    await page.getByRole("button", {name: "My Approvals"}).click();
     await page.getByRole("menuitem", {name: "Pending Approvals"}).click();
     await expect(page.locator(".o_data_row").first()).toBeVisible();
     await page.locator(".o_data_row").first().click();
     await expect(page.locator(".o_form_view")).toBeVisible();
     await expect(page.locator(".o_form_button_create")).toHaveCount(0);
-    console.log(
-      "✅ No New button on the approval review form for a role without create access"
-    );
+    console.log("✅ No New button on the approval review form");
 
     await page.getByRole("menuitem", {name: "Change Requests"}).click();
     await page.getByRole("menuitem", {name: "All Requests"}).click();
@@ -1377,13 +1383,6 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await expect(
       page.getByRole("row", {name: "Given Name Jose Miguel Jose"})
     ).toBeVisible();
-
-    // The CR detail form is opened with `context: {create: false}`, so Odoo must
-    // not render the form's "New" button at all. Assert on the DOM count, not on
-    // visibility: spp_programs' FormController patch hides the same button with
-    // `display: none`, which would mask a template that renders it anyway (#582).
-    await expect(page.locator(".o_form_button_create")).toHaveCount(0);
-    console.log("✅ No New button on the read-only CR detail form");
 
     await page.getByRole("button", {name: "Approve"}).click();
     await expect(page.getByRole("heading", {name: "Confirmation"})).toBeVisible();
