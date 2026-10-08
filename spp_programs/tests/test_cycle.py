@@ -415,7 +415,7 @@ class TestCycleWorkflow(TransactionCase):
 
     @patch("odoo.fields.Date.today")
     def test_total_amount_in_words(self, mock_today):
-        """total_amount_in_words is populated when amount and currency are set."""
+        """total_amount_in_words follows context lang (incl. mid-transaction switch)."""
         mock_today.__name__ = "mock_today"
         mock_today.return_value = date(2024, 8, 1)
 
@@ -429,9 +429,17 @@ class TestCycleWorkflow(TransactionCase):
                 "currency_id": self.currency.id,
             }
         )
-        cycle._compute_total_amount()
-        cycle._compute_total_amount_in_words()
+        # Read the field naturally so cache / depends_context is exercised.
         self.assertIn("Five Hundred", cycle.total_amount_in_words)
+        self.assertIn(
+            "cinq cents",
+            cycle.with_context(lang="fr_FR").total_amount_in_words.lower(),
+        )
+        # Unsupported locale falls back to English.
+        self.assertIn(
+            "Five Hundred",
+            cycle.with_context(lang="xx_XX").total_amount_in_words,
+        )
 
     def test_approval_state_mapping(self):
         """_compute_approval_state maps cycle state to the approval mixin state correctly."""
