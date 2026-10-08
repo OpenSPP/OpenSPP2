@@ -1,3 +1,7 @@
+### 19.0.2.4.1
+
+- fix(spp_programs): correct broken French (`fr.po`) for In-Kind labels and related program strings from #237. Model-term translations only refresh on module upgrade; existing `fr_FR` databases need `--i18n-overwrite` (or a translation reload) to pick up the corrected msgstr values (#237)
+
 ### 19.0.2.4.0
 
 - feat(spp_programs): **the Program Configuration tab is one consistent set of cards.** Every manager category is now configured the same way -- a card showing what is set up, `+ Add` opening a dialog that asks which method and what to call it, and a cog on each row to open it. Previously some categories were cards and others were bare editable lists whose only column was a Reference field, so adding one meant picking a model and then finding or creating a record of it. Notifications was the last such list and is now a card like the rest (#1172)
