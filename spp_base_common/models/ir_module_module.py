@@ -1,5 +1,7 @@
 import logging
 
+import psycopg2
+
 from odoo import models
 
 _logger = logging.getLogger(__name__)
@@ -73,16 +75,37 @@ class IrModuleModule(models.Model):
     }
 
     def update_menu_icons(self):
+        """Point the root menus of known third-party apps at OpenSPP icons.
+
+        Purely cosmetic and best-effort: a database error while decorating
+        must never abort the module operation that triggered it, so the
+        whole pass runs in its own savepoint and is skipped on failure.
+
+        The caller's pending ORM writes are flushed first so that only the
+        decoration itself is covered by the guard; a failure in the caller's
+        own writes stays the caller's error. Retryable errors (serialization
+        failures, deadlocks) are deliberately swallowed too: retrying the
+        module operation would rebuild the registry for a cosmetic write.
+        """
+        self.env.cr.flush()
+        try:
+            with self.env.cr.savepoint():
+                self._write_menu_icons()
+        except psycopg2.Error:
+            _logger.warning(
+                "Skipping the OpenSPP app menu icon update because the database reported an error; "
+                "the menus keep their current icons and the module operation continues",
+                exc_info=True,
+            )
+
+    def _write_menu_icons(self):
         for module in self.search([]):
             icon_info = self.ICON_MAP.get(module.name)
-            if icon_info:
-                try:
-                    menu = self.env.ref(icon_info["menu_xml_id"])
-                except ValueError:
-                    menu = False
-
-                if menu:
-                    menu.write({"web_icon": icon_info["icon"]})
+            if not icon_info:
+                continue
+            menu = self.env.ref(icon_info["menu_xml_id"], raise_if_not_found=False)
+            if menu:
+                menu.write({"web_icon": icon_info["icon"]})
 
     def next(self):
         # Call your icon update logic first
