@@ -22,7 +22,10 @@
 //   19 - Creates an HQ validator user (hqval@mail.com) with the "CR HQ Validator" role and sets its password
 //   20 - Logs in as the HQ validator and resolves all three pending change requests: approves
 //        Edit Individual Information, rejects Edit Group Information (with a reason), and
-//        requests revision on Update ID Document (with revision notes)
+//        requests revision on Update ID Document (with revision notes). On the way, checks
+//        that forms the validator may not create from render no "New" button at all: an
+//        approval review form (the role has no create access on reviews) and the CR detail
+//        form (opened with create disabled in the action context)
 //   21 - Logs back in as admin and confirms the three resolutions actually took effect: the
 //        approved name change is reflected on the registrant, and the Change Requests list
 //        shows Rejected / Needs Changes for the other two
@@ -1351,11 +1354,36 @@ test.describe.serial("OpenSPP Starter SP-MIS", () => {
     await expect(page.getByRole("row", {name: `${crNumber} Update ID`})).toBeVisible();
     console.log("✅ Logged in as HQ validator (hqval@mail.com)");
 
+    // The HQ validator role can read approval reviews but not create them, so
+    // Odoo derives canCreate = false from the ACL and must not render the form's
+    // "New" button. (Registrants are not a read-only model for this role: the
+    // change-request module grants it create on res.partner so that approving a
+    // request can create one.) Assert on the DOM count, not on visibility:
+    // spp_programs' FormController patch hides the same button with
+    // `display: none`, which would mask a template that renders it anyway (#582).
+    await page.getByRole("list").getByRole("menuitem", {name: "Approvals"}).click();
+    await page.getByRole("menuitem", {name: "Pending Approvals"}).click();
+    await expect(page.locator(".o_data_row").first()).toBeVisible();
+    await page.locator(".o_data_row").first().click();
+    await expect(page.locator(".o_form_view")).toBeVisible();
+    await expect(page.locator(".o_form_button_create")).toHaveCount(0);
+    console.log(
+      "✅ No New button on the approval review form for a role without create access"
+    );
+
+    await page.getByRole("menuitem", {name: "Change Requests"}).click();
     await page.getByRole("menuitem", {name: "All Requests"}).click();
     await page.getByRole("cell", {name: "Edit Individual Information"}).click();
     await expect(
       page.getByRole("row", {name: "Given Name Jose Miguel Jose"})
     ).toBeVisible();
+
+    // The CR detail form is opened with `context: {create: false}`, so Odoo must
+    // not render the form's "New" button at all. Assert on the DOM count, not on
+    // visibility: spp_programs' FormController patch hides the same button with
+    // `display: none`, which would mask a template that renders it anyway (#582).
+    await expect(page.locator(".o_form_button_create")).toHaveCount(0);
+    console.log("✅ No New button on the read-only CR detail form");
 
     await page.getByRole("button", {name: "Approve"}).click();
     await expect(page.getByRole("heading", {name: "Confirmation"})).toBeVisible();
