@@ -46,7 +46,7 @@
          The flag can only hide the button, never show it: Odoo's own
          canCreate guard stays in the condition, so a form opened with
          create disabled (action context {'create': False}, create="0" on
-         the arch, no create ACL, preventCreate) keeps hiding "New". -->
+         the arch, no create ACL) keeps hiding "New". -->
     <t t-inherit="web.FormView" t-inherit-mode="extension">
         <xpath expr="//button[hasclass('o_form_button_create')]" position="attributes">
             <attribute name="t-if">canCreate and !hideFormCreateButton</attribute>

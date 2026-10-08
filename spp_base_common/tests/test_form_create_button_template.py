@@ -5,9 +5,10 @@ spp_base_common extends the ``web.FormView`` template so that any module can set
 control-panel "New" button. Stock Odoo renders that button with
 ``t-if="canCreate"``, and ``canCreate`` is the single switch behind every way a
 form can be opened without create: ``{'create': False}`` in the action context,
-``create="0"`` on the form arch, a missing create ACL, and the ``preventCreate``
-prop. Replacing the condition instead of extending it rendered a live "New"
-button in all four cases (#582).
+``create="0"`` on the form arch, and a missing create ACL. Replacing the
+condition instead of extending it rendered a live "New" button in all three
+cases (#582). The fourth input to ``canCreate``, the ``preventCreate`` prop, is
+only passed by form dialogs, which do not render the control panel at all.
 
 The web client applies template inheritance in the browser, which the test image
 cannot run. Odoo ships the same xpath/position engine server-side in
@@ -19,6 +20,7 @@ import copy
 
 from lxml import etree
 
+from odoo.modules.module import get_manifest
 from odoo.tests import TransactionCase
 from odoo.tools.misc import file_open
 from odoo.tools.template_inheritance import apply_inheritance_specs
@@ -73,6 +75,11 @@ class TestFormCreateButtonTemplate(TransactionCase):
             '(action context, create="0", ACL, preventCreate) and the '
             "hideFormCreateButton opt-out must still hide the button",
         )
+
+    def test_extension_is_shipped_in_the_backend_bundle(self):
+        """The template only takes effect if the manifest still lists it in web.assets_backend."""
+        manifest = get_manifest("spp_base_common")
+        self.assertIn(EXTENSION_TEMPLATES, manifest["assets"]["web.assets_backend"])
 
     def test_dialog_new_button_is_not_touched(self):
         """The extension targets web.FormView only; dialog footers keep stock markup."""
