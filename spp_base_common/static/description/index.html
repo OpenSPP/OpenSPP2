@@ -502,15 +502,15 @@ again. The <tt class="docutils literal">web.FormView</tt> extension that lets a 
 button with <tt class="docutils literal">hideFormCreateButton</tt> replaced the button’s condition
 instead of extending it, dropping Odoo’s <tt class="docutils literal">canCreate</tt>. As a result
 every form opened with create disabled — <tt class="docutils literal">{'create': False}</tt> in the
-action context, <tt class="docutils literal"><span class="pre">create=&quot;0&quot;</span></tt> on the form arch, a role without create
-access, or <tt class="docutils literal">preventCreate</tt> — still rendered a working <strong>New</strong> button
-that opened a blank editable record, or failed with an access error on
-save (visible on installs without <tt class="docutils literal">spp_programs</tt>; with it, a
-workaround hid the rendered button after the fact). The condition is
-now <tt class="docutils literal">canCreate and !hideFormCreateButton</tt>: the flag can only hide
-the button, never show it, and modules using it keep working
-unchanged. Forms shown in dialogs use a separate template and were
-never affected (#582).</li>
+action context, <tt class="docutils literal"><span class="pre">create=&quot;0&quot;</span></tt> on the form arch, or a role without
+create access — still rendered a working <strong>New</strong> button that opened a
+blank editable record, or failed with an access error on save (visible
+on installs without <tt class="docutils literal">spp_programs</tt>; with it, a workaround hid the
+rendered button after the fact). The condition is now
+<tt class="docutils literal">canCreate and !hideFormCreateButton</tt>: the flag can only hide the
+button, never show it, and modules using it keep working unchanged.
+Forms shown in dialogs use a separate template and were never affected
+(#582).</li>
 </ul>
 </div>
 <div class="section" id="section-2">
