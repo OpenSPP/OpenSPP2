@@ -115,8 +115,13 @@ class TestComputePhoneSanitized(PhoneCommon):
         Worth flagging: this means ``phone_sanitized`` can hold an
         un-E164'd value when parsing fails. If you'd rather it be empty,
         the compute needs to filter the fallback explicitly.
+
+        The record is built with ``new()`` rather than ``create()``: this
+        pins the compute of the registry layer alone, and ``spp_base_common``
+        (installed on every full stack) overrides ``create()`` to refuse a
+        number containing letters before the compute is ever reached.
         """
-        rec = self.PhoneNumber.create({"partner_id": self.individual_a.id, "phone_no": "abcxyz"})
+        rec = self.PhoneNumber.new({"partner_id": self.individual_a.id, "phone_no": "abcxyz"})
         self.assertEqual(rec.phone_sanitized, "abcxyz")
 
     def test_phone_validation_unavailable_returns_original(self):

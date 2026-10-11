@@ -1,3 +1,7 @@
+### 19.0.2.2.7
+
+- test(registry): make two tests hold when other modules are installed alongside spp_registry, as on every full stack. The unparseable-phone fallback test builds its record with `new()` instead of `create()`, because `spp_base_common` overrides `create()` to refuse a number containing letters before the registry compute is reached; the unlink-permission tests pin the starter bundles' admin-only registry switch off for their transaction, because it is shipped on and enforced server-side and would refuse the manager the registry rule allows. No behaviour change (#443)
+
 ### 19.0.2.2.4
 
 - fix(registry): refuse a date of birth in the future on every write path. `_birthdate_onchange` only runs in the form UI, so ORM `create`/`write`, CSV/Excel import and API writes (XML-RPC, API v2, DCI) all persisted a future `birthdate` — which the non-stored `age` compute then rendered as a negative number in views, exports and API reads. A stored-field constraint now enforces it server-side, comparing against the user's own today so a registrar east of UTC is not refused a birth recorded earlier that local day, and naming the record and the offending value so a bad row in a bulk import can be found. The onchange is kept as the friendlier silent-reset UX in the form (#362)
