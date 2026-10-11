@@ -1,6 +1,5 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 import logging
-from datetime import date
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
@@ -44,7 +43,7 @@ class SPPRegistrant(models.Model):
     phone_number_ids = fields.One2many("spp.phone.number", "partner_id", "Phone Numbers")
 
     company_id = fields.Many2one("res.company", required=True, default=lambda self: self.env.company)
-    registration_date = fields.Date(default=lambda self: fields.Date.today(), index=True)
+    registration_date = fields.Date(default=lambda self: fields.Date.context_today(self), index=True)
     tags_ids = fields.Many2many(
         "spp.vocabulary.code",
         relation="res_partner_registrant_tag_rel",
@@ -126,9 +125,17 @@ class SPPRegistrant(models.Model):
 
     @api.constrains("registration_date")
     def _check_registration_date(self):
+        """Registration date is bounded by the user's today and the birthdate.
+
+        The upper bound is the *user's* today (``fields.Date.context_today``),
+        not the server's UTC date: a registrar east of UTC is on tomorrow's
+        date for part of each day and must not be refused a registration
+        made that morning. Same rule as ``_check_birthdate_not_future`` and
+        the field's default.
+        """
         for record in self:
             if record.registration_date:
-                if record.registration_date > date.today():
+                if record.registration_date > fields.Date.context_today(record):
                     error_message = "Registration date must be less than the current date."
                     raise ValidationError(error_message)
                 elif "birthdate" in record and record.birthdate and record.registration_date < record.birthdate:

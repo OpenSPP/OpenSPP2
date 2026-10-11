@@ -92,9 +92,13 @@ class SPPIndividual(models.Model):
         This function is used to validate and reset birthdate in case
         the birthdate date is being set greater than the date today.
         Resets to previous birthdate value if available, otherwise None.
+
+        "Today" is the user's (``context_today``), the same rule as
+        ``_check_birthdate_not_future``, so the form never resets a date
+        the constraint accepts or keeps one it will refuse on save.
         """
         for rec in self:
-            if rec.birthdate and rec.birthdate > fields.Date.today():
+            if rec.birthdate and rec.birthdate > fields.Date.context_today(rec):
                 # Restore previous birthdate or set to None if new record
                 rec.birthdate = rec._origin.birthdate if rec._origin.id else None
                 return {

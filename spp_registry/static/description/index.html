@@ -518,6 +518,31 @@ when group composition changes</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.2.6</h1>
+<ul class="simple">
+<li>fix(registry): compare the registration date and the form’s birthdate
+check against the user’s today, not the server’s UTC date, finishing
+what 19.0.2.2.4 started for <tt class="docutils literal">_check_birthdate_not_future</tt>. The
+<tt class="docutils literal">registration_date</tt> default was <tt class="docutils literal">fields.Date.today()</tt> and
+<tt class="docutils literal">_check_registration_date</tt> bounded it by <tt class="docutils literal">date.today()</tt>, so a
+registrar east of UTC creating a registrant born earlier that local
+day was refused twice over: the defaulted registration date was the
+server’s yesterday (“must be later than the birth date”) with no way
+to correct it in the form, where the field is read-only once
+defaulted, and setting the correct date through the API or an import
+was refused as future. <tt class="docutils literal">_birthdate_onchange</tt> used the same server
+date and silently reset that valid birthdate in the form, while west
+of UTC it kept the user’s tomorrow only for the constraint to refuse
+it on save. All three now use <tt class="docutils literal">fields.Date.context_today</tt> (#520)</li>
+<li>behaviour note for teams spread across timezones: “today” is now each
+user’s own, so a registration date stored by a user east of UTC can
+read as tomorrow to a colleague further west until their local
+midnight, and an API or import write of that value by the second user
+is refused as future until then. The form is unaffected because
+<tt class="docutils literal">registration_date</tt> is read-only there once set.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.2.4</h1>
 <ul class="simple">
 <li>fix(registry): refuse a date of birth in the future on every write
@@ -538,7 +563,7 @@ is corrected. Find them with:
 <tt class="docutils literal">SELECT id, display_name, birthdate FROM res_partner WHERE birthdate &gt; CURRENT_DATE;</tt></li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.2.3</h1>
 <ul class="simple">
 <li>fix(registry): repair the stored <tt class="docutils literal">status</tt>/<tt class="docutils literal">is_ended</tt> computes on
@@ -562,7 +587,7 @@ the build:
 <tt class="docutils literal">CREATE INDEX CONCURRENTLY IF NOT EXISTS spp_group_membership__ended_date_index ON spp_group_membership (ended_date) WHERE ended_date IS NOT NULL;</tt></li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.2.2</h1>
 <ul class="simple">
 <li>fix(registry): let an ID type be used again after its ID was removed.
@@ -574,7 +599,7 @@ refused before the write so the message names the ID type rather than
 surfacing a database error (#1136)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.2.1</h1>
 <ul class="simple">
 <li>feat(registry): registry configuration is consolidated into one
@@ -585,7 +610,7 @@ administrator; the section’s menu is gated to match, since the
 framework refuses a settings save from anyone else (#1009)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.1.4</h1>
 <ul class="simple">
 <li>fix(registry): remove the dead <tt class="docutils literal"><span class="pre">&#64;api.constrains(&quot;age&quot;)</span></tt>
@@ -597,7 +622,7 @@ values are unchanged; stale i18n entries for the removed message are
 dropped</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.1.3</h1>
 <ul class="simple">
 <li>fix(registry): show an ID <strong>Status</strong> column on the group form
@@ -608,7 +633,7 @@ flow) — per the #1110 decision to stay consistent across the system
 (#1110)</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-8">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>fix(views): add reusable <tt class="docutils literal">x2many_no_padding</tt> JS widget that
@@ -618,7 +643,7 @@ Membership, and Group Members lists on registrant forms so blank cells
 don’t bloat the layout (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-8">
+<div class="section" id="section-9">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
