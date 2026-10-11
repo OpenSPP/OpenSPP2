@@ -1,3 +1,7 @@
+### 19.0.2.0.2
+
+- test(api_v2_gis): the "export with no data raises" test deactivates every `spp.gis.report` and `spp.gis.geofence` in the database, not only the ones it created. With an empty `layer_ids` the export collects all active reports, and a demo module in the same database (`spp_mis_demo_v2` ships four report records as data) supplied layers, so the expected error never came. No behaviour change (#443)
+
 ### 19.0.2.0.1
 
 - fix: bind coordinate query parameters in the order the SQL expects
