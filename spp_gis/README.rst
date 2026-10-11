@@ -140,6 +140,16 @@ External Python libraries: ``shapely``, ``pyproj``, ``geojson``
 Changelog
 =========
 
+19.0.2.1.1
+~~~~~~~~~~
+
+- test(gis): the geofence GeoJSON properties test asserts the core keys
+  are present and no longer asserts that the incident keys are absent.
+  ``spp_api_v2_gis`` legitimately adds ``incident_id``/``incident_name``
+  to the same properties (and asserts their presence in its own tests),
+  so the absence check failed on every database carrying both modules.
+  No behaviour change (#443)
+
 19.0.2.1.0
 ~~~~~~~~~~
 
