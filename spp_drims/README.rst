@@ -179,6 +179,15 @@ Dependencies
 Changelog
 =========
 
+19.0.4.0.5
+~~~~~~~~~~
+
+- fix(tests): the SLA completeness test now checks only the priority
+  codes spp_drims itself ships. It compared against every code in the
+  vocabulary, so installing an overlay that legitimately extends
+  priorities — spp_drims_sl adds life_threatening — made the exact-match
+  assertion fail on a fourth key the module never claimed to cover
+
 19.0.4.0.4
 ~~~~~~~~~~
 

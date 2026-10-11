@@ -192,7 +192,7 @@ class TestDrimsConstants(DrimsTestCommon):
         whole failure mode OP#1165 is about.
         """
         settings = self.env["res.config.settings"]
-        codes = self._codes_in(constants.VOCAB_PRIORITY_LEVELS)
+        codes = self._canonical_codes_in(constants.VOCAB_PRIORITY_LEVELS)
 
         hours = {code: settings.get_approval_sla_hours(code) for code in codes}
         self.assertEqual(
