@@ -75,10 +75,10 @@ class TestMetricBase(TransactionCase):
         variable = self.env["spp.cel.variable"].create(
             {
                 "name": "test_var",
-                "label": "Test Variable",
+                "cel_accessor": "test_var",
                 "source_type": "computed",
                 "state": "active",
-                "expression": "1 + 1",
+                "cel_expression": "1 + 1",
             }
         )
 
@@ -104,10 +104,10 @@ class TestMetricBase(TransactionCase):
         variable = self.env["spp.cel.variable"].create(
             {
                 "name": "test_var_2",
-                "label": "Test Variable 2",
+                "cel_accessor": "test_var_2",
                 "source_type": "computed",
                 "state": "active",
-                "expression": "2 + 2",
+                "cel_expression": "2 + 2",
             }
         )
 
