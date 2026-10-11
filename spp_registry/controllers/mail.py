@@ -1,6 +1,3 @@
-import logging
-
-from markupsafe import Markup
 from werkzeug.exceptions import NotFound
 
 from odoo import http
@@ -10,10 +7,7 @@ from odoo.tools import consteq
 from odoo.tools.translate import _
 
 from odoo.addons.mail.controllers.attachment import AttachmentController
-from odoo.addons.mail.controllers.thread import ThreadController
 from odoo.addons.mail.tools.discuss import add_guest_to_context
-
-logger = logging.getLogger(__name__)
 
 
 class SPPAttachmentController(AttachmentController):
@@ -54,27 +48,3 @@ class SPPAttachmentController(AttachmentController):
             if attachment_sudo.res_model != "mail.compose.message" or attachment_sudo.res_id != 0:
                 raise NotFound()
         attachment_sudo._delete_and_notify(message)
-
-
-class SPPThreadController(ThreadController):
-    @http.route("/mail/message/update_content", methods=["POST"], type="jsonrpc", auth="public")
-    @add_guest_to_context
-    def mail_message_update_content(self, message_id, body, attachment_ids, attachment_tokens=None, partner_ids=None):
-        guest = request.env["mail.guest"]._get_guest_from_context()
-        guest.env["ir.attachment"].browse(attachment_ids)._check_attachments_access(attachment_tokens)
-        # nosemgrep: odoo-sudo-without-context
-        message_sudo = guest.env["mail.message"].browse(message_id).sudo().exists()
-
-        # Check if current user is admin or the creator (user or guest)
-        is_admin = request.env.user.has_group("base.group_system")
-        is_author = message_sudo.is_current_user_or_guest_author
-        if not (is_admin or is_author):
-            raise AccessError(_("You do not have permission to update this message."))
-
-        if not message_sudo.model or not message_sudo.res_id:
-            raise NotFound()
-        body = Markup(body) if body else body  # may contain HTML such as @mentions
-        guest.env[message_sudo.model].browse([message_sudo.res_id])._message_update_content(
-            message_sudo, body, attachment_ids=attachment_ids, partner_ids=partner_ids
-        )
-        return message_sudo.message_format()[0]

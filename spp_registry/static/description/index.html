@@ -518,6 +518,28 @@ when group composition changes</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.2.5</h1>
+<ul class="simple">
+<li>fix(registry): remove the <tt class="docutils literal">/mail/message/update_content</tt> controller
+override. It was ported from Odoo 17, where it was already redundant:
+stock 17 granted author-or-administrator editing too, and the override
+only narrowed “administrator” to <tt class="docutils literal">base.group_system</tt> and answered
+with an access error instead of a 404. On Odoo 19 it no longer worked
+at all, breaking <strong>Edit</strong> and <strong>Delete</strong> on every chatter message
+across the instance: its signature still expected the Odoo 17 request
+shape while the Odoo 19 web client sends <tt class="docutils literal">update_data</tt>, so every
+call failed before running, and behind that it also called the removed
+<tt class="docutils literal">ir.attachment._check_attachments_access</tt> and returned through the
+removed <tt class="docutils literal">message_format()</tt>. Odoo 19’s own route already grants
+author-or-administrator editing, so the override is dropped and the
+route is stock again. Who may edit another user’s chatter message
+therefore follows Odoo’s own administrator test (superuser or
+<strong>Administration: Access Rights</strong>, which <strong>Administration: Settings</strong>
+implies) instead of Settings only, and the editor must also be allowed
+to post on the record; no OpenSPP role sits in that gap (#419)</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.2.4</h1>
 <ul class="simple">
 <li>fix(registry): refuse a date of birth in the future on every write
@@ -538,7 +560,7 @@ is corrected. Find them with:
 <tt class="docutils literal">SELECT id, display_name, birthdate FROM res_partner WHERE birthdate &gt; CURRENT_DATE;</tt></li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.2.3</h1>
 <ul class="simple">
 <li>fix(registry): repair the stored <tt class="docutils literal">status</tt>/<tt class="docutils literal">is_ended</tt> computes on
@@ -562,7 +584,7 @@ the build:
 <tt class="docutils literal">CREATE INDEX CONCURRENTLY IF NOT EXISTS spp_group_membership__ended_date_index ON spp_group_membership (ended_date) WHERE ended_date IS NOT NULL;</tt></li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.2.2</h1>
 <ul class="simple">
 <li>fix(registry): let an ID type be used again after its ID was removed.
@@ -574,7 +596,7 @@ refused before the write so the message names the ID type rather than
 surfacing a database error (#1136)</li>
 </ul>
 </div>
-<div class="section" id="section-4">
+<div class="section" id="section-5">
 <h1>19.0.2.2.1</h1>
 <ul class="simple">
 <li>feat(registry): registry configuration is consolidated into one
@@ -585,7 +607,7 @@ administrator; the section’s menu is gated to match, since the
 framework refuses a settings save from anyone else (#1009)</li>
 </ul>
 </div>
-<div class="section" id="section-5">
+<div class="section" id="section-6">
 <h1>19.0.2.1.4</h1>
 <ul class="simple">
 <li>fix(registry): remove the dead <tt class="docutils literal"><span class="pre">&#64;api.constrains(&quot;age&quot;)</span></tt>
@@ -597,7 +619,7 @@ values are unchanged; stale i18n entries for the removed message are
 dropped</li>
 </ul>
 </div>
-<div class="section" id="section-6">
+<div class="section" id="section-7">
 <h1>19.0.2.1.3</h1>
 <ul class="simple">
 <li>fix(registry): show an ID <strong>Status</strong> column on the group form
@@ -608,7 +630,7 @@ flow) — per the #1110 decision to stay consistent across the system
 (#1110)</li>
 </ul>
 </div>
-<div class="section" id="section-7">
+<div class="section" id="section-8">
 <h1>19.0.2.1.1</h1>
 <ul class="simple">
 <li>fix(views): add reusable <tt class="docutils literal">x2many_no_padding</tt> JS widget that
@@ -618,7 +640,7 @@ Membership, and Group Members lists on registrant forms so blank cells
 don’t bloat the layout (#943).</li>
 </ul>
 </div>
-<div class="section" id="section-8">
+<div class="section" id="section-9">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
