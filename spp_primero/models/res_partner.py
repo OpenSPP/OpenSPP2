@@ -173,15 +173,24 @@ class ResPartner(models.Model):
 
     @staticmethod
     def _primero_run_ref(response):
-        """Lightning's async reply carries ``run_id``; anything else is ignored, never stored."""
+        """The OpenFn run reference from Lightning's async reply.
+
+        Lightning puts the run id in the ``x-meta-run-id`` header and only the work order
+        id in the JSON body (``run_id`` is also accepted there). Anything else is ignored,
+        never stored.
+        """
+        headers = getattr(response, "headers", None) or {}
+        candidates = [headers.get("x-meta-run-id")]
         try:
             body = response.json()
         except ValueError:
-            return False
-        run_id = body.get("run_id") if isinstance(body, dict) else None
-        if not isinstance(run_id, str) or not run_id:
-            return False
-        return run_id[:RUN_REF_MAX_LENGTH]
+            body = None
+        if isinstance(body, dict):
+            candidates += [body.get("run_id"), body.get("work_order_id")]
+        for candidate in candidates:
+            if isinstance(candidate, str) and candidate:
+                return candidate[:RUN_REF_MAX_LENGTH]
+        return False
 
     def _primero_referral_failed(self, reason):
         # Only the record id and a short reason: never the child's data or the response body.

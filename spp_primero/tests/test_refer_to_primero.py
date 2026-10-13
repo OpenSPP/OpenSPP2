@@ -16,9 +16,10 @@ POST = "odoo.addons.spp_primero.models.res_partner.requests.post"
 LOGGER = "odoo.addons.spp_primero.models.res_partner"
 
 
-def _response(status_code=200, json_body=None, json_error=False):
+def _response(status_code=200, json_body=None, json_error=False, headers=None):
     response = MagicMock()
     response.status_code = status_code
+    response.headers = headers or {}
     if json_error:
         response.json.side_effect = ValueError("not json")
     else:
@@ -197,6 +198,20 @@ class TestReferToPrimero(PrimeroTestCase):
             self.as_officer.action_refer_to_primero()
         self.assertEqual(self.child.primero_referral_state, "referred")
         self.assertFalse(self.child.primero_run_ref)
+
+    def test_refer_success_takes_run_id_from_lightning_header(self):
+        """Lightning's async reply: run id in x-meta-run-id, only the work order id in the body."""
+        with patch(
+            POST,
+            return_value=_response(200, {"work_order_id": "wo-9"}, headers={"x-meta-run-id": "run-9"}),
+        ):
+            self.as_officer.action_refer_to_primero()
+        self.assertEqual(self.child.primero_run_ref, "run-9")
+
+    def test_refer_success_falls_back_to_work_order_id(self):
+        with patch(POST, return_value=_response(200, {"work_order_id": "wo-10"})):
+            self.as_officer.action_refer_to_primero()
+        self.assertEqual(self.child.primero_run_ref, "wo-10")
 
     def test_refer_success_ignores_odd_run_ids(self):
         for body in ([], {"run_id": {"nested": 1}}, {"run_id": 42}, {"run_id": ""}):
