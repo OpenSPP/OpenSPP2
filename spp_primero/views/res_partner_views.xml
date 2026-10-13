@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_individuals_form_primero" model="ir.ui.view">
+        <field name="name">res.partner.form.primero</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="spp_registry.view_individuals_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    class="oe_stat_button"
+                    type="object"
+                    name="action_refer_to_primero"
+                    icon="fa-child"
+                    invisible="is_group or not is_registrant"
+                    groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Refer to</span>
+                        <span class="o_stat_text">Primero</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <xpath expr="//page[@name='participation']" position="after">
+                <page name="protection" string="Protection" invisible="is_group">
+                    <group col="2">
+                        <group
+                            name="protection_concern_section"
+                            string="Protection Concern"
+                        >
+                            <field
+                                name="protection_concern_ids"
+                                widget="many2many_tags"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="protection_risk_level_id"
+                                options="{'no_create': True}"
+                            />
+                            <field name="protection_urgent" />
+                            <field name="protection_concern_date" />
+                        </group>
+                        <group name="protection_consent_section" string="Consent">
+                            <field name="protection_consent_for_services" />
+                            <field name="protection_disclosure_other_orgs" />
+                        </group>
+                    </group>
+                    <group name="protection_notes_section" string="Notes">
+                        <field
+                            name="protection_notes"
+                            nolabel="1"
+                            placeholder="Describe the concern..."
+                        />
+                    </group>
+                    <group col="2">
+                        <group
+                            name="primero_referral_section"
+                            string="Primero Referral"
+                        >
+                            <field
+                                name="primero_referral_state"
+                                widget="badge"
+                                decoration-success="primero_referral_state == 'referred'"
+                                decoration-danger="primero_referral_state == 'failed'"
+                            />
+                            <field name="primero_referred_at" />
+                            <field name="primero_run_ref" />
+                            <field
+                                name="primero_referral_error"
+                                invisible="not primero_referral_error"
+                            />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

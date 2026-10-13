@@ -60,7 +60,8 @@ class PrimeroTestCase(TransactionCase):
 
     @classmethod
     def _make_user(cls, login, group_xmlids):
-        groups = cls.env["res.groups"]
+        """An internal user with the given groups (every real user is an internal user)."""
+        groups = cls.env.ref("base.group_user")
         for xmlid in group_xmlids:
             groups |= cls.env.ref(xmlid)
         return cls.env["res.users"].create(
