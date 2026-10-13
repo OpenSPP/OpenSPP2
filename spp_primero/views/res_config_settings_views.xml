@@ -12,10 +12,10 @@
                     name="spp_primero_settings"
                     logo="/spp_primero/static/description/icon.png"
                 >
-                    <block title="OpenFn webhook" name="spp_primero_webhook_block">
+                    <block title="OpenFn Webhook" name="spp_primero_webhook_block">
                         <setting
                             string="Webhook URL"
-                            help="The webhook trigger URL of the OpenFn workflow that refers a child to Primero. It must be reachable from this server."
+                            help="The webhook trigger URL of the OpenFn workflow that refers a child to Primero. It must be reachable from this server and use https (plain http only for an OpenFn on this machine)."
                         >
                             <field
                                 name="primero_webhook_url"
@@ -24,7 +24,7 @@
                         </setting>
                         <setting
                             string="Webhook API Key"
-                            help="The API key attached to the webhook trigger in OpenFn. Sent as the x-api-key header."
+                            help="The API key attached to the webhook trigger in OpenFn, sent as the x-api-key header. Leave empty if the trigger has no key."
                         >
                             <field name="primero_webhook_api_key" password="true" />
                         </setting>

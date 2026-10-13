@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo noupdate="1">
+<odoo>
     <!--
         Exposes the protection concern on the Individual resource:
         GET /api/v2/spp/Individual/{id}?_extensions=protection-concern
         Vocabulary fields are rendered as CodeableConcept by the extension service.
+        The referral outcome fields (primero_*) are deliberately not exposed: the
+        workflow does not need to read back its own outcome.
+        Not noupdate: the field list is owned by this module and must follow it on upgrade.
     -->
     <record id="api_extension_protection_concern" model="spp.api.extension">
         <field name="name">Protection Concern</field>
@@ -16,13 +19,11 @@
             eval="[Command.set([
                 ref('spp_primero.field_res_partner__protection_concern_ids'),
                 ref('spp_primero.field_res_partner__protection_risk_level_id'),
-                ref('spp_primero.field_res_partner__protection_urgent'),
+                ref('spp_primero.field_res_partner__is_protection_urgent'),
                 ref('spp_primero.field_res_partner__protection_concern_date'),
                 ref('spp_primero.field_res_partner__protection_notes'),
-                ref('spp_primero.field_res_partner__protection_consent_for_services'),
-                ref('spp_primero.field_res_partner__protection_disclosure_other_orgs'),
-                ref('spp_primero.field_res_partner__primero_referral_state'),
-                ref('spp_primero.field_res_partner__primero_referred_at'),
+                ref('spp_primero.field_res_partner__has_protection_consent_for_services'),
+                ref('spp_primero.field_res_partner__has_protection_consent_other_organizations'),
             ])]"
         />
     </record>

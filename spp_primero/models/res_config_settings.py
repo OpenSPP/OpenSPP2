@@ -2,9 +2,10 @@
 from odoo import api, fields, models
 
 # The webhook key is a credential for the OpenFn trigger. res.config.settings is
-# admin-only through Odoo's ACL, but default_get() reads config parameters with
-# sudo() and performs no access check, so it is guarded explicitly below (same
-# pattern as spp_oauth).
+# admin-only through Odoo's ACL (and Odoo 19's default_get checks it), but
+# default_get() reads config parameters with sudo(), so the values are also
+# stripped here as defence in depth should the model ACL ever be widened (same
+# pattern as spp_oauth, whose ACL once was).
 PRIMERO_SETTINGS_FIELDS = ("primero_webhook_url", "primero_webhook_api_key")
 
 

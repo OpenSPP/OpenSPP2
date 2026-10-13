@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 from lxml import etree
 
-from odoo import fields
+from odoo import Command, fields
 from odoo.tests import tagged
 
 from .common import PrimeroTestCase
@@ -9,11 +9,11 @@ from .common import PrimeroTestCase
 CONCERN_FIELDS = {
     "protection_concern_ids": "many2many",
     "protection_risk_level_id": "many2one",
-    "protection_urgent": "boolean",
+    "is_protection_urgent": "boolean",
     "protection_concern_date": "date",
     "protection_notes": "text",
-    "protection_consent_for_services": "boolean",
-    "protection_disclosure_other_orgs": "boolean",
+    "has_protection_consent_for_services": "boolean",
+    "has_protection_consent_other_organizations": "boolean",
 }
 REFERRAL_FIELDS = {
     "primero_referral_state": "selection",
@@ -21,10 +21,16 @@ REFERRAL_FIELDS = {
     "primero_run_ref": "char",
     "primero_referral_error": "char",
 }
+BUTTON_XPATH = "//button[@name='action_refer_to_primero']"
 
 
 @tagged("post_install", "-at_install")
 class TestFieldsAndViews(PrimeroTestCase):
+    def _form_arch(self, user=None):
+        view = self.env.ref("spp_registry.view_individuals_form")
+        partner = self.Partner.with_user(user) if user else self.Partner
+        return etree.fromstring(partner.get_view(view.id, "form")["arch"])
+
     def test_fields_exist_with_expected_types(self):
         for name, ttype in {**CONCERN_FIELDS, **REFERRAL_FIELDS}.items():
             with self.subTest(field=name):
@@ -40,8 +46,8 @@ class TestFieldsAndViews(PrimeroTestCase):
             with self.subTest(field=name):
                 self.assertFalse(self.Partner._fields[name].copy)
 
-    def test_referral_state_defaults_to_none(self):
-        self.assertEqual(self.child.primero_referral_state, "none")
+    def test_referral_state_defaults_to_not_referred(self):
+        self.assertEqual(self.child.primero_referral_state, "not_referred")
         self.assertFalse(self.child.primero_referred_at)
         self.assertFalse(self.child.primero_run_ref)
 
@@ -49,41 +55,47 @@ class TestFieldsAndViews(PrimeroTestCase):
         today = fields.Date.context_today(self.child)
         self.child.write(
             {
-                "protection_concern_ids": [(6, 0, self._concern_code("street_child").ids)],
+                "protection_concern_ids": [Command.set(self._concern_code("street_child").ids)],
                 "protection_risk_level_id": self._risk_code("high").id,
-                "protection_urgent": True,
+                "is_protection_urgent": True,
                 "protection_concern_date": today,
                 "protection_notes": "Seen sleeping at the market.",
-                "protection_consent_for_services": True,
-                "protection_disclosure_other_orgs": True,
+                "has_protection_consent_for_services": True,
+                "has_protection_consent_other_organizations": True,
             }
         )
         self.assertEqual(self.child.protection_concern_ids.mapped("code"), ["street_child"])
         self.assertEqual(self.child.protection_risk_level_id.code, "high")
-        self.assertTrue(self.child.protection_urgent)
+        self.assertTrue(self.child.is_protection_urgent)
         self.assertEqual(self.child.protection_concern_date, today)
 
-    def test_individual_form_has_button_and_tab(self):
-        view = self.env.ref("spp_registry.view_individuals_form")
-        arch = etree.fromstring(self.Partner.get_view(view.id, "form")["arch"])
-        buttons = arch.xpath("//button[@name='action_refer_to_primero']")
-        self.assertEqual(len(buttons), 1)
-        self.assertEqual(buttons[0].get("type"), "object")
+    def test_individual_form_has_buttons_and_tab(self):
+        arch = self._form_arch()
+        buttons = arch.xpath(BUTTON_XPATH)
+        # One button for not-referred/failed, one (with a confirmation) for already referred.
+        self.assertEqual(len(buttons), 2)
+        self.assertTrue(all(b.get("type") == "object" for b in buttons))
+        self.assertEqual(len([b for b in buttons if b.get("confirm")]), 1)
         pages = arch.xpath("//page[@name='protection']")
         self.assertEqual(len(pages), 1)
         for name in CONCERN_FIELDS:
             with self.subTest(field=name):
                 self.assertTrue(pages[0].xpath(f".//field[@name='{name}']"), f"{name} missing from Protection tab")
         self.assertTrue(pages[0].xpath(".//field[@name='primero_referral_state']"))
+        self.assertTrue(pages[0].xpath(".//group[@name='protection_extra_section']"))
+
+    def test_concern_fields_are_readonly_for_disabled_registrants(self):
+        pages = self._form_arch().xpath("//page[@name='protection']")
+        for name in CONCERN_FIELDS:
+            with self.subTest(field=name):
+                field = pages[0].xpath(f".//field[@name='{name}']")[0]
+                self.assertEqual(field.get("readonly"), "disabled")
 
     def test_refer_button_hidden_from_viewer(self):
-        """The button is group-gated: a registry viewer's form does not render it (the tab still does)."""
-        view = self.env.ref("spp_registry.view_individuals_form")
-        arch = etree.fromstring(self.Partner.with_user(self.viewer).get_view(view.id, "form")["arch"])
-        self.assertFalse(arch.xpath("//button[@name='action_refer_to_primero']"))
+        """The buttons are group-gated: a registry viewer's form does not render them (the tab still does)."""
+        arch = self._form_arch(self.viewer)
+        self.assertFalse(arch.xpath(BUTTON_XPATH))
         self.assertTrue(arch.xpath("//page[@name='protection']"))
 
     def test_refer_button_rendered_for_officer(self):
-        view = self.env.ref("spp_registry.view_individuals_form")
-        arch = etree.fromstring(self.Partner.with_user(self.officer).get_view(view.id, "form")["arch"])
-        self.assertEqual(len(arch.xpath("//button[@name='action_refer_to_primero']")), 1)
+        self.assertEqual(len(self._form_arch(self.officer).xpath(BUTTON_XPATH)), 2)

@@ -6,24 +6,87 @@
         <field name="inherit_id" ref="spp_registry.view_individuals_form" />
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
+                <!-- Not yet referred, or the last attempt failed -->
                 <button
                     class="oe_stat_button"
                     type="object"
                     name="action_refer_to_primero"
-                    icon="fa-child"
-                    invisible="is_group or not is_registrant"
-                    groups="spp_registry.group_registry_officer,spp_registry.group_registry_manager"
+                    icon="fa-share-square-o"
+                    title="Refer this child to Primero"
+                    invisible="is_group or not is_registrant or disabled or primero_referral_state == 'referred'"
+                    groups="spp_registry.group_registry_officer"
                 >
                     <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_text">Refer to</span>
-                        <span class="o_stat_text">Primero</span>
+                        <span class="o_stat_value">Primero</span>
+                        <span
+                            class="o_stat_text"
+                            invisible="primero_referral_state == 'failed'"
+                        >Refer</span>
+                        <span
+                            class="o_stat_text text-danger"
+                            invisible="primero_referral_state != 'failed'"
+                        >Retry Referral</span>
+                    </div>
+                </button>
+                <!-- Already referred: same action, but confirm before sending again -->
+                <button
+                    class="oe_stat_button"
+                    type="object"
+                    name="action_refer_to_primero"
+                    icon="fa-check-circle"
+                    title="Already referred to Primero. Click to send again."
+                    confirm="This child has already been referred to Primero. Send the referral again?"
+                    invisible="is_group or not is_registrant or disabled or primero_referral_state != 'referred'"
+                    groups="spp_registry.group_registry_officer"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">Primero</span>
+                        <span class="o_stat_text text-success">Referred</span>
                     </div>
                 </button>
             </xpath>
 
             <xpath expr="//page[@name='participation']" position="after">
-                <page name="protection" string="Protection" invisible="is_group">
-                    <group col="2">
+                <page name="protection" string="Protection">
+                    <!-- Referral outcome banners: state carried by text and icon, not colour alone -->
+                    <div name="primero_status_banner">
+                        <div
+                            class="alert alert-success mb-3"
+                            role="status"
+                            invisible="primero_referral_state != 'referred'"
+                        >
+                            <i class="fa fa-check-circle me-2" aria-hidden="true" />
+                            <strong>Referred to Primero.</strong>
+                            Changes made after the referral are not sent automatically; refer again to update Primero.
+                        </div>
+                        <div
+                            class="alert alert-danger mb-3"
+                            role="alert"
+                            invisible="primero_referral_state != 'failed'"
+                        >
+                            <i class="fa fa-times-circle me-2" aria-hidden="true" />
+                            <strong>The referral to Primero failed.</strong>
+                            See the error below, check the OpenFn webhook in Settings, then click Retry Referral.
+                        </div>
+                        <div
+                            class="alert alert-warning mb-3"
+                            role="alert"
+                            invisible="not is_protection_urgent or primero_referral_state == 'referred'"
+                        >
+                            <i
+                            class="fa fa-exclamation-triangle me-2"
+                            aria-hidden="true"
+                        />
+                            <strong>Urgent concern</strong> not yet referred to Primero.
+                        </div>
+                        <div class="text-muted mb-3" invisible="protection_concern_ids">
+                            <i class="fa fa-info-circle me-2" aria-hidden="true" />
+                            No protection concern recorded. Select at least one concern below, then click
+                            <strong>Primero / Refer</strong> above.
+                        </div>
+                    </div>
+
+                    <group name="protection_main_section" col="2">
                         <group
                             name="protection_concern_section"
                             string="Protection Concern"
@@ -32,45 +95,75 @@
                                 name="protection_concern_ids"
                                 widget="many2many_tags"
                                 options="{'no_create': True}"
+                                readonly="disabled"
+                                placeholder="Select one or more concerns..."
                             />
                             <field
                                 name="protection_risk_level_id"
-                                options="{'no_create': True}"
+                                options="{'no_create': True, 'no_open': True}"
+                                readonly="disabled"
                             />
-                            <field name="protection_urgent" />
-                            <field name="protection_concern_date" />
+                            <field name="is_protection_urgent" readonly="disabled" />
+                            <field name="protection_concern_date" readonly="disabled" />
                         </group>
-                        <group name="protection_consent_section" string="Consent">
-                            <field name="protection_consent_for_services" />
-                            <field name="protection_disclosure_other_orgs" />
+                        <group name="protection_side_section">
+                            <group
+                                name="protection_consent_section"
+                                string="Consent"
+                                colspan="2"
+                            >
+                                <field
+                                    name="has_protection_consent_for_services"
+                                    readonly="disabled"
+                                />
+                                <field
+                                    name="has_protection_consent_other_organizations"
+                                    readonly="disabled"
+                                />
+                                <div class="text-muted small" colspan="2">
+                                    Primero uses these to decide which services and organizations may receive the
+                                    referral.
+                                </div>
+                            </group>
+                            <group
+                                name="primero_referral_section"
+                                string="Primero Referral"
+                                colspan="2"
+                            >
+                                <field
+                                    name="primero_referral_state"
+                                    string="Status"
+                                    widget="badge"
+                                    decoration-muted="primero_referral_state == 'not_referred'"
+                                    decoration-success="primero_referral_state == 'referred'"
+                                    decoration-danger="primero_referral_state == 'failed'"
+                                />
+                                <field
+                                    name="primero_referred_at"
+                                    invisible="not primero_referred_at"
+                                />
+                                <field
+                                    name="primero_run_ref"
+                                    invisible="not primero_run_ref"
+                                />
+                                <field
+                                    name="primero_referral_error"
+                                    invisible="not primero_referral_error"
+                                />
+                            </group>
                         </group>
                     </group>
                     <group name="protection_notes_section" string="Notes">
                         <field
                             name="protection_notes"
                             nolabel="1"
-                            placeholder="Describe the concern..."
+                            colspan="2"
+                            readonly="disabled"
+                            placeholder="Describe the concern: what was observed, when and by whom..."
                         />
                     </group>
-                    <group col="2">
-                        <group
-                            name="primero_referral_section"
-                            string="Primero Referral"
-                        >
-                            <field
-                                name="primero_referral_state"
-                                widget="badge"
-                                decoration-success="primero_referral_state == 'referred'"
-                                decoration-danger="primero_referral_state == 'failed'"
-                            />
-                            <field name="primero_referred_at" />
-                            <field name="primero_run_ref" />
-                            <field
-                                name="primero_referral_error"
-                                invisible="not primero_referral_error"
-                            />
-                        </group>
-                    </group>
+                    <!-- Extension point for other modules -->
+                    <group name="protection_extra_section" invisible="1" />
                 </page>
             </xpath>
         </field>

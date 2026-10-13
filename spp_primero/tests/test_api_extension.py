@@ -1,7 +1,7 @@
 # Part of OpenSPP. See LICENSE file for full copyright and licensing details.
 """The protection concern is exposed on GET /Individual/{id}?_extensions=protection-concern."""
 
-from odoo import fields
+from odoo import Command, fields
 from odoo.tests import tagged
 
 from odoo.addons.spp_api_v2.services.extension_service import ExtensionService
@@ -14,13 +14,11 @@ EXTENSION_KEY = "protection-concern"
 EXPOSED_FIELDS = {
     "protection_concern_ids",
     "protection_risk_level_id",
-    "protection_urgent",
+    "is_protection_urgent",
     "protection_concern_date",
     "protection_notes",
-    "protection_consent_for_services",
-    "protection_disclosure_other_orgs",
-    "primero_referral_state",
-    "primero_referred_at",
+    "has_protection_consent_for_services",
+    "has_protection_consent_other_organizations",
 }
 
 
@@ -32,14 +30,14 @@ class TestApiExtension(PrimeroTestCase):
         self.child.write(
             {
                 "protection_concern_ids": [
-                    (6, 0, (self._concern_code("street_child") | self._concern_code("disabled")).ids)
+                    Command.set((self._concern_code("street_child") | self._concern_code("disabled")).ids)
                 ],
                 "protection_risk_level_id": self._risk_code("high").id,
-                "protection_urgent": True,
+                "is_protection_urgent": True,
                 "protection_concern_date": self.today,
                 "protection_notes": "Seen sleeping at the market.",
-                "protection_consent_for_services": True,
-                "protection_disclosure_other_orgs": False,
+                "has_protection_consent_for_services": True,
+                "has_protection_consent_other_organizations": False,
             }
         )
 
@@ -66,14 +64,15 @@ class TestApiExtension(PrimeroTestCase):
         self.assertEqual(risk["coding"][0]["code"], "high")
         self.assertEqual(risk["coding"][0]["system"], PROTECTION_RISK_NS)
 
-        self.assertIs(block["protectionUrgent"], True)
+        self.assertIs(block["isProtectionUrgent"], True)
         self.assertEqual(block["protectionConcernDate"], self.today.isoformat())
         self.assertEqual(block["protectionNotes"], "Seen sleeping at the market.")
-        self.assertIs(block["protectionConsentForServices"], True)
-        self.assertIs(block["protectionDisclosureOtherOrgs"], False)
-        self.assertEqual(block["primeroReferralState"], "none")
-        self.assertNotIn("primeroRunRef", block)
-        self.assertNotIn("primeroReferralError", block)
+        self.assertIs(block["hasProtectionConsentForServices"], True)
+        self.assertIs(block["hasProtectionConsentOtherOrganizations"], False)
+        # The referral outcome is OpenSPP-internal: not exposed.
+        for key in ("primeroReferralState", "primeroReferredAt", "primeroRunRef", "primeroReferralError"):
+            self.assertNotIn(key, block)
+        self.assertNotIn("id", block)
 
     def test_extension_omits_unset_values(self):
         self.child.write({"protection_risk_level_id": False, "protection_notes": False})
