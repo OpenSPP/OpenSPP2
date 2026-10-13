@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo noupdate="1">
+    <!--
+        Protection concern vocabularies.
+
+        The codes are Primero's stock ``lookup-protection-concerns`` and ``lookup-risk-level`` ids
+        so that the OpenFn mapping to Primero is the identity. A Primero deployment may customise
+        its lookups; any deployment-specific mapping belongs in the OpenFn job, not here.
+        ``domain`` has no child-protection value; ``social_assistance`` is the nearest fit.
+    -->
+    <record id="vocab_protection_concern" model="spp.vocabulary">
+        <field name="name">Protection Concern</field>
+        <field name="namespace_uri">urn:openspp:vocab:protection-concern</field>
+        <field name="version">1.0</field>
+        <field
+            name="description"
+        >Child protection concern types, aligned with Primero's lookup-protection-concerns.</field>
+        <field name="is_system">True</field>
+        <field name="domain">social_assistance</field>
+    </record>
+
+    <record id="code_concern_sexually_exploited" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">sexually_exploited</field>
+        <field name="display">Sexually Exploited</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_concern_gbv_survivor" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">gbv_survivor</field>
+        <field name="display">GBV Survivor</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_concern_trafficked_smuggled" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">trafficked_smuggled</field>
+        <field name="display">Trafficked / Smuggled</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="code_concern_statelessness" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">statelessness</field>
+        <field name="display">Statelessness</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="code_concern_arrested_detained" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">arrested_detained</field>
+        <field name="display">Arrested / Detained</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="code_concern_migrant" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">migrant</field>
+        <field name="display">Migrant</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="code_concern_disabled" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">disabled</field>
+        <field name="display">Disabled</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="code_concern_serious_health_issue" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">serious_health_issue</field>
+        <field name="display">Serious Health Issue</field>
+        <field name="sequence">80</field>
+    </record>
+    <record id="code_concern_refugee" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">refugee</field>
+        <field name="display">Refugee</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="code_concern_caafag" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">caafag</field>
+        <field name="display">Child Associated with Armed Forces or Armed Groups (CAAFAG)</field>
+        <field name="sequence">100</field>
+    </record>
+    <record id="code_concern_street_child" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">street_child</field>
+        <field name="display">Street Child</field>
+        <field name="sequence">110</field>
+    </record>
+    <record id="code_concern_child_mother" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">child_mother</field>
+        <field name="display">Child Mother</field>
+        <field name="sequence">120</field>
+    </record>
+    <record id="code_concern_physically_or_mentally_abused" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">physically_or_mentally_abused</field>
+        <field name="display">Physically or Mentally Abused</field>
+        <field name="sequence">130</field>
+    </record>
+    <record id="code_concern_living_with_vulnerable_person" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">living_with_vulnerable_person</field>
+        <field name="display">Living with Vulnerable Person</field>
+        <field name="sequence">140</field>
+    </record>
+    <record id="code_concern_worst_forms_of_child_labor" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">worst_forms_of_child_labor</field>
+        <field name="display">Worst Forms of Child Labour</field>
+        <field name="sequence">150</field>
+    </record>
+    <record id="code_concern_child_headed_household" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">child_headed_household</field>
+        <field name="display">Child-Headed Household</field>
+        <field name="sequence">160</field>
+    </record>
+    <record id="code_concern_mentally_distressed" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">mentally_distressed</field>
+        <field name="display">Mentally Distressed</field>
+        <field name="sequence">170</field>
+    </record>
+    <record id="code_concern_other" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_concern" />
+        <field name="code">other</field>
+        <field name="display">Other</field>
+        <field name="sequence">180</field>
+    </record>
+
+    <record id="vocab_protection_risk_level" model="spp.vocabulary">
+        <field name="name">Protection Risk Level</field>
+        <field name="namespace_uri">urn:openspp:vocab:protection-risk-level</field>
+        <field name="version">1.0</field>
+        <field name="description">Risk level of a protection concern, aligned with Primero's lookup-risk-level.</field>
+        <field name="is_system">True</field>
+        <field name="domain">social_assistance</field>
+    </record>
+
+    <record id="code_risk_high" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_risk_level" />
+        <field name="code">high</field>
+        <field name="display">High</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="code_risk_medium" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_risk_level" />
+        <field name="code">medium</field>
+        <field name="display">Medium</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="code_risk_low" model="spp.vocabulary.code">
+        <field name="vocabulary_id" ref="vocab_protection_risk_level" />
+        <field name="code">low</field>
+        <field name="display">Low</field>
+        <field name="sequence">30</field>
+    </record>
+</odoo>
