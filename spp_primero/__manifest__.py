@@ -16,6 +16,9 @@
     "external_dependencies": {"python": ["requests"]},
     "data": [
         "data/vocabulary_protection.xml",
+        "data/api_extension.xml",
+        "views/res_partner_views.xml",
+        "views/res_config_settings_views.xml",
     ],
     "installable": True,
     "application": False,
