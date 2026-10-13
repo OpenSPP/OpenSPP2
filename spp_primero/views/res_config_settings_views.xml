@@ -17,7 +17,10 @@
                             string="Webhook URL"
                             help="The webhook trigger URL of the OpenFn workflow that refers a child to Primero. It must be reachable from this server."
                         >
-                            <field name="primero_webhook_url" placeholder="https://lightning.example.org/i/..." />
+                            <field
+                                name="primero_webhook_url"
+                                placeholder="https://lightning.example.org/i/..."
+                            />
                         </setting>
                         <setting
                             string="Webhook API Key"

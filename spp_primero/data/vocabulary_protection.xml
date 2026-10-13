@@ -76,7 +76,9 @@
     <record id="code_concern_caafag" model="spp.vocabulary.code">
         <field name="vocabulary_id" ref="vocab_protection_concern" />
         <field name="code">caafag</field>
-        <field name="display">Child Associated with Armed Forces or Armed Groups (CAAFAG)</field>
+        <field
+            name="display"
+        >Child Associated with Armed Forces or Armed Groups (CAAFAG)</field>
         <field name="sequence">100</field>
     </record>
     <record id="code_concern_street_child" model="spp.vocabulary.code">
@@ -132,7 +134,9 @@
         <field name="name">Protection Risk Level</field>
         <field name="namespace_uri">urn:openspp:vocab:protection-risk-level</field>
         <field name="version">1.0</field>
-        <field name="description">Risk level of a protection concern, aligned with Primero's lookup-risk-level.</field>
+        <field
+            name="description"
+        >Risk level of a protection concern, aligned with Primero's lookup-risk-level.</field>
         <field name="is_system">True</field>
         <field name="domain">social_assistance</field>
     </record>
