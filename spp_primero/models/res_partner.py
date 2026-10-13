@@ -44,7 +44,7 @@ class ResPartner(models.Model):
     )
     protection_urgent = fields.Boolean(string="Urgent Protection Concern")
     protection_concern_date = fields.Date(string="Date Identified")
-    protection_notes = fields.Text(string="Notes")
+    protection_notes = fields.Text(string="Protection Notes")
     protection_consent_for_services = fields.Boolean(
         string="Consent for Services",
         help="The child or caregiver consented to receiving services.",
@@ -80,6 +80,10 @@ class ResPartner(models.Model):
             raise UserError(_("Only an individual registrant can be referred to Primero."))
         if not self.protection_concern_ids:
             raise UserError(_("Record at least one protection concern before referring the child to Primero."))
+        # The outcome is written to the registrant after the POST. Refuse now rather than
+        # send a referral OpenSPP would then roll back (e.g. "Restrict Registry Edits to
+        # Admin Only" in spp_starter_sp_mis withholds write from non-admins).
+        self.check_access("write")
 
         url, api_key = self._primero_webhook_config()
         reg_id = primary_registry_id(self)

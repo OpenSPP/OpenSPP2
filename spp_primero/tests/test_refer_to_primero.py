@@ -70,6 +70,29 @@ class TestReferToPrimero(PrimeroTestCase):
             self.household.with_user(self.officer).action_refer_to_primero()
         post.assert_not_called()
 
+    def test_refer_checks_write_access_before_posting(self):
+        """A user who may not write the registrant must be refused before the webhook fires,
+        otherwise OpenFn receives a referral that OpenSPP then rolls back."""
+        officer_write_denied = self._make_user(
+            "primero_officer_no_write",
+            ["spp_registry.group_registry_officer"],
+        )
+
+        # Take write away through the access check, as a deployment setting such as
+        # "Restrict Registry Edits to Admin Only" (spp_starter_sp_mis) would.
+        def deny_write(records, operation):
+            if operation == "write":
+                raise AccessError("write withheld")
+
+        with (
+            patch.object(type(self.child), "check_access", autospec=True, side_effect=deny_write),
+            patch(POST) as post,
+            self.assertRaises(AccessError),
+        ):
+            self.child.with_user(officer_write_denied).action_refer_to_primero()
+        post.assert_not_called()
+        self.assertEqual(self.child.primero_referral_state, "none")
+
     def test_refer_viewer_denied(self):
         with patch(POST) as post, self.assertRaises(AccessError):
             self.child.with_user(self.viewer).action_refer_to_primero()
