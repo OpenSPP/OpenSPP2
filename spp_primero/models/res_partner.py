@@ -27,10 +27,11 @@ RUN_REF_MAX_LENGTH = 128
 # Managers imply officers (spp_registry/security/groups.xml).
 REFERRER_GROUP = "spp_registry.group_registry_officer"
 
+# Lightning answers 401 to a missing key but 404 to a wrong one (it hides the trigger's existence).
 FAILURE_HINTS = {
     "HTTP 401": "check the API key under Settings > Primero Referral",
     "HTTP 403": "check the API key under Settings > Primero Referral",
-    "HTTP 404": "check the webhook URL under Settings > Primero Referral",
+    "HTTP 404": "check the webhook URL and the API key under Settings > Primero Referral",
     "ConnectionError": "OpenFn is unreachable from this server",
     "Timeout": "OpenFn did not answer in time",
 }
@@ -212,8 +213,7 @@ class ResPartner(models.Model):
         self.message_post(body=body, subtype_xmlid="mail.mt_note")
         return self._primero_notification(_("Referral failed"), body, "danger")
 
-    @staticmethod
-    def _primero_notification(title, message, notification_type):
+    def _primero_notification(self, title, message, notification_type):
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
@@ -223,5 +223,8 @@ class ResPartner(models.Model):
                 "type": notification_type,
                 # A failure stays on screen until dismissed; a success can fade.
                 "sticky": notification_type == "danger",
+                # The form does not reload a record after a button returns a client action,
+                # so refresh it in place (keeps the breadcrumbs) to show the new state and run id.
+                "next": {"type": "ir.actions.client", "tag": "soft_reload"},
             },
         }

@@ -176,6 +176,8 @@ class TestReferToPrimero(PrimeroTestCase):
         self.assertEqual(action["tag"], "display_notification")
         self.assertEqual(action["params"]["type"], "success")
         self.assertIs(action["params"]["sticky"], False)
+        # The notification chains an in-place reload so the form shows the new state.
+        self.assertEqual(action["params"]["next"], {"type": "ir.actions.client", "tag": "soft_reload"})
         self.assertTrue(self._referral_messages())
 
     def test_refer_each_call_has_a_new_referral_id(self):
@@ -246,6 +248,7 @@ class TestReferToPrimero(PrimeroTestCase):
         self.assertFalse(self.child.primero_run_ref)
         self.assertEqual(action["params"]["type"], "danger")
         self.assertIs(action["params"]["sticky"], True)
+        self.assertEqual(action["params"]["next"]["tag"], "soft_reload")
         self.assertIn("API key", action["params"]["message"])
         joined = "\n".join(logs.output)
         self.assertIn(str(self.child.id), joined)
@@ -255,6 +258,14 @@ class TestReferToPrimero(PrimeroTestCase):
         self.assertTrue(message)
         for secret in ("Sofia", "BC-1234", "unauthorized"):
             self.assertNotIn(secret, message.body)
+
+    def test_refer_wrong_key_404_hint_names_both_settings(self):
+        """Lightning hides a trigger from a wrong key with a 404, so the hint must not blame the URL alone."""
+        with patch(POST, return_value=_response(404)), self.assertLogs(LOGGER, level="WARNING"):
+            action = self.as_officer.action_refer_to_primero()
+        self.assertEqual(self.child.primero_referral_error, "HTTP 404")
+        self.assertIn("API key", action["params"]["message"])
+        self.assertIn("webhook URL", action["params"]["message"])
 
     def test_refer_redirect_is_a_failure(self):
         """A 307/308 would replay the body and the key elsewhere; it is refused, not followed."""
