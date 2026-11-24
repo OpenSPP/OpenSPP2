@@ -4,7 +4,9 @@ A plain value in the context, such as one sent by an RPC client, does not
 change what is audited.
 """
 
+import copy
 import json
+import pickle
 from unittest.mock import patch
 
 from odoo import Command
@@ -81,6 +83,11 @@ class TestContextMarker(AuditDisableCommon):
         self.assertNotEqual(AUDIT_DISABLE, "audit_disable")
         self.assertNotEqual("audit_disable", AUDIT_DISABLE)
         self.assertNotEqual({"audit_disable": "audit_disable"}, {"audit_disable": AUDIT_DISABLE})
+
+    def test_marker_survives_copy(self):
+        context = {"audit_disable": AUDIT_DISABLE}
+        self.assertIs(copy.deepcopy(context)["audit_disable"], AUDIT_DISABLE)
+        self.assertIs(pickle.loads(pickle.dumps(AUDIT_DISABLE)), AUDIT_DISABLE)
 
     def test_marker_serialises(self):
         self.assertEqual(json.dumps({"audit_disable": AUDIT_DISABLE}), '{"audit_disable": "audit_disable"}')
@@ -173,9 +180,15 @@ class TestNestedWritesAudited(AuditDisableCommon):
         def failing(records, vals):
             raise RuntimeError("write failed")
 
-        with patch.object(audit_write, "origin", failing), self.assertRaises(RuntimeError):
-            partner.write({"name": "Never Written"})
+        # Not assertRaises: it rolls back a savepoint, which clears the cursor's cache
+        raised = False
+        with patch.object(audit_write, "origin", failing):
+            try:
+                partner.write({"name": "Never Written"})
+            except RuntimeError:
+                raised = True
 
+        self.assertTrue(raised)
         self.assertFalse(_writes_in_progress(self.env))
         partner.write({"name": "Written After Failure"})
         self.assertEqual(len(self._logs(partner, "write")), 1)

@@ -35,6 +35,10 @@ class _ContextMarker(str):
 
     __hash__ = str.__hash__
 
+    def __reduce__(self):
+        # copy, deepcopy and pickle give back the module-level marker itself
+        return "AUDIT_DISABLE"
+
 
 # Trusted server-side flows pass this as the ``audit_disable`` context value
 # to skip audit logging: ``records.with_context(audit_disable=AUDIT_DISABLE)``.
@@ -53,6 +57,10 @@ def _writes_in_progress(env):
     nested inside an audited write is skipped for those records only: the
     enclosing write already logs their change, and writes to any other record
     are still audited.
+
+    Odoo clears the cursor's cache on commit, rollback and savepoint rollback.
+    If that happens during a write, a later nested write to the same records
+    is logged again: the guard fails towards more logging, never less.
     """
     return env.cr.cache.setdefault(_WRITE_IN_PROGRESS, set())
 
@@ -110,7 +118,9 @@ def audit_decorator(method):
             return audit_write.origin(self, vals)
         # Records already being audited by an enclosing audit_write are left to it
         in_progress = _writes_in_progress(self.env)
-        records = self.filtered(lambda record: (record._name, record.id) not in in_progress)
+        records = self
+        if in_progress:
+            records = self.filtered(lambda record: (record._name, record.id) not in in_progress)
         rules = self.get_audit_rules("write") if records else None
         if not rules:
             # Nothing left to audit, or no matching rule: skip the snapshot
