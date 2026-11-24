@@ -516,6 +516,15 @@ domain-specific actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix: mark the server-internal audit methods <tt class="docutils literal">&#64;api.private</tt> — backend
+<tt class="docutils literal">write_entry</tt> / <tt class="docutils literal">is_enabled</tt> and the rule’s <tt class="docutils literal">log</tt>,
+<tt class="docutils literal">log_lifecycle_action</tt>, <tt class="docutils literal">get_audit_rules</tt>; server-side callers are
+unaffected</li>
+</ul>
+</div>
+<div class="section" id="section-2">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>feat: <tt class="docutils literal">audit_disable</tt> context key lets trusted machine flows (e.g.
@@ -529,7 +538,7 @@ zero matching rules, evaluating every non-stored compute (with
 per-record searches) on every create/write of an audited model</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-3">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: use &#64;api.model_create_multi for audit_create to support Odoo 19
@@ -542,7 +551,7 @@ all records, not just the first</li>
 <tt class="docutils literal">parent_data_html</tt> fields to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-4">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>
