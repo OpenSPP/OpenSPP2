@@ -5,18 +5,21 @@ change what is audited.
 """
 
 import json
+from unittest.mock import patch
 
+from odoo import Command
 from odoo.service.model import call_kw
 from odoo.tests.common import new_test_user
 
 from ..tools import AUDIT_DISABLE
+from ..tools.decorator import _writes_in_progress
 from .test_audit_disable import AuditDisableCommon
 
 PLAIN_DISABLE_FLAGS = [
     {"audit_disable": True},
     {"audit_disable": "audit_disable"},
 ]
-# audit_in_progress is only read on write
+# audit_in_progress is not read by the decorator; a client may still send it
 PLAIN_FLAGS = PLAIN_DISABLE_FLAGS + [
     {"audit_in_progress": True},
     {"audit_in_progress": "audit_in_progress"},
@@ -96,4 +99,83 @@ class TestContextMarker(AuditDisableCommon):
         partner.with_context(audit_disable="audit_disable").write({"name": "Text Write"})
         self.assertEqual(len(self._logs(partner, "write")), 1)
         partner.with_context(audit_disable=AUDIT_DISABLE).write({"name": "Marker Write"})
+        self.assertEqual(len(self._logs(partner, "write")), 1)
+
+
+class TestNestedWritesAudited(AuditDisableCommon):
+    """A write made inside an audited write is audited when it touches other records."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = new_test_user(
+            cls.env,
+            login="audit_nested_write_user",
+            groups="base.group_user,base.group_partner_manager",
+        )
+
+    def test_child_updated_through_parent_is_logged(self):
+        parent = self.env["res.partner"].create({"name": "Nested Parent", "is_company": True})
+        child = self.env["res.partner"].create({"name": "Nested Child", "parent_id": parent.id})
+        call_kw(
+            self.env["res.partner"].with_user(self.user),
+            "write",
+            [[parent.id], {"child_ids": [Command.update(child.id, {"name": "Nested Child Changed"})]}],
+            {},
+        )
+        self.assertEqual(child.name, "Nested Child Changed")
+        self.assertEqual(len(self._logs(child, "write")), 1)
+
+    def test_parent_and_child_each_logged_once(self):
+        parent = self.env["res.partner"].create({"name": "Both Parent", "is_company": True})
+        child = self.env["res.partner"].create({"name": "Both Child", "parent_id": parent.id})
+        parent.write(
+            {"name": "Both Parent Changed", "child_ids": [Command.update(child.id, {"name": "Both Child Changed"})]}
+        )
+        self.assertEqual(len(self._logs(parent, "write")), 1)
+        self.assertEqual(len(self._logs(child, "write")), 1)
+
+    def test_write_in_progress_for_another_record_does_not_skip(self):
+        covered = self.env["res.partner"].create({"name": "Covered"})
+        other = self.env["res.partner"].create({"name": "Other"})
+        in_progress = _writes_in_progress(self.env)
+        in_progress.add(("res.partner", covered.id))
+        self.addCleanup(in_progress.clear)
+        (covered | other).write({"name": "Written Together"})
+        self.assertFalse(self._logs(covered, "write"))
+        self.assertEqual(len(self._logs(other, "write")), 1)
+
+    def test_nested_write_to_same_record_is_logged_once(self):
+        """The original write runs with its records marked, so a nested write to them is not logged again."""
+        partner = self.env["res.partner"].create({"name": "Same Record"})
+        audit_write = type(partner).write
+        real_origin = audit_write.origin
+        seen = []
+
+        def spy(records, vals):
+            seen.append(set(_writes_in_progress(records.env)))
+            if len(seen) == 1:
+                # A write to the same record, on an audited field, from inside the original write
+                records.write({"name": "Same Record Nested"})
+            return real_origin(records, vals)
+
+        with patch.object(audit_write, "origin", spy):
+            partner.write({"name": "Same Record Changed"})
+
+        self.assertIn(("res.partner", partner.id), seen[0])
+        self.assertEqual(len(self._logs(partner, "write")), 1)
+        self.assertFalse(_writes_in_progress(self.env))
+
+    def test_failed_write_leaves_nothing_in_progress(self):
+        partner = self.env["res.partner"].create({"name": "Failing Write"})
+        audit_write = type(partner).write
+
+        def failing(records, vals):
+            raise RuntimeError("write failed")
+
+        with patch.object(audit_write, "origin", failing), self.assertRaises(RuntimeError):
+            partner.write({"name": "Never Written"})
+
+        self.assertFalse(_writes_in_progress(self.env))
+        partner.write({"name": "Written After Failure"})
         self.assertEqual(len(self._logs(partner, "write")), 1)

@@ -40,8 +40,21 @@ class _ContextMarker(str):
 # to skip audit logging: ``records.with_context(audit_disable=AUDIT_DISABLE)``.
 AUDIT_DISABLE = _ContextMarker("audit_disable")
 
-# Set by audit_write itself as the ``audit_in_progress`` context value.
-_AUDIT_IN_PROGRESS = _ContextMarker("audit_in_progress")
+
+# Key in the cursor's cache for the records whose write is being audited.
+_WRITE_IN_PROGRESS = "spp_audit_write_in_progress"
+
+
+def _writes_in_progress(env):
+    """Return the ``(model name, record id)`` pairs whose write is being audited.
+
+    The set lives on the cursor, not in the context, so a caller cannot supply
+    it and it is shared by every environment of the transaction. A write
+    nested inside an audited write is skipped for those records only: the
+    enclosing write already logs their change, and writes to any other record
+    are still audited.
+    """
+    return env.cr.cache.setdefault(_WRITE_IN_PROGRESS, set())
 
 
 def _stringify_markup(values):
@@ -95,33 +108,33 @@ def audit_decorator(method):
         # audit_disable: trusted machine flows opt out entirely (see audit_create)
         if self.env.context.get("audit_disable") is AUDIT_DISABLE:
             return audit_write.origin(self, vals)
-        # Prevent recursive audit logging from computed field updates
-        if self.env.context.get("audit_in_progress") is _AUDIT_IN_PROGRESS:
+        # Records already being audited by an enclosing audit_write are left to it
+        in_progress = _writes_in_progress(self.env)
+        records = self.filtered(lambda record: (record._name, record.id) not in in_progress)
+        rules = self.get_audit_rules("write") if records else None
+        if not rules:
+            # Nothing left to audit, or no matching rule: skip the snapshot
+            # reads, which evaluate every non-stored compute on the records.
             return audit_write.origin(self, vals)
 
-        rules = self.get_audit_rules("write")
-        old_values_copy = None
-        if rules:
-            # Use sudo() to take a full snapshot of record values for auditing,
-            # regardless of user field-level access; audit rules control exposure.
-            old_values = (
-                self.sudo()  # nosemgrep: odoo-sudo-without-context
-                .with_context(allowed_company_ids=[])
-                .read(load="_classic_write")
-            )
-            old_values_copy = copy.deepcopy(old_values)
+        # Use sudo() to take a full snapshot of record values for auditing,
+        # regardless of user field-level access; audit rules control exposure.
+        old_values = (
+            records.sudo()  # nosemgrep: odoo-sudo-without-context
+            .with_context(allowed_company_ids=[])
+            .read(load="_classic_write")
+        )
+        old_values_copy = copy.deepcopy(old_values)
 
-        # Set flag to prevent recursive auditing
-        result = audit_write.origin(self.with_context(audit_in_progress=_AUDIT_IN_PROGRESS), vals)
-
-        if not rules:
-            # No matching rule: skip the post-write snapshot read too — it
-            # previously ran unconditionally, evaluating every non-stored
-            # compute on every write of an audited model.
-            return result
+        auditing = {(records._name, record_id) for record_id in records.ids}
+        in_progress |= auditing
+        try:
+            result = audit_write.origin(self, vals)
+        finally:
+            in_progress -= auditing
 
         new_values = (
-            self.sudo()  # nosemgrep: odoo-sudo-without-context
+            records.sudo()  # nosemgrep: odoo-sudo-without-context
             .with_context(allowed_company_ids=[])
             .read(load="_classic_write")
         )
