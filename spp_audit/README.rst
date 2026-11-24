@@ -145,6 +145,14 @@ External Python: ``requests`` (HTTP backend)
 Changelog
 =========
 
+19.0.2.0.3
+~~~~~~~~~~
+
+- fix: mark the server-internal audit methods ``@api.private`` — backend
+  ``write_entry`` / ``is_enabled`` and the rule's ``log``,
+  ``log_lifecycle_action``, ``get_audit_rules``; server-side callers are
+  unaffected
+
 19.0.2.0.2
 ~~~~~~~~~~
 
