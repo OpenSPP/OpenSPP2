@@ -118,12 +118,16 @@ class SppAuditBackend(models.AbstractModel):
 
     Subclasses must implement _write_entry() to handle the actual
     storage of audit entries.
+
+    Backend methods are private: they are for trusted server code only and
+    are not RPC-dispatchable.
     """
 
     _name = "spp.audit.backend"
     _description = "Abstract Audit Backend"
 
     @api.model
+    @api.private
     def write_entry(self, entry, env=None):
         """Write an audit entry to this backend.
 
@@ -144,6 +148,7 @@ class SppAuditBackend(models.AbstractModel):
         raise NotImplementedError("Subclasses must implement write_entry()")
 
     @api.model
+    @api.private
     def is_enabled(self, env=None):
         """Check if this backend is enabled."""
         raise NotImplementedError("Subclasses must implement is_enabled()")
@@ -157,10 +162,12 @@ class SppAuditBackendDb(models.AbstractModel):
     _description = "Database Audit Backend"
 
     @api.model
+    @api.private
     def is_enabled(self, env=None):
         return AuditConfig.get_bool("backend_db", env=env)
 
     @api.model
+    @api.private
     def write_entry(self, entry, env=None):
         """Write audit entry to database.
 
@@ -188,6 +195,7 @@ class SppAuditBackendFile(models.AbstractModel):
     _current_date = None
 
     @api.model
+    @api.private
     def is_enabled(self, env=None):
         return AuditConfig.get_bool("backend_file", env=env)
 
@@ -237,6 +245,7 @@ class SppAuditBackendFile(models.AbstractModel):
             return cls._file_handle
 
     @api.model
+    @api.private
     def write_entry(self, entry, env=None):
         """Write audit entry to JSONL file."""
         try:
@@ -265,6 +274,7 @@ class SppAuditBackendSyslog(models.AbstractModel):
     _syslog_initialized = False
 
     @api.model
+    @api.private
     def is_enabled(self, env=None):
         return AuditConfig.get_bool("backend_syslog", env=env)
 
@@ -293,6 +303,7 @@ class SppAuditBackendSyslog(models.AbstractModel):
         cls._syslog_initialized = True
 
     @api.model
+    @api.private
     def write_entry(self, entry, env=None):
         """Write audit entry to syslog."""
         try:
@@ -317,6 +328,7 @@ class SppAuditBackendHttp(models.AbstractModel):
     _description = "HTTP Webhook Audit Backend"
 
     @api.model
+    @api.private
     def is_enabled(self, env=None):
         if not AuditConfig.get_bool("backend_http", env=env):
             return False
@@ -325,6 +337,7 @@ class SppAuditBackendHttp(models.AbstractModel):
         return bool(endpoint)
 
     @api.model
+    @api.private
     def write_entry(self, entry, env=None):
         """Write audit entry to HTTP endpoint."""
         endpoint = AuditConfig.get("http_endpoint", env=env)

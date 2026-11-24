@@ -225,9 +225,12 @@ class SppAuditRule(models.Model):
         return
 
     @api.model
+    @api.private
     def get_audit_rules(self, method):
         """
         The function returns audit rules based on the specified method.
+
+        Private: not RPC-dispatchable, on this model or on the audited models it is attached to.
 
         :param method: The "method" parameter is a string that specifies the type of operation being
         performed. It can have one of the following values: "create", "write", or "unlink"
@@ -526,9 +529,12 @@ class SppAuditRule(models.Model):
             "parent_res_ids_str": ",".join(parent_res_ids),
         }
 
+    @api.private
     def log(self, method, old_values=None, new_values=None):
         """
         Log changes made to a model's records by dispatching to all enabled backends.
+
+        Private: for server-side callers only, not RPC-dispatchable.
 
         :param method: The operation type: "create", "write", "unlink", or lifecycle action
         :param old_values: Dict of previous field values
@@ -572,11 +578,14 @@ class SppAuditRule(models.Model):
                 )
 
     @api.model
+    @api.private
     def log_lifecycle_action(self, model_name, record_id, action, old_values=None, new_values=None):
         """Log a lifecycle action for a record.
 
         This is called explicitly from models (not via decorator).
         Used for activate/deactivate/approve/reject/set_draft/download/preview/export actions.
+
+        Private: for server-side callers only, not RPC-dispatchable.
 
         :param model_name: Technical model name (e.g., 'spp.studio.field')
         :param record_id: ID of the record being logged
