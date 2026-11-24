@@ -516,6 +516,32 @@ domain-specific actions</li>
 </div>
 </div>
 <div class="section" id="section-1">
+<h1>19.0.2.0.4</h1>
+<ul class="simple">
+<li>fix: <tt class="docutils literal">audit_disable</tt> is honoured only when server-side code sets it
+to the <tt class="docutils literal">AUDIT_DISABLE</tt> marker
+(<tt class="docutils literal">from odoo.addons.spp_audit.tools import AUDIT_DISABLE</tt>;
+<tt class="docutils literal">records.with_context(audit_disable=AUDIT_DISABLE)</tt>). A plain value
+such as <tt class="docutils literal">True</tt> no longer skips audit logging, so flows that relied
+on it are audited again until they pass the marker.</li>
+<li>fix: a write made inside an audited write is now audited when it
+touches other records (for example a child record updated through its
+parent’s one2many field, or values synced to related records). Only
+the records already being audited by the enclosing write are skipped,
+so the same change is not logged twice. Expect more audit log rows for
+such writes. The <tt class="docutils literal">audit_in_progress</tt> context key is no longer read.</li>
+</ul>
+</div>
+<div class="section" id="section-2">
+<h1>19.0.2.0.3</h1>
+<ul class="simple">
+<li>fix: mark the server-internal audit methods <tt class="docutils literal">&#64;api.private</tt> — backend
+<tt class="docutils literal">write_entry</tt> / <tt class="docutils literal">is_enabled</tt> and the rule’s <tt class="docutils literal">log</tt>,
+<tt class="docutils literal">log_lifecycle_action</tt>, <tt class="docutils literal">get_audit_rules</tt>; server-side callers are
+unaffected</li>
+</ul>
+</div>
+<div class="section" id="section-3">
 <h1>19.0.2.0.2</h1>
 <ul class="simple">
 <li>feat: <tt class="docutils literal">audit_disable</tt> context key lets trusted machine flows (e.g.
@@ -529,7 +555,7 @@ zero matching rules, evaluating every non-stored compute (with
 per-record searches) on every create/write of an audited model</li>
 </ul>
 </div>
-<div class="section" id="section-2">
+<div class="section" id="section-4">
 <h1>19.0.2.0.1</h1>
 <ul class="simple">
 <li>fix: use &#64;api.model_create_multi for audit_create to support Odoo 19
@@ -542,7 +568,7 @@ all records, not just the first</li>
 <tt class="docutils literal">parent_data_html</tt> fields to prevent stored XSS (#50)</li>
 </ul>
 </div>
-<div class="section" id="section-3">
+<div class="section" id="section-5">
 <h1>19.0.2.0.0</h1>
 <ul class="simple">
 <li>Initial migration to OpenSPP2</li>

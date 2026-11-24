@@ -1,5 +1,7 @@
 from odoo.tests.common import TransactionCase
 
+from ..tools.decorator import _writes_in_progress
+
 
 class AuditRuleTest(TransactionCase):
     """Tests for spp.audit.rule core functionality."""
@@ -239,7 +241,7 @@ class TestAuditWrite(TransactionCase):
             self.assertIn(partner.id, logged_ids)
 
     def test_write_no_recursive_audit(self):
-        """Write with audit_in_progress context should not create duplicate logs."""
+        """A write nested in an audited write of the same record should not create duplicate logs."""
         partner = self.env["res.partner"].create({"name": "Recurse Test"})
 
         # Count logs before
@@ -251,8 +253,11 @@ class TestAuditWrite(TransactionCase):
             ]
         )
 
-        # Write with audit_in_progress flag — should skip audit logging
-        partner.with_context(audit_in_progress=True).write({"name": "Skipped"})
+        # Write while the record's write is already being audited — should skip audit logging
+        in_progress = _writes_in_progress(self.env)
+        in_progress.add(("res.partner", partner.id))
+        self.addCleanup(in_progress.clear)
+        partner.write({"name": "Skipped"})
 
         log_count_after = self.env["spp.audit.log"].search_count(
             [
@@ -264,7 +269,7 @@ class TestAuditWrite(TransactionCase):
         self.assertEqual(
             log_count_before,
             log_count_after,
-            "audit_in_progress context should prevent audit logging",
+            "a write already being audited should not be logged again",
         )
 
 

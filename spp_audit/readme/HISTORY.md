@@ -1,3 +1,12 @@
+### 19.0.2.0.4
+
+- fix: `audit_disable` is honoured only when server-side code sets it to the `AUDIT_DISABLE` marker (`from odoo.addons.spp_audit.tools import AUDIT_DISABLE`; `records.with_context(audit_disable=AUDIT_DISABLE)`). A plain value such as `True` no longer skips audit logging, so flows that relied on it are audited again until they pass the marker.
+- fix: a write made inside an audited write is now audited when it touches other records (for example a child record updated through its parent's one2many field, or values synced to related records). Only the records already being audited by the enclosing write are skipped, so the same change is not logged twice. Expect more audit log rows for such writes. The `audit_in_progress` context key is no longer read.
+
+### 19.0.2.0.3
+
+- fix: mark the server-internal audit methods `@api.private` — backend `write_entry` / `is_enabled` and the rule's `log`, `log_lifecycle_action`, `get_audit_rules`; server-side callers are unaffected
+
 ### 19.0.2.0.2
 
 - feat: `audit_disable` context key lets trusted machine flows (e.g. cross-instance replication of records already audited at their source) bypass audit logging and its full-record snapshot reads in create/write/unlink
