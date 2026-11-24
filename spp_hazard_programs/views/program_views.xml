@@ -28,6 +28,7 @@
                     class="oe_stat_button"
                     icon="fa-users"
                     invisible="affected_registrant_count == 0"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                 >
                     <field
                         name="affected_registrant_count"

@@ -15,6 +15,8 @@ from odoo import http, tools
 from odoo.exceptions import UserError
 from odoo.http import request
 
+from ..models.data_source import DEFAULT_COMPLIANCE_BEARER_TOKEN
+
 _logger = logging.getLogger(__name__)
 
 COMPLIANCE_ENABLED_PARAM = "dci.client_compliance.enabled"
@@ -70,6 +72,18 @@ class DCIClientTriggerController(http.Controller):
                 f"Set the system parameter {BEARER_TOKEN_PARAM!r} before "
                 f"using the trigger endpoints."
             )
+        # Refuse the well-known default token: it is public, so accepting it
+        # would recreate the exact exposure the 19.0.1.0.2 migration purges -
+        # a data source authenticating outbound requests with a shared secret.
+        # Plain equality against a PUBLIC sentinel - not a secret comparison, so
+        # timing analysis leaks nothing.
+        # nosemgrep: odoo-timing-attack-password
+        if token == DEFAULT_COMPLIANCE_BEARER_TOKEN:
+            raise UserError(
+                f"The DCI client compliance bearer token is set to the well-known "
+                f"default value, which is not allowed. Set {BEARER_TOKEN_PARAM!r} to a "
+                f"private token before using the trigger endpoints."
+            )
         return token
 
     def _disabled_response(self):
@@ -95,16 +109,24 @@ class DCIClientTriggerController(http.Controller):
         # nosemgrep: odoo-sudo-without-context
         DataSource = request.env["spp.dci.data.source"].sudo()
 
+        # Exclude any record still holding the well-known default token directly
+        # in the domain. Upgraded databases may retain such a record (see the
+        # 19.0.1.0.2 migration); serving it would re-expose the shared secret
+        # over the ``auth='none'`` routes. Filtering in the domain rather than
+        # post-search means a legitimately re-keyed record is still found even
+        # when a stale record sorts ahead of it under limit=1.
+        not_default = ("bearer_token", "!=", DEFAULT_COMPLIANCE_BEARER_TOKEN)
+
         # First try to find one marked for compliance testing
         test_ds = DataSource.search(
-            [("is_compliance_test", "=", True)],
+            [("is_compliance_test", "=", True), not_default],
             limit=1,
         )
 
         if not test_ds:
             # Fall back to one named "DCI Compliance Test"
             test_ds = DataSource.search(
-                [("name", "=", "DCI Compliance Test")],
+                [("name", "=", "DCI Compliance Test"), not_default],
                 limit=1,
             )
 

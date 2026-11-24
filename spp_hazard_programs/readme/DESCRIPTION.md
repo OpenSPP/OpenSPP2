@@ -39,7 +39,7 @@ No new models or ACL entries. Fields added to existing models inherit access fro
 
 ### Extension Points
 
-- Override `get_emergency_eligible_registrants()` to customize eligibility logic beyond damage levels
+- Override `_get_emergency_eligible_registrants()` to customize eligibility logic beyond damage levels
 - Override `_get_damage_level_domain()` to add custom damage filtering rules
 - Inherit `spp.program` to add fields used in emergency calculations
 - Use `is_emergency_program` and `is_emergency_mode` flags in downstream program logic

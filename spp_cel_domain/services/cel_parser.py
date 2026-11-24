@@ -227,6 +227,7 @@ PYTHON_BUILTINS = {
 # ADR-008: Added 'r' as the standard prefix for current record access
 CEL_CONTEXT_IDENTIFIERS = {
     "m",
+    "me",
     "e",
     "r",
     "members",

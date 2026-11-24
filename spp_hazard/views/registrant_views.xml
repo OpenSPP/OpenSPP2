@@ -16,6 +16,7 @@
                     class="oe_stat_button"
                     icon="fa-bolt"
                     invisible="hazard_impact_count == 0"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                 >
                     <field
                         name="hazard_impact_count"
@@ -30,6 +31,7 @@
                     string="Emergency Response"
                     name="emergency_response"
                     invisible="not is_registrant"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                 >
                     <field name="has_active_impact" invisible="1" />
                     <div
@@ -103,11 +105,17 @@
         <field name="priority">50</field>
         <field name="arch" type="xml">
             <xpath expr="//list" position="inside">
-                <field name="hazard_impact_count" string="Impacts" optional="hide" />
+                <field
+                    name="hazard_impact_count"
+                    string="Impacts"
+                    optional="hide"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
+                />
                 <field
                     name="has_active_impact"
                     string="Active Impact"
                     optional="hide"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                 />
             </xpath>
         </field>
@@ -121,16 +129,20 @@
         <field name="priority">50</field>
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
-                <separator />
+                <separator
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
+                />
                 <filter
                     name="has_active_impact"
                     string="Has Active Impact"
                     domain="[('has_active_impact', '=', True)]"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                 />
                 <filter
                     name="has_impact"
                     string="Has Any Impact"
                     domain="[('hazard_impact_count', '>', 0)]"
+                    groups="spp_hazard.group_hazard_read,spp_registry.group_registry_viewer,spp_security.group_spp_admin"
                 />
             </xpath>
         </field>

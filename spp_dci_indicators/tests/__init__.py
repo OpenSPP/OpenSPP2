@@ -10,3 +10,4 @@ from . import test_dci_cel_end_to_end
 from . import test_dci_cel_params
 from . import test_dci_cel_methods
 from . import test_dci_cel_fetcher_errors
+from . import test_dci_cel_validation

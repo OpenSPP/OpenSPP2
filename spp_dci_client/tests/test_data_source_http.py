@@ -56,7 +56,7 @@ class TestDataSourceOAuth(TransactionCase):
             }
         )
         with self.assertRaises(UserError):
-            ds.get_oauth2_token()
+            ds._get_oauth2_token()
 
     def test_get_token_uses_valid_cache(self):
         ds = self._oauth_ds()
@@ -67,7 +67,7 @@ class TestDataSourceOAuth(TransactionCase):
             }
         )
         # No HTTP mock needed; cached token returned without a request.
-        self.assertEqual(ds.get_oauth2_token(), "cached-tok")
+        self.assertEqual(ds._get_oauth2_token(), "cached-tok")
 
     def test_get_token_fetches_new_via_body(self):
         ds = self._oauth_ds()
@@ -75,7 +75,7 @@ class TestDataSourceOAuth(TransactionCase):
         resp.raise_for_status = MagicMock()
         resp.json.return_value = {"access_token": "fresh-tok", "expires_in": 1800}
         with patch(HTTPX_CLIENT, return_value=_client_cm(resp)):
-            token = ds.get_oauth2_token()
+            token = ds._get_oauth2_token()
         self.assertEqual(token, "fresh-tok")
         self.assertEqual(ds.sudo()._oauth2_access_token, "fresh-tok")
 
@@ -86,7 +86,7 @@ class TestDataSourceOAuth(TransactionCase):
         resp.json.return_value = {"access_token": "q-tok"}
         cm = _client_cm(resp)
         with patch(HTTPX_CLIENT, return_value=cm):
-            self.assertEqual(ds.get_oauth2_token(), "q-tok")
+            self.assertEqual(ds._get_oauth2_token(), "q-tok")
         # query mode posts with params=, not data=
         client = cm.__enter__.return_value
         _, kwargs = client.post.call_args
@@ -99,7 +99,7 @@ class TestDataSourceOAuth(TransactionCase):
         resp.json.return_value = {"no_token": "here"}
         with patch(HTTPX_CLIENT, return_value=_client_cm(resp)):
             with self.assertRaises(UserError):
-                ds.get_oauth2_token()
+                ds._get_oauth2_token()
 
     def test_get_token_http_status_error(self):
         ds = self._oauth_ds()
@@ -108,7 +108,7 @@ class TestDataSourceOAuth(TransactionCase):
         resp.raise_for_status.side_effect = httpx.HTTPStatusError("401", request=MagicMock(), response=err_resp)
         with patch(HTTPX_CLIENT, return_value=_client_cm(resp)):
             with self.assertRaises(UserError) as ctx:
-                ds.get_oauth2_token()
+                ds._get_oauth2_token()
         self.assertIn("Authentication failed", str(ctx.exception))
 
     def test_get_token_request_error_timeout(self):
@@ -118,15 +118,15 @@ class TestDataSourceOAuth(TransactionCase):
         cm.__exit__.return_value = False
         with patch(HTTPX_CLIENT, return_value=cm):
             with self.assertRaises(UserError) as ctx:
-                ds.get_oauth2_token()
+                ds._get_oauth2_token()
         self.assertIn("timed out", str(ctx.exception).lower())
 
     # --- get_headers ---------------------------------------------------------
 
     def test_get_headers_oauth2(self):
         ds = self._oauth_ds()
-        with patch.object(type(ds), "get_oauth2_token", return_value="abc"):
-            headers = ds.get_headers()
+        with patch.object(type(ds), "_get_oauth2_token", return_value="abc"):
+            headers = ds._get_headers()
         self.assertEqual(headers["Authorization"], "Bearer abc")
 
     def test_get_headers_bearer(self):
@@ -140,7 +140,7 @@ class TestDataSourceOAuth(TransactionCase):
                 "bearer_token": "btok",
             }
         )
-        self.assertEqual(ds.get_headers()["Authorization"], "Bearer btok")
+        self.assertEqual(ds._get_headers()["Authorization"], "Bearer btok")
 
     # --- test_connection -----------------------------------------------------
 
