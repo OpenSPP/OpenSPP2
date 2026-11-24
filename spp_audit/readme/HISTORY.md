@@ -1,3 +1,7 @@
+### 19.0.2.0.4
+
+- fix: `audit_disable` is honoured only when server-side code sets it to the `AUDIT_DISABLE` marker (`from odoo.addons.spp_audit.tools import AUDIT_DISABLE`; `records.with_context(audit_disable=AUDIT_DISABLE)`). A plain value such as `True` no longer skips audit logging, so flows that relied on it are audited again until they pass the marker. `audit_in_progress` is likewise recognised only when set by the audit decorator itself
+
 ### 19.0.2.0.3
 
 - fix: mark the server-internal audit methods `@api.private` — backend `write_entry` / `is_enabled` and the rule's `log`, `log_lifecycle_action`, `get_audit_rules`; server-side callers are unaffected

@@ -3,6 +3,8 @@ from unittest.mock import patch
 from odoo import Command
 from odoo.tests.common import TransactionCase
 
+from ..tools import AUDIT_DISABLE
+
 
 class AuditDisableCommon(TransactionCase):
     """Shared fixture: a res.partner audit rule with all methods logged."""
@@ -57,7 +59,9 @@ class TestAuditDisableContext(AuditDisableCommon):
     def test_create_bypassed(self):
         patcher, reads = self._classic_write_read_spy()
         with patcher:
-            partner = self.env["res.partner"].with_context(audit_disable=True).create({"name": "Disable Create"})
+            partner = (
+                self.env["res.partner"].with_context(audit_disable=AUDIT_DISABLE).create({"name": "Disable Create"})
+            )
         self.assertTrue(partner.exists())
         self.assertFalse(self._logs(partner, "create"))
         self.assertFalse(reads, "audit_disable must skip the full-record snapshot read on create")
@@ -66,7 +70,7 @@ class TestAuditDisableContext(AuditDisableCommon):
         partner = self.env["res.partner"].create({"name": "Disable Write"})
         patcher, reads = self._classic_write_read_spy()
         with patcher:
-            partner.with_context(audit_disable=True).write({"name": "Disable Write Changed"})
+            partner.with_context(audit_disable=AUDIT_DISABLE).write({"name": "Disable Write Changed"})
         self.assertEqual(partner.name, "Disable Write Changed")
         self.assertFalse(self._logs(partner, "write"))
         self.assertFalse(reads, "audit_disable must skip the full-record snapshot reads on write")
@@ -76,7 +80,7 @@ class TestAuditDisableContext(AuditDisableCommon):
         partner_id = partner.id
         patcher, reads = self._classic_write_read_spy()
         with patcher:
-            partner.with_context(audit_disable=True).unlink()
+            partner.with_context(audit_disable=AUDIT_DISABLE).unlink()
         self.assertFalse(partner.exists())
         self.assertFalse(
             self._logs(self.env["res.partner"].browse(partner_id), "unlink"),

@@ -1,5 +1,7 @@
 from odoo.tests.common import TransactionCase
 
+from ..tools.decorator import _AUDIT_IN_PROGRESS
+
 
 class AuditRuleTest(TransactionCase):
     """Tests for spp.audit.rule core functionality."""
@@ -252,7 +254,7 @@ class TestAuditWrite(TransactionCase):
         )
 
         # Write with audit_in_progress flag — should skip audit logging
-        partner.with_context(audit_in_progress=True).write({"name": "Skipped"})
+        partner.with_context(audit_in_progress=_AUDIT_IN_PROGRESS).write({"name": "Skipped"})
 
         log_count_after = self.env["spp.audit.log"].search_count(
             [
